@@ -11,7 +11,7 @@ import {
 
   import { CborHex, MultiSigValidators } from "../types.js";
   
-  export const getOfferValidators = (
+  export const getSignValidators = (
     lucid: LucidEvolution,
     scripts: { multisig: CborHex }
   ): MultiSigValidators => {

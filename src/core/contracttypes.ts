@@ -13,16 +13,17 @@ export const AssetClassSchema = Data.Object({
 export type AssetClass = Data.Static<typeof AssetClassSchema>;
 export const AssetClass = AssetClassSchema as unknown as AssetClass;
 
+//
 //type PubKeyHash =
 //  Hash<Blake2b_224, VerificationKey>
-
-export const PubKeyHashSchema = Data.Object({
+// this is not needed as pubkeyhash is just verification key and can be generated using wallet generation in lucid
+/*export const PubKeyHashSchema = Data.Object({
     hash : Data.Bytes({ minLength: 28, maxLength: 28 }),
     verificationkey : Data.Bytes()
 });
 
 export type PubKey = Data.Static<typeof PubKeyHashSchema>;
-export const PubKey = PubKeyHashSchema as unknown as PubKey;
+export const PubKey = PubKeyHashSchema as unknown as PubKey;*/
 
 //pub type MultisigDatum {
 //  signers: List<PubKeyHash>,

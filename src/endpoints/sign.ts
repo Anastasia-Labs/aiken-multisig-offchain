@@ -10,13 +10,13 @@ import {
 import { Result, SignConfig } from "../core/types.js";
 
 import { MultisigDatum } from "../core/contracttypes.js";
-import { getOfferValidators } from "../core/utils/misc.js";
+import { getSignValidators } from "../core/utils/misc.js";
 
 export const sign = async (
   lucid: LucidEvolution,
   config: SignConfig
 ): Promise<Result<TxSignBuilder>> => {
-  const validators = getOfferValidators(lucid, config.scripts);
+  const validators = getSignValidators(lucid, config.scripts);
 
   const pubKey1 = "..."; // Public key hash as a hex string
   const pubKey2 = "...";
@@ -25,7 +25,7 @@ export const sign = async (
   //const toBuyValue: Value = fromAssets(config.toBuy);
   //const ownAddress: Address = await lucid.wallet().address();
   const multisigDatum: MultisigDatum = {
-    signers: [pubKey1, pubKey2, pubKey3].map(key => fromText(key)) , // list of pub key hashes
+    signers: [pubKey1, pubKey2, pubKey3], // list of pub key hashes
     threshold: 3n,
     funds:  {
       policyId: "",  // Empty string for ADA
