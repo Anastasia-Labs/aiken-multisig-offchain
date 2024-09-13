@@ -1,5 +1,5 @@
 import { validatorToAddress, } from "@lucid-evolution/lucid";
-export const getOfferValidators = (lucid, scripts) => {
+export const getSignValidators = (lucid, scripts) => {
     const multisigVal = {
         type: "PlutusV2",
         script: scripts.multisig,

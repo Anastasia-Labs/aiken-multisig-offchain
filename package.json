@@ -4,7 +4,7 @@
   "description": "Off-Chain SDK for Aiken Upgradable Multisig",
   "main": "index.js",
   "scripts": {
-    "test": "\"echo \\\"No test specified\\\" \"",
+    "test": "export NODE_ENV='emulator' && vitest run", 
     "build": "tsc"
   },
   "author": "",

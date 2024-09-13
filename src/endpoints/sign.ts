@@ -12,26 +12,19 @@ import { Result, SignConfig } from "../core/types.js";
 import { MultisigDatum } from "../core/contracttypes.js";
 import { getSignValidators } from "../core/utils/misc.js";
 
+// creates a transaction which transfers ADA to the script
 export const sign = async (
   lucid: LucidEvolution,
-  config: SignConfig
+  config: SignConfig // it doesnt need to be all the fields in datum may be outref 
 ): Promise<Result<TxSignBuilder>> => {
   const validators = getSignValidators(lucid, config.scripts);
 
-  const pubKey1 = "..."; // Public key hash as a hex string
-  const pubKey2 = "...";
-  const pubKey3 = "...";
-
-  //const toBuyValue: Value = fromAssets(config.toBuy);
-  //const ownAddress: Address = await lucid.wallet().address();
   const multisigDatum: MultisigDatum = {
-    signers: [pubKey1, pubKey2, pubKey3], // list of pub key hashes
-    threshold: 3n,
-    funds:  {
-      policyId: "",  // Empty string for ADA
-      assetName: fromText(""),  // Empty string for ADA
-    },
-    spendingLimit:10_000_000n,
+
+    signers: config.signers, // list of pub key hashes
+    threshold: config.threshold.valueOf(),
+    funds: config.funds,
+    spendingLimit:config.spendingLimit.valueOf(),
     
   };
 
@@ -56,6 +49,7 @@ export const sign = async (
   } catch (error) {
     if (error instanceof Error) return { type: "error", error: error };
     return { type: "error", error: new Error(`${JSON.stringify(error)}`) };
+    
   }
 };
 
