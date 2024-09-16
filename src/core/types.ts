@@ -29,6 +29,7 @@ export type MultiSigValidators = {
     signOutRef : OutRef;
     withdrawalAmount : bigint
     recipientAddress : Address
+    signersList : string[]
     scripts : {
       multisig: CborHex; // change to scripts
     }

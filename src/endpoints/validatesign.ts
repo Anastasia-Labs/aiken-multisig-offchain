@@ -20,7 +20,7 @@ import {
   ): Promise<Result<TxSignBuilder>> => {
 
     const validators = getSignValidators(lucid, config.scripts);
-   
+    //const trailutxos = await lucid.utxosAt(validators.multisigValAddress)
     const scriptUtxo = (await lucid.utxosByOutRef([config.signOutRef]))[0];
 
     if (!scriptUtxo)
@@ -29,30 +29,49 @@ import {
     if (!scriptUtxo.datum)
       return { type: "error", error: new Error("Missing Datum") };
 
-    const multisigRedeemer = Data.to("Sign",MultisigRedeemer);
+    const multisigRedeemer = Data.to<MultisigRedeemer>("Sign",MultisigRedeemer);
     const withdrawalAmount = config.withdrawalAmount;
     console.log("Redeemer",multisigRedeemer);
     console.log("Script Utxo",scriptUtxo);
     const recipientAddress = config.recipientAddress;
-    
-    
+    console.log("Initiator pkh", config.signersList[0]);
+    console.log("signer1 pkh", config.signersList[1]);
+    console.log("signer2 pkh", config.signersList[2]); 
     try {
       const tx = await lucid
               .newTx()
-              .collectFrom([scriptUtxo], "multisigRedeemer")
+              .collectFrom([scriptUtxo], multisigRedeemer)
               .pay.ToAddress(recipientAddress, { lovelace: withdrawalAmount })
-              //.pay.ToContract(
-              //validators.multisigValAddress,
-              //{ kind: "inline", value: scriptUtxo.datum })//,{lovelace: scriptUtxo.assets.lovelace - withdrawalAmount}
+              .pay.ToContract(
+              validators.multisigValAddress,
+              { kind: "inline", value: scriptUtxo.datum })//,{lovelace: scriptUtxo.assets.lovelace - withdrawalAmount}
         //config.offer
-              //.attach.SpendingValidator(validators.multisigVal)
+              .attach.SpendingValidator(validators.multisigVal)
+              //.addSigner(config.signersList[0])
+              //.addSigner(config.signersList[1])
+              //.addSigner(config.signersList[2])
+              .addSignerKey(config.signersList[0])
+              .addSignerKey(config.signersList[1])
+              .addSignerKey(config.signersList[2])
               .complete();
+      // const tx = await lucid
+      //         .newTx()
+      //         .collectFrom([scriptUtxo])
+      //         .pay.ToAddress(recipientAddress, { lovelace: withdrawalAmount })
+      //         .pay.ToContract(
+      //         validators.multisigValAddress,
+      //         { kind: "inline", value: scriptUtxo.datum })//,{lovelace: scriptUtxo.assets.lovelace - withdrawalAmount}
+      //   //config.offer
+      //         .attach.SpendingValidator(validators.multisigVal)
+      //         .complete();
+              
   
       return { type: "ok", data: tx };  
     } catch (error) {
       if (error instanceof Error) return { type: "error", error: error };
       return { type: "error", error: new Error(`${JSON.stringify(error)}`) };
     }
+    
   }
     
 

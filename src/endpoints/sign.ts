@@ -42,7 +42,7 @@ export const sign = async (
       .collectFrom(feeUTxOs)
       .pay.ToContract(
         validators.multisigValAddress,
-        { kind: "inline", value: datum },
+        { kind: "inline", value: datum },{lovelace : 20_000_000n}
         //config.offer
       )
       .complete();
