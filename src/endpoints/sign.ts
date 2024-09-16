@@ -5,8 +5,10 @@ import {
   LucidEvolution,
   selectUTxOs,
   fromText,
+  TransactionError,
 } from "@lucid-evolution/lucid";
 
+import { Effect } from "effect";
 import { Result, SignConfig } from "../core/types.js";
 
 import { MultisigDatum } from "../core/contracttypes.js";
@@ -53,6 +55,44 @@ export const sign = async (
   }
 };
 
+export const signEffect = (
+  lucid: LucidEvolution,
+  config: SignConfig // it doesnt need to be all the fields in datum may be outref 
+): Effect.Effect<TxSignBuilder, TransactionError , never> => Effect.gen(function* ()  { // return type ,
+  const validators = getSignValidators(lucid, config.scripts);
+
+  const multisigDatum: MultisigDatum = {
+
+    signers: config.signers, // list of pub key hashes
+    threshold: config.threshold.valueOf(),
+    funds: config.funds,
+    spendingLimit:config.spendingLimit.valueOf(),
+    
+  };
+  const datum = Data.to<MultisigDatum>(multisigDatum, MultisigDatum);
+
+  const walletUTxOs = yield* Effect.promise(()=>lucid.wallet().getUtxos()); // repalce await with yield, Effect.promise
+  //const walletUTxOs = yield (lucid.wallet().getUtxos);
+  const feeUTxOs = selectUTxOs(walletUTxOs, { lovelace: BigInt(2_000_000) });
+
+  const tx =  yield* lucid
+      .newTx()
+      .collectFrom(feeUTxOs)
+      .pay.ToContract(
+        validators.multisigValAddress,
+        { kind: "inline", value: datum },
+        //config.offer
+      )
+      .completeProgram();
+
+      //return tx
+      //if true 
+      //throw new Error ("!!")
+      //yield* Effect.fail("??") 
+      return tx
+      //{ type: "ok", data: tx }; // 
+  //
+});
 
   //endpoints
   // 1. sign

@@ -1,4 +1,4 @@
-import { Address, OutRef, Script } from "@lucid-evolution/lucid";
+import { Address, Assets, OutRef, Script } from "@lucid-evolution/lucid";
 import { AssetClass } from "./contracttypes";
 
 export type CborHex = string;
@@ -27,7 +27,15 @@ export type MultiSigValidators = {
 
   export type ValidateSignConfig = {
     signOutRef : OutRef;
+    withdrawalAmount : bigint
+    recipientAddress : Address
     scripts : {
       multisig: CborHex; // change to scripts
     }
+  };
+
+  export type ReadableUTxO<T> = {
+    outRef: OutRef;
+    datum: T;
+    assets: Assets;
   };
