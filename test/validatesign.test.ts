@@ -27,16 +27,16 @@ import { getValidatorUtxos } from "../src/endpoints/getValidatorUtxos.js";
   beforeEach<LucidContext>(async(context) => {
     context.users = {
       recipient: await generateEmulatorAccount({
-        lovelace: BigInt(100_000_000)
+        lovelace: BigInt(100_000_000_000)
       }),
       initiator: await generateEmulatorAccount({
-        lovelace: BigInt(100_000_000)
+        lovelace: BigInt(100_000_000_000)
       }),
       signer1: await generateEmulatorAccount({
-        lovelace: BigInt(100_000_000)
+        lovelace: BigInt(100_000_000_000)
       }),
       signer2: await generateEmulatorAccount({
-        lovelace: BigInt(100_000_000)
+        lovelace: BigInt(100_000_000_000)
       })
     };
   
@@ -87,7 +87,6 @@ test<LucidContext>("Test 2 - Successful Sign Validation Without Effect", async (
         }
       };
       lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
-
       const signTxUnSigned = await Effect.runPromise(signEffect(lucid, signConfig));
       emulator.awaitBlock(50);
       const signTxSigned = await signTxUnSigned.sign.withWallet().complete();
@@ -98,27 +97,13 @@ test<LucidContext>("Test 2 - Successful Sign Validation Without Effect", async (
       console.log("utxos at initiator address", await lucid.utxosAt(initiatorAddress));
       console.log("utxos at validator address", await lucid.utxosAt(valAddress));
     
-    
-    //const signer1Address : Address = users.signer1.address;
-    //const signer2Address : Address = users.signer2.address;
-    
-    //const pkhInitiator = getAddressDetails(recipientAddress).paymentCredential?.hash!;
-    //const pkhSigner1 = getAddressDetails(signer1Address).paymentCredential?.hash!;
-    //const pkhSigner2 = getAddressDetails(signer2Address).paymentCredential?.hash!;
-
-    // const multiSigVal : SpendingValidator = {
-    //   type: "PlutusV2",
-    //   script: Script.validators[0].compiledCode
-    // }
-    // const valAddress = validatorToAddress("Custom",multiSigVal);
-    // emulator.awaitBlock(100);
        const validatorUtxos = await getValidatorUtxos(lucid, signConfig);
       
       const validateSignConfig: ValidateSignConfig = {
         signOutRef : validatorUtxos[0].outRef,
-        withdrawalAmount : 1_000_000n,
+        withdrawalAmount : 1_000_000_000n,
         recipientAddress : recipientAddress,
-        signersList : [pkhInitiator,pkhSigner1,pkhSigner2],
+        signersList : [initiatorAddress,signer1Address,signer2Address],
         scripts: {
             multisig: Script.validators[0].compiledCode
       }
@@ -129,12 +114,20 @@ test<LucidContext>("Test 2 - Successful Sign Validation Without Effect", async (
       const validatesignTxUnSigned = await validateSign(lucid, validateSignConfig);
       emulator.awaitBlock(50);
       console.log("tx unsigned",validatesignTxUnSigned);
-      //expect(validatesignTxUnSigned.type).toBe("ok");
-       // if (validatesignTxUnSigned.type == "ok") {
-           // const signTxSigned = await validatesignTxUnSigned.data.sign.withWallet().complete();
-           // const signTxHash = await signTxSigned.submit();
+      expect(validatesignTxUnSigned.type).toBe("ok");
+       if (validatesignTxUnSigned.type == "ok") {
+        lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
+            const partialSignInitiator = await validatesignTxUnSigned.data.partialSign.withWallet();
+            lucid.selectWallet.fromSeed(users.signer1.seedPhrase);
+            const partialSignSigner1 = await validatesignTxUnSigned.data.partialSign.withWallet();
+            lucid.selectWallet.fromSeed(users.signer2.seedPhrase);
+            const partialSignSigner2 = await validatesignTxUnSigned.data.partialSign.withWallet();
+            //const signTxHash = await signTxSigned.submit();
+            const assembleTx = validatesignTxUnSigned.data.assemble([partialSignInitiator, partialSignSigner1,partialSignSigner2]);
+            return assembleTx;
+            const signTxHash = await assembleTx.completeProgram;
       
-//}
+}
       emulator.awaitBlock(100);
       console.log("utxos at receipient address", await lucid.utxosAt(recipientAddress));
       console.log("utxos at validator address", await lucid.utxosAt(valAddress));
