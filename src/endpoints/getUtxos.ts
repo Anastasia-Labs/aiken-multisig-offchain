@@ -1,12 +1,12 @@
 import { LucidEvolution, UTxO } from "@lucid-evolution/lucid";
-import { MultisigDatum, ReadableUTxO, Result, SignConfig, UpdateValidateConfig, ValidateSignConfig } from "../core";
+import { Config, MultisigDatum, ReadableUTxO, SignConfig, ValidateSignConfig } from "../core";
 import { parseSafeDatum } from "../core/utils";
 import { getSignValidators } from "../core/utils/misc.js";
 
-export const getValidatorDatum = async (
+export const getUtxos = async (
     lucid: LucidEvolution,
-    config: ValidateSignConfig 
-  ): Promise<MultisigDatum[]> => {
+    config: Config
+  ): Promise<ReadableUTxO<MultisigDatum>[]> => {
     const validators = getSignValidators(lucid, config.scripts);
   
     const validatorUtxos: UTxO[] = await lucid.utxosAt(
@@ -18,10 +18,12 @@ export const getValidatorDatum = async (
   
       if (result.type == "right") {
         return {
-            signers: result.value.signers,
-            threshold: result.value.threshold,
-            funds: result.value.funds,
-            spendingLimit: result.value.spendingLimit,
+          outRef: {
+            txHash: utxo.txHash,
+            outputIndex: utxo.outputIndex,
+          },
+          datum: result.value,
+          assets: utxo.assets,
         };
       } else {
         return [];

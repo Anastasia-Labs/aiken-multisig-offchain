@@ -53,3 +53,13 @@ export type LucidContext = {
       return { type: "left", value: "missing datum" };
     }
   };
+
+  export const getPublicKeyHash = (addr : Address) =>   {
+    const pkh = getAddressDetails(addr).paymentCredential?.hash
+    if(pkh == undefined){
+      return new Error("payment credential missing");
+    }
+    else{
+      return pkh;
+    }
+  }

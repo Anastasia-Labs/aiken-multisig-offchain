@@ -35,6 +35,29 @@ export type MultiSigValidators = {
     }
   };
 
+  
+  export type UpdateValidateConfig = {
+    signOutRef : OutRef;
+    new_signers : string[];
+    new_threshold : bigint; // new threshold
+    funds : AssetClass;
+    new_spendingLimit : bigint,
+    //funds : AssetClass;
+    //spendingLimit : BigInt,
+    scripts : {
+      multisig: CborHex; // change to scripts
+    },
+    old_signers : string[],
+    old_threshold : bigint,
+    old_spendingLimit : bigint
+  };
+
+  export type Config = {
+    scripts : {
+      multisig: CborHex; // change to scripts
+    }
+  };
+
   export type ReadableUTxO<T> = {
     outRef: OutRef;
     datum: T;

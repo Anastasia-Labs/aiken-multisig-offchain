@@ -16,6 +16,7 @@ import { Effect } from "effect";
 import { sign } from "crypto";
 import { validateSign } from "../src/endpoints/validatesign.js";
 import { getValidatorUtxos } from "../src/endpoints/getValidatorUtxos.js";
+import { getPublicKeyHash } from "../src/core/utils.js";
 
   type LucidContext = {
     lucid: LucidEvolution;
@@ -26,18 +27,18 @@ import { getValidatorUtxos } from "../src/endpoints/getValidatorUtxos.js";
   // INITIALIZE EMULATOR + ACCOUNTS
   beforeEach<LucidContext>(async(context) => {
     context.users = {
-      recipient: await generateEmulatorAccount({
-        lovelace: BigInt(100_000_000_000)
-      }),
       initiator: await generateEmulatorAccount({
-        lovelace: BigInt(100_000_000_000)
+        lovelace: BigInt(100_000_000_002)
       }),
       signer1: await generateEmulatorAccount({
-        lovelace: BigInt(100_000_000_000)
+        lovelace: BigInt(100_000_000_003)
       }),
       signer2: await generateEmulatorAccount({
-        lovelace: BigInt(100_000_000_000)
-      })
+        lovelace: BigInt(100_000_000_004)
+      }),
+      recipient: await generateEmulatorAccount({
+        lovelace: BigInt(100_000_000_001)
+      }),
     };
   
     context.emulator = new Emulator([
@@ -56,18 +57,18 @@ test<LucidContext>("Test 2 - Successful Sign Validation Without Effect", async (
     emulator
   }) => {
     const initiatorAddress : Address = users.initiator.address;
-    const recipientAddress : Address = users.recipient.address;
     const signer1Address : Address = users.signer1.address;
     const signer2Address : Address = users.signer2.address;
+    const recipientAddress : Address = users.recipient.address;
     
     // remove exclamatory
     const pkhInitiator = getAddressDetails(initiatorAddress).paymentCredential?.hash!;
     const pkhSigner1 = getAddressDetails(signer1Address).paymentCredential?.hash!;
     const pkhSigner2 = getAddressDetails(signer2Address).paymentCredential?.hash!;
+    const pkhUsingFn = getPublicKeyHash(initiatorAddress);
+    
+    console.log("Pub key hash using fucntion", pkhUsingFn);
 
-    console.log("Initiator pkh", pkhInitiator);
-    console.log("signer1 pkh", pkhSigner1);
-    console.log("signer2 pkh", pkhSigner2);
     const multiSigVal : SpendingValidator = {
       type: "PlutusV2",
       script: Script.validators[0].compiledCode
@@ -113,7 +114,7 @@ test<LucidContext>("Test 2 - Successful Sign Validation Without Effect", async (
 
       const validatesignTxUnSigned = await validateSign(lucid, validateSignConfig);
       emulator.awaitBlock(50);
-      console.log("tx unsigned",validatesignTxUnSigned);
+      //console.log("tx unsigned",validatesignTxUnSigned);
       expect(validatesignTxUnSigned.type).toBe("ok");
        if (validatesignTxUnSigned.type == "ok") {
         lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
@@ -122,14 +123,12 @@ test<LucidContext>("Test 2 - Successful Sign Validation Without Effect", async (
             const partialSignSigner1 = await validatesignTxUnSigned.data.partialSign.withWallet();
             lucid.selectWallet.fromSeed(users.signer2.seedPhrase);
             const partialSignSigner2 = await validatesignTxUnSigned.data.partialSign.withWallet();
-            //const signTxHash = await signTxSigned.submit();
             const assembleTx = validatesignTxUnSigned.data.assemble([partialSignInitiator, partialSignSigner1,partialSignSigner2]);
-            return assembleTx;
-            const signTxHash = await assembleTx.completeProgram;
-      
-}
-      emulator.awaitBlock(100);
+            const signTxHash = await assembleTx.complete();
+            const txHash = await signTxHash.submit();
+            emulator.awaitBlock(100);
       console.log("utxos at receipient address", await lucid.utxosAt(recipientAddress));
       console.log("utxos at validator address", await lucid.utxosAt(valAddress));
-     
-    });
+      }
+   
+  });

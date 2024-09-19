@@ -7,20 +7,21 @@ import {
 
   } from "@lucid-evolution/lucid";
   
-  import { Result,ValidateSignConfig } from "../core/types.js";
+  import { Result, UpdateValidateConfig, ValidateSignConfig } from "../core/types.js";
   
   import { MultisigDatum, MultisigRedeemer } from "../core/contracttypes.js";
   import { getSignValidators } from "../core/utils/misc.js";
-import { parseSafeDatum } from "../core/utils.js";
-import { getValidatorDatum } from "./getValidatorDatum.js";
+  import { parseSafeDatum } from "../core/utils.js";
+  import { getValidatorDatum } from "./getValidatorDatum.js";
+import { getUpdateValidatorDatum } from "./getUpdateValidatorDatum.js";
 
   
-// create a transaction that spends from the script address , respecting the spending limit
-// so this should have datum and redeemer
-// the config should have outref
-  export const validateSign = async (
+// adjust threshold
+// add signers 
+// remove signer and adjust thershold
+  export const updateMultisig = async (
     lucid: LucidEvolution,
-    config: ValidateSignConfig
+    config: UpdateValidateConfig
   ): Promise<Result<TxSignBuilder>> => {
 
     const validators = getSignValidators(lucid, config.scripts);
@@ -33,16 +34,14 @@ import { getValidatorDatum } from "./getValidatorDatum.js";
     if (!scriptUtxo.datum)
       return { type: "error", error: new Error("Missing Datum") };
 
-    const multisigRedeemer = Data.to<MultisigRedeemer>("Sign",MultisigRedeemer);
-    const withdrawalAmount = config.withdrawalAmount;
-    const recipientAddress = config.recipientAddress;
-    const inputValue = scriptUtxo.assets.toString();
-
+    const multisigRedeemer = Data.to<MultisigRedeemer>("Update",MultisigRedeemer);
 
 // Calculate remaining value
- 
-    const parsedDatum = await getValidatorDatum(lucid,config);
-     const datum: MultisigDatum = {
+    //const rawDatum = Data.from(scriptUtxo.datum) ;
+    //console.log("Raw datum", rawDatum);
+    const parsedDatum = await getUpdateValidatorDatum(lucid,config);
+    console.log("Parsed Input Datum", parsedDatum);
+     const inputDatum: MultisigDatum = {
 
       signers: parsedDatum[0].signers, // list of pub key hashes
       threshold: parsedDatum[0].threshold,
@@ -50,10 +49,18 @@ import { getValidatorDatum } from "./getValidatorDatum.js";
       spendingLimit:parsedDatum[0].spendingLimit,
       
     };
-     const outputDatum = Data.to<MultisigDatum>(datum, MultisigDatum);
+     const inputDatumData = Data.to<MultisigDatum>(inputDatum, MultisigDatum);
+    console.log("Input datum", inputDatum);
+     const outputDatum: MultisigDatum = {
 
-     const extraUtxos = await lucid.wallet().getUtxos();
-     console.log("Extra utxos", extraUtxos);
+      signers: config.new_signers, // list of pub key hashes
+      threshold: config.new_threshold,
+      funds: config.funds,
+      spendingLimit:config.new_spendingLimit,
+      
+    };
+     const outputDatumData = Data.to<MultisigDatum>(outputDatum, MultisigDatum);
+
     try {
       const tx = await lucid
               .newTx()
@@ -61,17 +68,22 @@ import { getValidatorDatum } from "./getValidatorDatum.js";
               .collectFrom([scriptUtxo], multisigRedeemer)
               .pay.ToContract(
               validators.multisigValAddress,
-              { kind: "inline", value: outputDatum})//,{lovelace :5_000_000n}) // ,
+              { kind: "inline", value: outputDatumData})//,{lovelace :5_000_000n}) // ,
               .attach.SpendingValidator(validators.multisigVal)
-              .pay.ToAddress(recipientAddress, { lovelace: withdrawalAmount })
-              .addSigner(config.signersList[0])
-              .addSigner(config.signersList[1])
-              .addSigner(config.signersList[2])
+              .addSigner(inputDatum.signers[0])
+              .addSigner(inputDatum.signers[1])
+              .addSigner(inputDatum.signers[2])
+              // .addSigner(config.old_signers[0])
+              // .addSigner(config.old_signers[1])
+              // .addSigner(config.old_signers[2])
               .complete();
+
       return { type: "ok", data: tx };  
     } catch (error) {
+      console.log("Error in TX",error);
       if (error instanceof Error) return { type: "error", error: error };
       return { type: "error", error: new Error(`${JSON.stringify(error)}`) };
+      
     }
     
   }

@@ -3,9 +3,9 @@ import { MultisigDatum, ReadableUTxO, Result, SignConfig, UpdateValidateConfig, 
 import { parseSafeDatum } from "../core/utils";
 import { getSignValidators } from "../core/utils/misc.js";
 
-export const getValidatorDatum = async (
+export const getUpdateValidatorDatum = async (
     lucid: LucidEvolution,
-    config: ValidateSignConfig 
+    config: UpdateValidateConfig 
   ): Promise<MultisigDatum[]> => {
     const validators = getSignValidators(lucid, config.scripts);
   
