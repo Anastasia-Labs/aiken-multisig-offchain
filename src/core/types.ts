@@ -47,9 +47,6 @@ export type MultiSigValidators = {
     scripts : {
       multisig: CborHex; // change to scripts
     },
-    old_signers : string[],
-    old_threshold : bigint,
-    old_spendingLimit : bigint
   };
 
   export type Config = {
