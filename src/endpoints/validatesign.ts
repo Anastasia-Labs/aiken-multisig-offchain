@@ -40,9 +40,6 @@ import { getValidatorDatum } from "./getValidatorDatum.js";
     const recipientAddress = config.recipientAddress;
     const inputValue = scriptUtxo.assets.toString();
 
-
-// Calculate remaining value
- 
     const parsedDatum = await getValidatorDatum(lucid,config);
      const datum: MultisigDatum = {
 
@@ -54,12 +51,9 @@ import { getValidatorDatum } from "./getValidatorDatum.js";
     };
      const outputDatum = Data.to<MultisigDatum>(datum, MultisigDatum);
 
-     const extraUtxos = await lucid.wallet().getUtxos();
-     console.log("Extra utxos", extraUtxos);
     try {
       const tx = await lucid
               .newTx()
-              //.collectFrom(extraUtxos)
               .collectFrom([scriptUtxo], multisigRedeemer)
               .pay.ToContract(
               validators.multisigValAddress,
@@ -95,6 +89,7 @@ import { getValidatorDatum } from "./getValidatorDatum.js";
     //   return { type: "error", error: new Error("Missing Datum") };
 
     const multisigRedeemer = Data.to<MultisigRedeemer>("Sign",MultisigRedeemer);
+    
     const withdrawalAmount = config.withdrawalAmount;
     const recipientAddress = config.recipientAddress;
 
@@ -111,7 +106,7 @@ import { getValidatorDatum } from "./getValidatorDatum.js";
     const outputDatum = Data.to<MultisigDatum>(datum, MultisigDatum);
 
     const extraUtxos = yield* Effect.promise(()=> lucid.wallet().getUtxos());
-    console.log("Extra utxos", extraUtxos);
+
 
     const tx = yield* lucid
               .newTx()

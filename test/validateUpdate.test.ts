@@ -125,7 +125,7 @@ test<LucidContext>("Test 3 - Successful Update Validation Without Effect", async
       lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
       console.log("Validator Utxos before update",await lucid.utxosAt(valAddress));
       const signTxUnSigned = await validateUpdate(lucid, updateValidatorConfig);
-      console.log("Unsigned tx error", signTxUnSigned.type);
+
       expect(signTxUnSigned.type).toBe("ok");
        if (signTxUnSigned.type == "ok") {
     

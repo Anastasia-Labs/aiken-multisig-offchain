@@ -38,11 +38,8 @@ import { getUpdateValidatorDatum } from "./getUpdateValidatorDatum.js";
 
     const multisigRedeemer = Data.to<MultisigRedeemer>("Update",MultisigRedeemer);
 
-// Calculate remaining value
-    //const rawDatum = Data.from(scriptUtxo.datum) ;
-    //console.log("Raw datum", rawDatum);
     const parsedDatum = await getUpdateValidatorDatum(lucid,config);
-    console.log("Parsed Input Datum", parsedDatum);
+  
      const inputDatum: MultisigDatum = {
 
       signers: parsedDatum[0].signers, // list of pub key hashes
@@ -52,7 +49,7 @@ import { getUpdateValidatorDatum } from "./getUpdateValidatorDatum.js";
       
     };
   
-    console.log("Input datum", inputDatum);
+    //console.log("Input datum", inputDatum);
      const outputDatum: MultisigDatum = {
 
       signers: config.new_signers, // list of pub key hashes
@@ -78,7 +75,7 @@ import { getUpdateValidatorDatum } from "./getUpdateValidatorDatum.js";
 
       return { type: "ok", data: tx };  
     } catch (error) {
-      //console.log("Error in TX",error);
+
       if (error instanceof Error) return { type: "error", error: error };
       return { type: "error", error: new Error(`${JSON.stringify(error)}`) };
       
@@ -104,11 +101,8 @@ import { getUpdateValidatorDatum } from "./getUpdateValidatorDatum.js";
 
     const multisigRedeemer = Data.to<MultisigRedeemer>("Update",MultisigRedeemer);
 
-// Calculate remaining value
-    //const rawDatum = Data.from(scriptUtxo.datum) ;
-    //console.log("Raw datum", rawDatum);
     const parsedDatum = yield* Effect.promise(()=> getUpdateValidatorDatum(lucid,config));
-    console.log("Parsed Input Datum", parsedDatum);
+    //console.log("Parsed Input Datum", parsedDatum);
      const inputDatum: MultisigDatum = {
 
       signers: parsedDatum[0].signers, // list of pub key hashes
@@ -118,7 +112,7 @@ import { getUpdateValidatorDatum } from "./getUpdateValidatorDatum.js";
       
     };
   
-    console.log("Input datum", inputDatum);
+    //console.log("Input datum", inputDatum);
      const outputDatum: MultisigDatum = {
 
       signers: config.new_signers, // list of pub key hashes
