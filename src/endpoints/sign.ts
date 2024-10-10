@@ -1,10 +1,8 @@
 import {
   Data,
   TxSignBuilder,
-  Address,
   LucidEvolution,
   selectUTxOs,
-  fromText,
   TransactionError,
 } from "@lucid-evolution/lucid";
 
