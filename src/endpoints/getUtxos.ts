@@ -1,7 +1,8 @@
 import { LucidEvolution, UTxO } from "@lucid-evolution/lucid";
-import { Config, MultisigDatum, ReadableUTxO, SignConfig, ValidateSignConfig } from "../core";
+import { Config, MultisigDatum, ReadableUTxO } from "../core";
 import { parseSafeDatum } from "../core/utils";
 import { getSignValidators } from "../core/utils/misc.js";
+
 
 export const getUtxos = async (
     lucid: LucidEvolution,
@@ -30,3 +31,6 @@ export const getUtxos = async (
       }
     });
   };
+
+
+  

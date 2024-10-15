@@ -1,5 +1,5 @@
 import { Address, Assets, OutRef, Script } from "@lucid-evolution/lucid";
-import { AssetClass } from "./contracttypes";
+import { AssetClass } from "./contract.types";
 
 export type CborHex = string;
 
@@ -12,12 +12,12 @@ export type Either<L, R> =
   | { type: "right"; value: R };
 
 export type SignConfig = { 
-  signers : string[];// what should come here for list of public key hashes
+  signers : string[];
   threshold : BigInt;
   funds : AssetClass;
   spendingLimit : BigInt,
     scripts : {
-      multisig: CborHex; // change to scripts
+      multisig: CborHex;
     }
   }
 export type MultiSigValidators = {
@@ -31,7 +31,7 @@ export type MultiSigValidators = {
     recipientAddress : Address
     signersList : string[]
     scripts : {
-      multisig: CborHex; // change to scripts
+      multisig: CborHex;
     }
   };
 
@@ -39,19 +39,17 @@ export type MultiSigValidators = {
   export type UpdateValidateConfig = {
     signOutRef : OutRef;
     new_signers : string[];
-    new_threshold : bigint; // new threshold
+    new_threshold : bigint;
     funds : AssetClass;
     new_spendingLimit : bigint,
-    //funds : AssetClass;
-    //spendingLimit : BigInt,
     scripts : {
-      multisig: CborHex; // change to scripts
+      multisig: CborHex;
     },
   };
 
   export type Config = {
     scripts : {
-      multisig: CborHex; // change to scripts
+      multisig: CborHex; 
     }
   };
 

@@ -1,5 +1,5 @@
 import { Address, Data, Emulator, LucidEvolution, getAddressDetails } from "@lucid-evolution/lucid";
-import { AddressD } from "./contracttypes";
+import { AddressD } from "./contract.types";
 import { Either } from "./types";
 
 export type LucidContext = {

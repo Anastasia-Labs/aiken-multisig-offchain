@@ -1,5 +1,5 @@
 import { LucidEvolution, UTxO } from "@lucid-evolution/lucid";
-import { MultisigDatum, ReadableUTxO, SignConfig, ValidateSignConfig } from "../core";
+import { MultisigDatum, ReadableUTxO, SignConfig } from "../core";
 import { parseSafeDatum } from "../core/utils";
 import { getSignValidators } from "../core/utils/misc.js";
 

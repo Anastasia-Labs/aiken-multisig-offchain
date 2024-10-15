@@ -2,86 +2,81 @@ import {
     Data,
     TxSignBuilder,
     LucidEvolution,
-    Assets,
-    Lucid,
     TransactionError,
-    TxBuilderError,
 
   } from "@lucid-evolution/lucid";
   
-  import { Result, UpdateValidateConfig, ValidateSignConfig } from "../core/types.js";
+  import { UpdateValidateConfig } from "../core/types.js";
   import { Effect } from "effect";
-  import { MultisigDatum, MultisigRedeemer } from "../core/contracttypes.js";
+  import { MultisigDatum, MultisigRedeemer } from "../core/contract.types.js";
   import { getSignValidators } from "../core/utils/misc.js";
-  import { parseSafeDatum } from "../core/utils.js";
-  import { getValidatorDatum } from "./getValidatorDatum.js";
 import { getUpdateValidatorDatum } from "./getUpdateValidatorDatum.js";
 
   
-// adjust threshold
-// add signers 
-// remove signer and adjust thershold
-  export const validateUpdate = async (
-    lucid: LucidEvolution,
-    config: UpdateValidateConfig
-  ): Promise<Result<TxSignBuilder>> => {
+// // adjust threshold
+// // add signers 
+// // remove signer and adjust thershold
+//   export const validateUpdate = async (
+//     lucid: LucidEvolution,
+//     config: UpdateValidateConfig
+//   ): Promise<Result<TxSignBuilder>> => {
 
-    const validators = getSignValidators(lucid, config.scripts);
+//     const validators = getSignValidators(lucid, config.scripts);
 
-    const scriptUtxo = (await lucid.utxosByOutRef([config.signOutRef]))[0];
+//     const scriptUtxo = (await lucid.utxosByOutRef([config.signOutRef]))[0];
 
-    if (!scriptUtxo)
-      return { type: "error", error: new Error("No UTxO with that TxOutRef") };
+//     if (!scriptUtxo)
+//       return { type: "error", error: new Error("No UTxO with that TxOutRef") };
   
-    if (!scriptUtxo.datum)
-      return { type: "error", error: new Error("Missing Datum") };
+//     if (!scriptUtxo.datum)
+//       return { type: "error", error: new Error("Missing Datum") };
 
-    const multisigRedeemer = Data.to<MultisigRedeemer>("Update",MultisigRedeemer);
+//     const multisigRedeemer = Data.to<MultisigRedeemer>("Update",MultisigRedeemer);
 
-    const parsedDatum = await getUpdateValidatorDatum(lucid,config);
+//     const parsedDatum = await getUpdateValidatorDatum(lucid,config);
   
-     const inputDatum: MultisigDatum = {
+//      const inputDatum: MultisigDatum = {
 
-      signers: parsedDatum[0].signers, // list of pub key hashes
-      threshold: parsedDatum[0].threshold,
-      funds: parsedDatum[0].funds,
-      spendingLimit:parsedDatum[0].spendingLimit,
+//       signers: parsedDatum[0].signers, // list of pub key hashes
+//       threshold: parsedDatum[0].threshold,
+//       funds: parsedDatum[0].funds,
+//       spendingLimit:parsedDatum[0].spendingLimit,
       
-    };
+//     };
   
-    //console.log("Input datum", inputDatum);
-     const outputDatum: MultisigDatum = {
+//     //console.log("Input datum", inputDatum);
+//      const outputDatum: MultisigDatum = {
 
-      signers: config.new_signers, // list of pub key hashes
-      threshold: config.new_threshold,
-      funds: config.funds,
-      spendingLimit:config.new_spendingLimit,
+//       signers: config.new_signers, // list of pub key hashes
+//       threshold: config.new_threshold,
+//       funds: config.funds,
+//       spendingLimit:config.new_spendingLimit,
       
-    };
-     const outputDatumData = Data.to<MultisigDatum>(outputDatum, MultisigDatum);
+//     };
+//      const outputDatumData = Data.to<MultisigDatum>(outputDatum, MultisigDatum);
 
-    try {
-      const tx = await lucid
-              .newTx()
-              .collectFrom([scriptUtxo], multisigRedeemer)
-              .pay.ToContract(
-              validators.multisigValAddress,
-              { kind: "inline", value: outputDatumData})//,{lovelace :5_000_000n}) // ,
-              .attach.SpendingValidator(validators.multisigVal)
-              .addSignerKey(inputDatum.signers[0])
-              .addSignerKey(inputDatum.signers[1])
-              .addSignerKey(inputDatum.signers[2])
-              .complete();
+//     try {
+//       const tx = await lucid
+//               .newTx()
+//               .collectFrom([scriptUtxo], multisigRedeemer)
+//               .pay.ToContract(
+//               validators.multisigValAddress,
+//               { kind: "inline", value: outputDatumData})//,{lovelace :5_000_000n}) // ,
+//               .attach.SpendingValidator(validators.multisigVal)
+//               .addSignerKey(inputDatum.signers[0])
+//               .addSignerKey(inputDatum.signers[1])
+//               .addSignerKey(inputDatum.signers[2])
+//               .complete();
 
-      return { type: "ok", data: tx };  
-    } catch (error) {
+//       return { type: "ok", data: tx };  
+//     } catch (error) {
 
-      if (error instanceof Error) return { type: "error", error: error };
-      return { type: "error", error: new Error(`${JSON.stringify(error)}`) };
+//       if (error instanceof Error) return { type: "error", error: error };
+//       return { type: "error", error: new Error(`${JSON.stringify(error)}`) };
       
-    }
+//     }
     
-  };
+//   };
 
   export const validateUpdateEffect = (
     lucid: LucidEvolution,
@@ -92,12 +87,6 @@ import { getUpdateValidatorDatum } from "./getUpdateValidatorDatum.js";
 
     const utxo = (yield* Effect.promise(()=> lucid.utxosByOutRef([config.signOutRef])));
     const scriptUtxo = utxo[0];
-
-    // if (!scriptUtxo)
-    //   return { type: "error", error: new Error("No UTxO with that TxOutRef") };
-  
-    // if (!scriptUtxo.datum)
-    //   return { type: "error", error: new Error("Missing Datum") };
 
     const multisigRedeemer = Data.to<MultisigRedeemer>("Update",MultisigRedeemer);
 
@@ -112,7 +101,6 @@ import { getUpdateValidatorDatum } from "./getUpdateValidatorDatum.js";
       
     };
   
-    //console.log("Input datum", inputDatum);
      const outputDatum: MultisigDatum = {
 
       signers: config.new_signers, // list of pub key hashes

@@ -2,9 +2,6 @@
 
 - [Aiken Upgradable Multisig Offchain](#aiken-upgradable-multisig-offchain)
   - [Introduction](#introduction)
-  - [Documentation](#documentation)
-    - [What is P2P trading?](#what-is-peer-to-peer-p2p-trading)
-    - [How can this project facilitate P2P trading?](#how-can-this-project-facilitate-p2p-trading)
   - [Usage Example](#usage-example)
     - [Setup](#setup-lucid--offer-scripts)
     - [Make Offer](#make-offer)
@@ -49,12 +46,13 @@ pnpm install @anastasia-labs/aiken-multisig-offchain
 // You can get the compiled scripts here: https://github.com/Anastasia-Labs/direct-offer/tree/master/compiled
 import Script from "../src/validator/multisig_validator.json" assert { type: "json" };
 
-export const lucid = await Lucid.new(
+const lucid = await Lucid(
   new Maestro({
-    network: "Preprod",
-    apiKey: "your maestro api key",
+    network: "Preprod", // For MAINNET: "Mainnet"
+    apiKey: "<Your-API-Key>", // Get yours by visiting https://docs.gomaestro.org/docs/Getting-started/Sign-up-login
+    turboSubmit: false, // Read about paid turbo transaction submission feature at https://docs.gomaestro.org/docs/Dapp%20Platform/Turbo%20Transaction
   }),
-  "Preprod"
+  "Preprod" // For MAINNET: "Mainnet"
 );
 
 lucid.selectWallet.fromPrivateKey("your secret key here e.g. ed25519_...");
@@ -70,8 +68,17 @@ const multiSigVal: SpendingValidator = {
 ```ts
 import { SignConfig, sign } from "@anastasia-labs/aiken-multisig-offchain";
 
+const initiatorAddress: Address = users.initiator.address;
+const signer1Address: Address = users.signer1.address;
+const signer2Address: Address = users.signer2.address;
+
+const pkhInitiator =
+  getAddressDetails(initiatorAddress).paymentCredential?.hash!;
+const pkhSigner1 = getAddressDetails(signer1Address).paymentCredential?.hash!;
+const pkhSigner2 = getAddressDetails(signer2Address).paymentCredential?.hash!;
+
 const signConfig: SignConfig = {
-  signers: [pkhInitiator, pkhSigner1, pkhSigner2],
+  signers: [pkhInitiator, pkhSigner1, pkhSigner2], // what to give here
   threshold: 3n,
   funds: {
     policyId: "",
@@ -81,18 +88,6 @@ const signConfig: SignConfig = {
   scripts: {
     multisig: multiSigVal.script,
   },
-};
-const makeOfferConfig: MakeOfferConfig = {
-  offer: {
-    ["lovelace"]: 10_000_000n,
-  },
-  toBuy: {
-    [toUnit(
-      "e16c2dc8ae937e8d3790c7fd7168d7b994621ba14ca11415f39fed72",
-      "4d494e"
-    )]: 10_000n,
-  },
-  scripts: offerScripts,
 };
 
 const signTxUnSigned = await sign(lucid, signConfig);
@@ -105,13 +100,15 @@ if (signTxUnSigned.type == "ok") {
 }
 ```
 
+// to be modified
+
 ### Fetch Offer
 
 ```ts
 import {
-  FetchOfferConfig,
-  getOfferUTxOs,
-} from "@anastasia-labs/direct-offer-offchain";
+  ValidateSignConfig,
+  validateSign,
+} from "@anastasia-labs/aiken-multisig-offchain";
 
 const offerConfig: FetchOfferConfig = {
   scripts: offerScripts,
@@ -162,4 +159,4 @@ https://github.com/vitest-dev/vitest
 pnpm test
 ```
 
-![direct-offer-offchain](/assets/gifs/direct-offer-offchain.gif)
+![aiken-multisig-offchain](/assets/gifs/aiken-multisig-offchain.gif)

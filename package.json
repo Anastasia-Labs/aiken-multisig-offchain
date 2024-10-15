@@ -1,5 +1,5 @@
 {
-  "name": "aiken-multisig-off-chain",
+  "name": "@anastasia-labs/aiken-multisig-off-chain",
   "version": "1.0.0",
   "description": "Off-Chain SDK for Aiken Upgradable Multisig",
   "main": "index.js",
