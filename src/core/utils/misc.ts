@@ -1,40 +1,35 @@
 import {
-    Constr,
-    LucidEvolution,
-    SpendingValidator,
-    WithdrawalValidator,
-    applyParamsToScript,
-    validatorToAddress,
-    validatorToRewardAddress,
-    validatorToScriptHash,
-  } from "@lucid-evolution/lucid";
+  LucidEvolution,
+  MintingPolicy,
+  SpendingValidator,
+  validatorToAddress,
+} from "@lucid-evolution/lucid";
 
-  import { CborHex, MultiSigValidators } from "../types.js";
-  
-  export const getSignValidators = (
-    lucid: LucidEvolution,
-    scripts: { multisig: CborHex }
-  ): MultiSigValidators => {
-    const multisigVal: SpendingValidator = {
-      type: "PlutusV2",
-      script: scripts.multisig,
-    };
-  
-    const network = lucid.config().network;
-    //const rewardAddress = validatorToRewardAddress(network, stakingVal);
-    //const stakingCred = new Constr(0, [
-    //  new Constr(1, [validatorToScriptHash(stakingVal)]),
-    //]);
-  
-    // const directOfferVal: SpendingValidator = {
-    //   type: "PlutusV2",
-    //   script: applyParamsToScript(scripts.spending, [stakingCred]),
-    // };
-    const multisigValAddress = validatorToAddress(network, multisigVal);
-  
-    return {
-        multisigVal: multisigVal,
-        multisigValAddress: multisigValAddress,
-    };
+import { CborHex, MultiSigValidators } from "../types.js";
+
+export const getSignValidators = (
+  lucid: LucidEvolution,
+  scripts: { spending: CborHex; minting: CborHex },
+): MultiSigValidators => {
+  const multisigPolicy: MintingPolicy = {
+    type: "PlutusV2",
+    script: scripts.minting,
   };
-  
+
+  const multisigVal: SpendingValidator = {
+    type: "PlutusV2",
+    script: scripts.spending,
+  };
+
+  const network = lucid.config().network;
+
+  const multisigPolicyAddress = validatorToAddress(network, multisigPolicy);
+  const multisigValAddress = validatorToAddress(network, multisigVal);
+
+  return {
+    spendValidator: multisigVal,
+    spendValAddress: multisigValAddress,
+    mintPolicy: multisigPolicy,
+    mintPolicyAddress: multisigPolicyAddress,
+  };
+};
