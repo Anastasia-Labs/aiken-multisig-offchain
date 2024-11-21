@@ -12,25 +12,28 @@ export type Either<L, R> =
   | { type: "right"; value: R };
 
 export type MultiSigConfig = {
-  signers: string[]; // what should come here for list of public key hashes
+  signers: string[];
   threshold: bigint;
   funds: AssetClass;
   spendingLimit: bigint;
   totalFundsQty: bigint;
+  minimum_ada: bigint;
   scripts: {
-    spending: CborHex; // change to scripts
-    minting: CborHex; // change to scripts
+    spending: CborHex;
+    minting: CborHex;
   };
 };
 
 export type SignConfig = {
-  signers: string[]; // what should come here for list of public key hashes
+  signers: string[];
   threshold: bigint;
   funds: AssetClass;
   spendingLimit: bigint;
+  minimum_ada: bigint;
+  recipientAddress: Address;
   scripts: {
-    spending: CborHex; // change to scripts
-    minting: CborHex; // change to scripts
+    spending: CborHex;
+    minting: CborHex;
   };
 };
 
@@ -42,34 +45,31 @@ export type MultiSigValidators = {
 };
 
 export type ValidateSignConfig = {
-  signOutRef: OutRef;
   withdrawalAmount: bigint;
   recipientAddress: Address;
   signersList: string[];
   scripts: {
-    spending: CborHex; // change to scripts
-    minting: CborHex; // change to scripts
+    spending: CborHex;
+    minting: CborHex;
   };
 };
 
 export type UpdateValidateConfig = {
-  signOutRef: OutRef;
   new_signers: string[];
   new_threshold: bigint; // new threshold
   funds: AssetClass;
   new_spendingLimit: bigint;
-  //funds : AssetClass;
-  //spendingLimit : BigInt,
+  minimum_ada: bigint;
   scripts: {
-    spending: CborHex; // change to scripts
-    minting: CborHex; // change to scripts
+    spending: CborHex;
+    minting: CborHex;
   };
 };
 
 export type Config = {
   scripts: {
-    spending: CborHex; // change to scripts
-    minting: CborHex; // change to scripts
+    spending: CborHex;
+    minting: CborHex;
   };
 };
 

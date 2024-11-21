@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { Address, endMultiSig, getAddressDetails, SignConfig } from "../src";
+import { endMultiSig, getUserAddressAndPKH, SignConfig } from "../src";
 import { LucidContext } from "./common/lucidContext";
 import { multiSigScript } from "./common/constants";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase";
@@ -14,6 +14,26 @@ export const endMultiSigTestCase = (
     { lucid, users, emulator }: LucidContext,
 ): Effect.Effect<EndMultiSigResult, Error, never> => {
     return Effect.gen(function* () {
+        const initiator = yield* Effect.promise(() =>
+            getUserAddressAndPKH(lucid, users.initiator.seedPhrase)
+        );
+
+        const signer1 = yield* Effect.promise(() =>
+            getUserAddressAndPKH(lucid, users.signer1.seedPhrase)
+        );
+
+        const signer2 = yield* Effect.promise(() =>
+            getUserAddressAndPKH(lucid, users.signer2.seedPhrase)
+        );
+
+        const signer3 = yield* Effect.promise(() =>
+            getUserAddressAndPKH(lucid, users.signer3.seedPhrase)
+        );
+
+        const recipient = yield* Effect.promise(() =>
+            getUserAddressAndPKH(lucid, users.recipient.seedPhrase)
+        );
+
         if (emulator && lucid.config().network === "Custom") {
             const initiateMultiSigResult = yield* initiateMultiSigTestCase({
                 lucid,
@@ -26,56 +46,44 @@ export const endMultiSigTestCase = (
             yield* Effect.sync(() => emulator.awaitBlock(10));
         }
 
-        lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
-
-        const initiatorAddress: Address = users.initiator.address;
-        const signer1Address: Address = users.signer1.address;
-        const signer2Address: Address = users.signer2.address;
-
-        const pkhInitiator = getAddressDetails(initiatorAddress)
-            .paymentCredential
-            ?.hash!;
-        const pkhSigner1 = getAddressDetails(signer1Address).paymentCredential
-            ?.hash!;
-        const pkhSigner2 = getAddressDetails(signer2Address).paymentCredential
-            ?.hash!;
-
         const signConfig: SignConfig = {
-            signers: [pkhInitiator, pkhSigner1, pkhSigner2],
+            signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
             threshold: 3n,
             funds: {
                 policyId: "",
                 assetName: "",
             },
             spendingLimit: 10_000_000n,
+            minimum_ada: 2_000_000n,
+            recipientAddress: recipient.address,
             scripts: multiSigScript,
         };
 
-        const initiateMultiSigFlow = Effect.gen(function* (_) {
-            const initiateMultisigUnsigned = yield* endMultiSig(
+        lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
+        const endMultiSigFlow = Effect.gen(function* (_) {
+            const endMultisigUnsigned = yield* endMultiSig(
                 lucid,
                 signConfig,
             );
 
-            const partialSignInitiator = yield* Effect.promise(() =>
-                initiateMultisigUnsigned.partialSign
-                    .withWallet()
-            );
-            lucid.selectWallet.fromSeed(users.signer1.seedPhrase);
-            const partialSignSigner1 = yield* Effect.promise(() =>
-                initiateMultisigUnsigned.partialSign
-                    .withWallet()
-            );
-            lucid.selectWallet.fromSeed(users.signer2.seedPhrase);
-            const partialSignSigner2 = yield* Effect.promise(() =>
-                initiateMultisigUnsigned.partialSign
-                    .withWallet()
-            );
-            const assembleTx = initiateMultisigUnsigned.assemble([
-                partialSignInitiator,
-                partialSignSigner1,
-                partialSignSigner2,
-            ]);
+            const partialSignatures: string[] = [];
+
+            for (
+                const signerSeed of [
+                    users.initiator.seedPhrase,
+                    users.signer1.seedPhrase,
+                    users.signer2.seedPhrase,
+                ]
+            ) {
+                lucid.selectWallet.fromSeed(signerSeed);
+                const partialSignSigner = yield* Effect.promise(() =>
+                    endMultisigUnsigned.partialSign
+                        .withWallet()
+                );
+                partialSignatures.push(partialSignSigner);
+            }
+
+            const assembleTx = endMultisigUnsigned.assemble(partialSignatures);
             const completeSign = yield* Effect.promise(() =>
                 assembleTx.complete()
             );
@@ -87,7 +95,7 @@ export const endMultiSigTestCase = (
             return signTxHash;
         });
 
-        const multisigResult = yield* initiateMultiSigFlow.pipe(
+        const multisigResult = yield* endMultiSigFlow.pipe(
             Effect.tapError((error) =>
                 Effect.log(`Error end multisig: ${error}`)
             ),

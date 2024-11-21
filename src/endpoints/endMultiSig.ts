@@ -21,9 +21,9 @@ export const endMultiSig = (
     config: SignConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
     Effect.gen(function* () {
-        const initiatorAddress: Address = yield* Effect.promise(() =>
-            lucid.wallet().address()
-        );
+        // const initiatorAddress: Address = yield* Effect.promise(() =>
+        //     lucid.wallet().address()
+        // );
 
         const validators = getSignValidators(lucid, config.scripts);
         const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
@@ -33,14 +33,8 @@ export const endMultiSig = (
         const multisigUTxOs = yield* Effect.promise(() =>
             lucid.config().provider.getUtxos(multisigAddress)
         );
-
-        const initiatorUTxOs = yield* Effect.promise(() =>
-            lucid.utxosAt(initiatorAddress)
-        );
-        if (!initiatorUTxOs || !initiatorUTxOs.length) {
-            console.error(
-                "No UTxO found at user address: " + initiatorAddress,
-            );
+        if (!multisigUTxOs) {
+            console.error("No UTxOs with that Address " + multisigAddress);
         }
 
         const multisig_token_name = tokenNameFromUTxO(
@@ -100,6 +94,7 @@ export const endMultiSig = (
             threshold: config.threshold,
             funds: config.funds,
             spendingLimit: config.spendingLimit,
+            minimum_ada: config.minimum_ada,
         };
 
         const multisigValue = { lovelace: multisigUTxO.assets.lovelace };
@@ -112,7 +107,7 @@ export const endMultiSig = (
             .newTx()
             .collectFrom([multisigUTxO], removeMultiSigRedeemer)
             .mintAssets(mintingAssets, endMultiSigRedeemer)
-            .pay.ToAddress(initiatorAddress, multisigValue)
+            .pay.ToAddress(config.recipientAddress, multisigValue)
             .attach.MintingPolicy(validators.mintPolicy)
             .attach.SpendingValidator(validators.spendValidator)
             .addSignerKey(multisigDatum.signers[0])

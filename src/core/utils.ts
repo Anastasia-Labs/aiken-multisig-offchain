@@ -1,11 +1,15 @@
 import {
   Address,
+  Assets,
   Data,
   Emulator,
+  generateSeedPhrase,
   getAddressDetails,
+  Lucid,
   LucidEvolution,
+  UTxO,
 } from "@lucid-evolution/lucid";
-import { AddressD } from "./contract.types.js";
+import { AddressD, MultisigDatum } from "./contract.types.js";
 import { Either } from "./types.js";
 
 export type LucidContext = {
@@ -66,4 +70,71 @@ export const getPublicKeyHash = (addr: Address) => {
   } else {
     return pkh;
   }
+};
+
+export const generateAccountSeedPhrase = async (assets: Assets) => {
+  const seedPhrase = generateSeedPhrase();
+  const lucid = await Lucid(new Emulator([]), "Custom");
+  lucid.selectWallet.fromSeed(seedPhrase);
+  const address = lucid.wallet().address;
+  return {
+    seedPhrase,
+    address,
+    assets,
+  };
+};
+
+export async function getUserAddressAndPKH(
+  lucid: LucidEvolution,
+  seedPhrase: string,
+): Promise<{ address: Address; pkh: string }> {
+  // Select the wallet from the seed phrase
+  lucid.selectWallet.fromSeed(seedPhrase);
+
+  // Get the address
+  const address = await lucid.wallet().address();
+
+  // Get the payment credential hash (public key hash)
+  const addressDetails = getAddressDetails(address);
+  const pkh = addressDetails.paymentCredential?.hash;
+
+  if (!pkh) {
+    throw new Error("Failed to retrieve public key hash from address");
+  }
+
+  return { address, pkh };
+}
+
+export const getMultisigDatum = async (
+  utxos: UTxO[],
+): Promise<MultisigDatum[]> => {
+  return utxos.flatMap((utxo, index) => {
+    if (!utxo.datum) {
+      console.error(`UTxO ${index} has no datum.`);
+      return [];
+    }
+
+    try {
+      const result = parseSafeDatum<MultisigDatum>(
+        utxo.datum,
+        MultisigDatum,
+      );
+
+      if (result.type == "right") {
+        return [result.value]; // Return as array to match flatMap expectations
+      } else {
+        console.error(
+          `Failed to parse datum for UTxO ${index}:`,
+          result.type,
+        );
+        return [];
+      }
+    } catch (error) {
+      console.error(
+        `Exception while parsing datum for UTxO ${index}:`,
+        error,
+      );
+      return [];
+    }
+  });
 };

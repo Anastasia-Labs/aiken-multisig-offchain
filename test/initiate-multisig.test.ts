@@ -3,7 +3,7 @@ import { LucidContext, makeLucidContext } from "./common/lucidContext";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase";
 import { expect, test } from "vitest";
 
-test<LucidContext>("Test 1 - Successful Sign", async () => {
+test<LucidContext>("Test 1 - Initiaie Multisig", async () => {
     const program = Effect.gen(function* ($) {
         const context = yield* makeLucidContext();
         const result = yield* initiateMultiSigTestCase(context);

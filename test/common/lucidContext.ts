@@ -48,6 +48,7 @@ export const makeEmulatorContext = () =>
             users.initiator,
             users.signer1,
             users.signer2,
+            users.signer3,
             users.recipient,
         ], {
             ...PROTOCOL_PARAMETERS_DEFAULT,
@@ -64,8 +65,11 @@ export const makeMaestroContext = (
 ) => Effect.gen(function* ($) {
     const API_KEY = process.env.API_KEY!;
     const DAPP_PROVIDER_SEED = process.env.DAPP_PROVIDER_SEED!;
-    const SUBSCRIBER_WALLET_SEED = process.env.SUBSCRIBER_WALLET_SEED!;
-    const MERCHANT_WALLET_SEED = process.env.MERCHANT_WALLET_SEED!;
+    const INITIATOR_SEED = process.env.INITIATOR_SEED!;
+    const SIGNER_ONE_SEED = process.env.SIGNER_ONE_SEED!;
+    const SIGNER_TWO_SEED = process.env.SIGNER_TWO_SEED!;
+    const SIGNER_THREE_SEED = process.env.SIGNER_THREE_SEED!;
+    const RECIPIENT_SEED = process.env.RECIPIENT_SEED!;
 
     if (!API_KEY) {
         throw new Error(
@@ -83,19 +87,19 @@ export const makeMaestroContext = (
             seedPhrase: DAPP_PROVIDER_SEED,
         },
         initiator: {
-            seedPhrase: SUBSCRIBER_WALLET_SEED,
+            seedPhrase: INITIATOR_SEED,
         },
         signer1: {
-            seedPhrase: MERCHANT_WALLET_SEED,
+            seedPhrase: SIGNER_ONE_SEED,
         },
         signer2: {
-            seedPhrase: MERCHANT_WALLET_SEED,
+            seedPhrase: SIGNER_TWO_SEED,
         },
         signer3: {
-            seedPhrase: MERCHANT_WALLET_SEED,
+            seedPhrase: SIGNER_THREE_SEED,
         },
         recipient: {
-            seedPhrase: MERCHANT_WALLET_SEED,
+            seedPhrase: RECIPIENT_SEED,
         },
     };
 
@@ -118,8 +122,8 @@ export const makeLucidContext = (
     network?: Network,
 ) => Effect.gen(function* ($) {
     const API_KEY = process.env.API_KEY;
-    // const selectedNetwork = network ?? NETWORK; // Default to Preprod if not specified
-    const selectedNetwork = "Custom"; // Default to Preprod if not specified
+    const selectedNetwork = network ?? NETWORK; // Default to Preprod if not specified
+    // const selectedNetwork = "Custom"; // Default to Preprod if not specified
 
     console.log("Network Target: ", selectedNetwork);
     if (API_KEY && selectedNetwork !== "Custom") {
@@ -130,8 +134,3 @@ export const makeLucidContext = (
         return yield* $(makeEmulatorContext());
     }
 });
-function generateAccountSeedPhrase(
-    arg0: { lovelace: bigint },
-): PromiseLike<unknown> {
-    throw new Error("Function not implemented.");
-}

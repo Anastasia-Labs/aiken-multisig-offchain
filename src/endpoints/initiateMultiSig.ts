@@ -23,7 +23,6 @@ export const initiateMultiSig = (
         const initiatorAddress: Address = yield* Effect.promise(() =>
             lucid.wallet().address()
         );
-
         const validators = getSignValidators(lucid, config.scripts);
         const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
 
@@ -36,12 +35,13 @@ export const initiateMultiSig = (
             );
         }
 
-        // Selecting a utxo containing atleast 2 ADA to cover tx fees and min ADA
-        // Note: To avoid tx balancing errors, the utxo should only contain lovelaces
-        // Can make into optional function
-        const selectedUTxOs = selectUTxOs(initiatorUTxOs, {
-            ["lovelace"]: 2000000n,
-        });
+        // Selecting a UTxO containing more than the total funds required
+        // for the transaction and at least 2ADA to cover tx fees and min ADA
+        const selectedUTxOs = initiatorUTxOs.filter(
+            (utxo) =>
+                utxo.assets.lovelace >=
+                    config.totalFundsQty + config.minimum_ada,
+        );
 
         const tokenName = generateUniqueAssetName(selectedUTxOs[0], "");
 
@@ -54,9 +54,9 @@ export const initiateMultiSig = (
                 const multisigRedeemer: InitiateMultiSig = {
                     output_reference: {
                         txHash: {
-                            hash: initiatorUTxOs[0].txHash,
+                            hash: selectedUTxOs[0].txHash,
                         },
-                        outputIndex: BigInt(initiatorUTxOs[0].outputIndex),
+                        outputIndex: BigInt(selectedUTxOs[0].outputIndex),
                     },
                     input_index: initiatorIndex,
                 };
@@ -77,6 +77,7 @@ export const initiateMultiSig = (
             threshold: config.threshold,
             funds: config.funds,
             spendingLimit: config.spendingLimit,
+            minimum_ada: config.minimum_ada,
         };
 
         const outputDatum = Data.to<MultisigDatum>(
@@ -91,7 +92,7 @@ export const initiateMultiSig = (
 
         const tx = yield* lucid
             .newTx()
-            .collectFrom(initiatorUTxOs)
+            .collectFrom(selectedUTxOs)
             .mintAssets({ [multisigNFT]: 1n }, initiateMultiSigRedeemer)
             .pay.ToAddressWithData(validators.spendValAddress, {
                 kind: "inline",

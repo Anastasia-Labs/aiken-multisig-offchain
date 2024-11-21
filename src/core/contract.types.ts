@@ -30,6 +30,7 @@ export const MultisigDatumSchema = Data.Object({
   threshold: Data.Integer(),
   funds: AssetClassSchema,
   spendingLimit: Data.Integer(),
+  minimum_ada: Data.Integer(),
 });
 
 export type MultisigDatum = Data.Static<typeof MultisigDatumSchema>;
