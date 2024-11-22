@@ -1,45 +1,50 @@
 import { Data } from "@lucid-evolution/lucid";
 
-// Define the datum and redeemer structures
-//pub type AssetClass {
-//  policy_id: ByteArray,
-//  asset_name: ByteArray,
-//}
+export const OutputReferenceSchema = Data.Object({
+  txHash: Data.Object({ hash: Data.Bytes({ minLength: 32, maxLength: 32 }) }),
+  outputIndex: Data.Integer(),
+});
+
+export type OutputReference = Data.Static<typeof OutputReferenceSchema>;
+export const OutputReference =
+  OutputReferenceSchema as unknown as OutputReference;
+
+export const CreateMintSchema = Data.Object({
+  output_reference: OutputReferenceSchema,
+  input_index: Data.Integer(),
+});
+
 export const AssetClassSchema = Data.Object({
-      policyId: Data.Bytes(),
-      assetName: Data.Bytes(),
-  });
+  policyId: Data.Bytes(),
+  assetName: Data.Bytes(),
+});
 
 export type AssetClass = Data.Static<typeof AssetClassSchema>;
 export const AssetClass = AssetClassSchema as unknown as AssetClass;
 
-//pub type MultisigDatum {
-//  signers: List<PubKeyHash>,
-//  threshold: Int,
-//  funds: AssetClass,
-//  spending_limit: Int,
-// }
+export type InitiateMultiSig = Data.Static<typeof CreateMintSchema>;
+export const InitiateMultiSig = CreateMintSchema as unknown as InitiateMultiSig;
+
 export const MultisigDatumSchema = Data.Object({
-    signers: Data.Array(Data.Bytes()), // list of pub key hashes
-    threshold: Data.Integer(),
-    funds: AssetClassSchema,
-    spendingLimit: Data.Integer(),
-  });
+  signers: Data.Array(Data.Bytes()), // list of pub key hashes
+  threshold: Data.Integer(),
+  funds: AssetClassSchema,
+  spendingLimit: Data.Integer(),
+  minimum_ada: Data.Integer(),
+});
 
 export type MultisigDatum = Data.Static<typeof MultisigDatumSchema>;
 export const MultisigDatum = MultisigDatumSchema as unknown as MultisigDatum;
 
 export const MultisigRedeemerSchema = Data.Enum([
-    Data.Literal("Sign"),
-    Data.Literal("Update"),
-  ]);
+  Data.Literal("Sign"),
+  Data.Literal("Update"),
+  Data.Literal("Remove"),
+]);
 
-//pub type MultisigRedeemer {
-//  Sign
-//  Update
-//}
 export type MultisigRedeemer = Data.Static<typeof MultisigRedeemerSchema>;
-export const MultisigRedeemer = MultisigRedeemerSchema as unknown as MultisigRedeemer;
+export const MultisigRedeemer =
+  MultisigRedeemerSchema as unknown as MultisigRedeemer;
 
 export const CredentialSchema = Data.Enum([
   Data.Object({
@@ -70,7 +75,7 @@ export const AddressSchema = Data.Object({
           }),
         ]),
       }),
-    ])
+    ]),
   ),
 });
 export type AddressD = Data.Static<typeof AddressSchema>;

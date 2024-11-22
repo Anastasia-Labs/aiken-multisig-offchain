@@ -8,29 +8,24 @@ import {
   TransactionError,
   TxSignBuilder,
 } from "@lucid-evolution/lucid";
-
-import { UpdateValidateConfig } from "../core/types.js";
+import { ValidateSignConfig } from "../core/types.js";
 import { Effect } from "effect";
 import { MultisigDatum } from "../core/contract.types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
 import { getMultisigDatum } from "../core/utils.js";
 
-// adjust threshold
-// add signers
-// remove signer and adjust thershold
-export const validateUpdate = (
+export const validateSign = (
   lucid: LucidEvolution,
-  config: UpdateValidateConfig,
+  config: ValidateSignConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
   Effect.gen(function* () {
     const validators = getSignValidators(lucid, config.scripts);
-
     const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
     const multisigAddress = validators.spendValAddress;
 
     const multisigUTxOs = yield* Effect.promise(() =>
-      lucid.config().provider.getUtxos(multisigAddress)
+      lucid.utxosAt(multisigAddress)
     );
     if (!multisigUTxOs) {
       console.error("No UTxOs with that Address " + multisigAddress);
@@ -52,7 +47,7 @@ export const validateUpdate = (
       )
     );
 
-    const updateRedeemer: RedeemerBuilder = {
+    const signRedeemer: RedeemerBuilder = {
       kind: "selected",
       makeRedeemer: (inputIndices: bigint[]) => {
         // Construct the redeemer using the input indices
@@ -61,7 +56,7 @@ export const validateUpdate = (
 
         return Data.to(
           new Constr(1, [
-            new Constr(1, [
+            new Constr(0, [
               BigInt(multisigIndex),
               BigInt(multisigOutIndex),
             ]),
@@ -75,43 +70,36 @@ export const validateUpdate = (
     const parsedDatum = yield* Effect.promise(() =>
       getMultisigDatum([multisigUTxO])
     );
-    const inputDatum: MultisigDatum = {
+
+    const multisigDatum: MultisigDatum = {
       signers: parsedDatum[0].signers, // list of pub key hashes
       threshold: parsedDatum[0].threshold,
       funds: parsedDatum[0].funds,
       spendingLimit: parsedDatum[0].spendingLimit,
       minimum_ada: parsedDatum[0].minimum_ada,
     };
-
-    const outputDatum: MultisigDatum = {
-      signers: config.new_signers, // list of pub key hashes
-      threshold: config.new_threshold,
-      funds: config.funds,
-      spendingLimit: config.new_spendingLimit,
-      minimum_ada: config.minimum_ada,
-    };
-    const outputDatumData = Data.to<MultisigDatum>(outputDatum, MultisigDatum);
-
-    console.log("Limit: ", outputDatum.spendingLimit);
-
-    const totalInputLovelace = BigInt(multisigUTxO.assets.lovelace);
+    const outputDatum = Data.to<MultisigDatum>(multisigDatum, MultisigDatum);
+    const multisigValue = multisigUTxO.assets.lovelace;
+    const contractBalance = multisigValue - config.withdrawalAmount;
 
     const tx = yield* lucid
       .newTx()
-      .collectFrom([multisigUTxO], updateRedeemer)
+      .collectFrom([multisigUTxO], signRedeemer)
       .pay.ToContract(
         validators.spendValAddress,
-        { kind: "inline", value: outputDatumData },
+        { kind: "inline", value: outputDatum },
         {
-          lovelace: totalInputLovelace,
+          lovelace: contractBalance,
           [multisigNFT]: 1n,
         },
       )
+      .pay.ToAddress(config.recipientAddress, {
+        lovelace: config.withdrawalAmount,
+      })
       .attach.SpendingValidator(validators.spendValidator)
-      .addSignerKey(inputDatum.signers[0])
-      .addSignerKey(inputDatum.signers[1])
-      .addSignerKey(inputDatum.signers[2])
+      .addSignerKey(config.signersList[0])
+      .addSignerKey(config.signersList[1])
+      .addSignerKey(config.signersList[2])
       .completeProgram();
-
     return tx;
   });
