@@ -21,10 +21,6 @@ export const endMultiSig = (
     config: SignConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
     Effect.gen(function* () {
-        // const initiatorAddress: Address = yield* Effect.promise(() =>
-        //     lucid.wallet().address()
-        // );
-
         const validators = getSignValidators(lucid, config.scripts);
         const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
 

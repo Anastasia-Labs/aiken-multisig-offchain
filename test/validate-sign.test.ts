@@ -47,7 +47,7 @@ export const validateSignTestCase = (
     }
 
     const validateSignConfig: ValidateSignConfig = {
-      withdrawalAmount: 20_000_000n,
+      withdrawalAmount: 10_000_000n,
       recipientAddress: recipient.address,
       signersList: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
       scripts: multiSigScript,
