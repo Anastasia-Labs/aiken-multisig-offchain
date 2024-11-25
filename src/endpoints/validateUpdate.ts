@@ -92,8 +92,6 @@ export const validateUpdate = (
     };
     const outputDatumData = Data.to<MultisigDatum>(outputDatum, MultisigDatum);
 
-    console.log("Limit: ", outputDatum.spendingLimit);
-
     const totalInputLovelace = BigInt(multisigUTxO.assets.lovelace);
 
     const tx = yield* lucid

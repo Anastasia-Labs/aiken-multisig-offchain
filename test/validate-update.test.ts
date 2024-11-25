@@ -93,18 +93,9 @@ export const updateTestCase = (
     });
     if (emulator) yield* Effect.sync(() => emulator.awaitBlock(10));
 
-    console.log(
-      "utxos at initiator address",
-      yield* Effect.promise(() => lucid.utxosAt(initiator.address)),
-    );
-
     const valAddress = validatorToAddress(
       lucid.config().network,
       multisigValidator.spendMultiSig,
-    );
-    console.log(
-      "utxos at validator address",
-      yield* Effect.promise(() => lucid.utxosAt(valAddress)),
     );
 
     const signResult = yield* UpdateSignFlow.pipe(

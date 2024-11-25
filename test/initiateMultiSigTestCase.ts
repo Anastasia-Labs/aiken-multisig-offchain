@@ -42,10 +42,7 @@ export const initiateMultiSigTestCase = (
             scripts: multiSigScript,
         };
         lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
-        console.log(
-            "utxos at initiator address",
-            yield* Effect.promise(() => lucid.utxosAt(initiator.address)),
-        );
+
         const initiateMultiSigFlow = Effect.gen(function* (_) {
             const initiateMultisigUnsigned = yield* initiateMultiSig(
                 lucid,

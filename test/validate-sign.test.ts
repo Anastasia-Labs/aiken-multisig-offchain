@@ -92,15 +92,6 @@ export const validateSignTestCase = (
       multisigValidator.spendMultiSig,
     );
 
-    console.log(
-      "utxos at recipient address",
-      yield* Effect.promise(() => lucid.utxosAt(recipient.address)),
-    );
-    console.log(
-      "utxos at validator address",
-      yield* Effect.promise(() => lucid.utxosAt(valAddress)),
-    );
-
     const validateSignResult = yield* validateSignFlow.pipe(
       Effect.tapError((error) =>
         Effect.log(`Error Validating Successful Sign: ${error}`)
