@@ -16,8 +16,11 @@ export function readMultiSigValidators(
     policyIds: string[],
 ): Validators {
     const getValidator = (title: string): Script => {
-        const validator = blueprint.validators.find((v) => v.title === title);
+        const validator = blueprint.validators.find((v: { title: string }) =>
+            v.title === title
+        );
         if (!validator) throw new Error(`Validator not found: ${title}`);
+        console.log(`Validator found: ${title}`);
 
         let script = applyDoubleCborEncoding(validator.compiledCode);
 
@@ -26,13 +29,13 @@ export function readMultiSigValidators(
         // }
 
         return {
-            type: "PlutusV2",
+            type: "PlutusV3",
             script: script,
         };
     };
 
     return {
-        spendMultiSig: getValidator("multisig.multisig_validator"),
-        mintMultiSig: getValidator("multisig.multisig_policy"),
+        spendMultiSig: getValidator("multisig.multisig.spend"),
+        mintMultiSig: getValidator("multisig.multisig.mint"),
     };
 }

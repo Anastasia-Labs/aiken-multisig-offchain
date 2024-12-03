@@ -3,7 +3,7 @@ import { expect, test } from "vitest";
 import { Effect } from "effect";
 import { validateSign } from "../src/endpoints/validateSign.js";
 import { LucidContext, makeLucidContext } from "./common/lucidContext.js";
-import { multiSigScript, multisigValidator } from "./common/constants.js";
+import { multiSigScript } from "./common/constants.js";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase.js";
 import { getUserAddressAndPKH } from "../src/core/utils.js";
 
@@ -86,11 +86,6 @@ export const validateSignTestCase = (
     });
 
     if (emulator) yield* Effect.sync(() => emulator.awaitBlock(10));
-
-    const valAddress = validatorToAddress(
-      lucid.config().network,
-      multisigValidator.spendMultiSig,
-    );
 
     const validateSignResult = yield* validateSignFlow.pipe(
       Effect.tapError((error) =>

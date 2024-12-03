@@ -27,7 +27,7 @@ export const endMultiSig = (
         const multisigAddress = validators.mintPolicyAddress;
 
         const multisigUTxOs = yield* Effect.promise(() =>
-            lucid.config().provider.getUtxos(multisigAddress)
+            lucid.utxosAt(multisigAddress)
         );
         if (!multisigUTxOs) {
             console.error("No UTxOs with that Address " + multisigAddress);
@@ -99,6 +99,13 @@ export const endMultiSig = (
             [multisigNFT]: -1n,
         };
 
+        console.log("Signers:", multisigDatum.signers);
+        console.log("Threshold:", multisigDatum.threshold);
+
+        console.log("multisigDatum initiator", multisigDatum.signers[0]);
+        console.log("multisigDatum signer1", multisigDatum.signers[1]);
+        console.log("multisigDatum signer2", multisigDatum.signers[2]);
+
         const tx = yield* lucid
             .newTx()
             .collectFrom([multisigUTxO], removeMultiSigRedeemer)
@@ -109,7 +116,10 @@ export const endMultiSig = (
             .addSignerKey(multisigDatum.signers[0])
             .addSignerKey(multisigDatum.signers[1])
             .addSignerKey(multisigDatum.signers[2])
-            .completeProgram();
+            .completeProgram({
+                localUPLCEval: false,
+                setCollateral: 0n,
+            });
 
         return tx;
     });

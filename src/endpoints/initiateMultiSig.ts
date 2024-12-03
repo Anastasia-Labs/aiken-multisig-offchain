@@ -8,12 +8,15 @@ import {
     toUnit,
     TransactionError,
     TxSignBuilder,
+    UTxO,
 } from "@lucid-evolution/lucid";
 import { InitiateMultiSig, MultisigDatum } from "../core/contract.types.js";
-import { Effect } from "effect";
+import { Console, Effect } from "effect";
 import { MultiSigConfig } from "../core/types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { generateUniqueAssetName } from "../core/utils/assets.js";
+import { logTrace } from "effect/Effect";
+import { off } from "process";
 
 export const initiateMultiSig = (
     lucid: LucidEvolution,
@@ -37,12 +40,9 @@ export const initiateMultiSig = (
 
         // Selecting a UTxO containing more than the total funds required
         // for the transaction and at least 2ADA to cover tx fees and min ADA
-        const selectedUTxOs = initiatorUTxOs.filter(
-            (utxo) =>
-                utxo.assets.lovelace >=
-                    config.totalFundsQty + config.minimum_ada,
+        const selectedUTxOs = initiatorUTxOs.filter((utxo: UTxO) =>
+            utxo.assets.lovelace >= config.totalFundsQty + config.minimum_ada
         );
-
         const tokenName = generateUniqueAssetName(selectedUTxOs[0], "");
 
         const initiateMultiSigRedeemer: RedeemerBuilder = {
@@ -71,6 +71,19 @@ export const initiateMultiSig = (
             // Specify the inputs relevant to the redeemer
             inputs: [selectedUTxOs[0]],
         };
+        console.log(`selectedUTxOs: ${selectedUTxOs}`);
+        console.log(
+            "selectedUTxOs:",
+            JSON.stringify(
+                initiatorUTxOs,
+                (key, value) =>
+                    typeof value === "bigint" ? value.toString() : value,
+                2,
+            ),
+        );
+        // Console.log(`initiateMultiSigRedeemer: ${initiateMultiSigRedeemer}`);
+        // Console.log()
+        console.log(`validators.mintPolicy: ${validators.mintPolicy}`);
 
         const multisigDatum: MultisigDatum = {
             signers: config.signers, // list of pub key hashes
@@ -90,6 +103,10 @@ export const initiateMultiSig = (
             tokenName,
         );
 
+        // console.log(
+        //     `selectedUTxOs: ${JSON.stringify(initiatorUTxOs, null, 2)}`,
+        // );
+
         const tx = yield* lucid
             .newTx()
             .collectFrom(selectedUTxOs)
@@ -102,7 +119,10 @@ export const initiateMultiSig = (
                 [multisigNFT]: 1n,
             })
             .attach.MintingPolicy(validators.mintPolicy)
-            .completeProgram();
+            .completeProgram({
+                localUPLCEval: false,
+                setCollateral: 0n,
+            });
 
         return tx;
     });

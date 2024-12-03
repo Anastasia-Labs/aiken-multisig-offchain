@@ -100,6 +100,9 @@ export const validateSign = (
       .addSignerKey(config.signersList[0])
       .addSignerKey(config.signersList[1])
       .addSignerKey(config.signersList[2])
-      .completeProgram();
+      .completeProgram({
+        localUPLCEval: false,
+        setCollateral: 0n,
+      });
     return tx;
   });

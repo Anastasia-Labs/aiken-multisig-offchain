@@ -30,7 +30,7 @@ export const validateUpdate = (
     const multisigAddress = validators.spendValAddress;
 
     const multisigUTxOs = yield* Effect.promise(() =>
-      lucid.config().provider.getUtxos(multisigAddress)
+      lucid.utxosAt(multisigAddress)
     );
     if (!multisigUTxOs) {
       console.error("No UTxOs with that Address " + multisigAddress);
@@ -109,7 +109,10 @@ export const validateUpdate = (
       .addSignerKey(inputDatum.signers[0])
       .addSignerKey(inputDatum.signers[1])
       .addSignerKey(inputDatum.signers[2])
-      .completeProgram();
+      .completeProgram({
+        localUPLCEval: false,
+        setCollateral: 0n,
+      });
 
     return tx;
   });

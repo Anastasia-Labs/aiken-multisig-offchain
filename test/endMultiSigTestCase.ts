@@ -34,6 +34,12 @@ export const endMultiSigTestCase = (
             getUserAddressAndPKH(lucid, users.recipient.seedPhrase)
         );
 
+        console.log("initiator", initiator.pkh);
+        console.log("signer1", signer1.pkh);
+        console.log("signer2", signer2.pkh);
+        console.log("signer3", signer3.pkh);
+        console.log("recipient", recipient.pkh);
+
         if (emulator && lucid.config().network === "Custom") {
             const initiateMultiSigResult = yield* initiateMultiSigTestCase({
                 lucid,
@@ -59,7 +65,7 @@ export const endMultiSigTestCase = (
             scripts: multiSigScript,
         };
 
-        lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
+        // lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
         const endMultiSigFlow = Effect.gen(function* (_) {
             const endMultisigUnsigned = yield* endMultiSig(
                 lucid,
@@ -75,6 +81,11 @@ export const endMultiSigTestCase = (
                     users.signer2.seedPhrase,
                 ]
             ) {
+                const { pkh } = yield* Effect.promise(() =>
+                    getUserAddressAndPKH(lucid, signerSeed)
+                );
+                console.log("Current Signer PKH:", pkh);
+
                 lucid.selectWallet.fromSeed(signerSeed);
                 const partialSignSigner = yield* Effect.promise(() =>
                     endMultisigUnsigned.partialSign
@@ -87,6 +98,7 @@ export const endMultiSigTestCase = (
             const completeSign = yield* Effect.promise(() =>
                 assembleTx.complete()
             );
+            console.log("completeSign:", completeSign.toCBOR());
 
             const signTxHash = yield* Effect.promise(() =>
                 completeSign.submit()
