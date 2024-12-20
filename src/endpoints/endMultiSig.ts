@@ -99,7 +99,7 @@ export const endMultiSig = (
             [multisigNFT]: -1n,
         };
 
-        console.log("Signers:", multisigDatum.signers);
+        // console.log("Signers:", multisigDatum.signers);
         console.log("Threshold:", multisigDatum.threshold);
 
         console.log("multisigDatum initiator", multisigDatum.signers[0]);

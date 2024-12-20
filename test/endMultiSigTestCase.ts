@@ -1,5 +1,11 @@
 import { Effect } from "effect";
-import { endMultiSig, getUserAddressAndPKH, SignConfig } from "../src";
+import {
+    endMultiSig,
+    generatePrivateKey,
+    getUserAddressAndPKH,
+    SignConfig,
+    walletFromSeed,
+} from "../src";
 import { LucidContext } from "./common/lucidContext";
 import { multiSigScript } from "./common/constants";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase";
@@ -33,12 +39,6 @@ export const endMultiSigTestCase = (
         const recipient = yield* Effect.promise(() =>
             getUserAddressAndPKH(lucid, users.recipient.seedPhrase)
         );
-
-        console.log("initiator", initiator.pkh);
-        console.log("signer1", signer1.pkh);
-        console.log("signer2", signer2.pkh);
-        console.log("signer3", signer3.pkh);
-        console.log("recipient", recipient.pkh);
 
         if (emulator && lucid.config().network === "Custom") {
             const initiateMultiSigResult = yield* initiateMultiSigTestCase({
@@ -74,31 +74,63 @@ export const endMultiSigTestCase = (
 
             const partialSignatures: string[] = [];
 
-            for (
-                const signerSeed of [
-                    users.initiator.seedPhrase,
-                    users.signer1.seedPhrase,
-                    users.signer2.seedPhrase,
-                ]
-            ) {
-                const { pkh } = yield* Effect.promise(() =>
-                    getUserAddressAndPKH(lucid, signerSeed)
-                );
-                console.log("Current Signer PKH:", pkh);
+            // for (
+            //     const signerSeed of [
+            //         users.initiator.seedPhrase,
+            //         users.signer1.seedPhrase,
+            //         users.signer2.seedPhrase,
+            //     ]
+            // ) {
+            //     const { pkh } = yield* Effect.promise(() =>
+            //         getUserAddressAndPKH(lucid, signerSeed)
+            //     );
+            //     console.log("Current Signer PKH:", pkh);
 
-                lucid.selectWallet.fromSeed(signerSeed);
-                const partialSignSigner = yield* Effect.promise(() =>
-                    endMultisigUnsigned.partialSign
-                        .withWallet()
-                );
-                partialSignatures.push(partialSignSigner);
-            }
+            // lucid.selectWallet.fromSeed(signerSeed);
+            //     const privateKey = yield* Effect.promise(() =>)lucid.wallet.
+            // const partialSignSigner = yield* Effect.promise(() =>
+            //     endMultisigUnsigned.partialSign
+            //         .withPrivateKey()
+            // );
+            //     partialSignatures.push(partialSignSigner);
+            //     console.log("partialSignatures:", partialSignatures);
+            // }
 
-            const assembleTx = endMultisigUnsigned.assemble(partialSignatures);
+            // lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
+            const privKey = walletFromSeed(users.initiator.seedPhrase);
+
+            const partialSignSigner = yield* Effect.promise(() =>
+                endMultisigUnsigned.partialSign
+                    .withPrivateKey(privKey.paymentKey)
+            );
+
+            // lucid.selectWallet.fromSeed(users.signer1.seedPhrase);
+            const privKey1 = walletFromSeed(users.signer1.seedPhrase);
+            const partialSignSigner2 = yield* Effect.promise(() =>
+                endMultisigUnsigned.partialSign
+                    .withPrivateKey(privKey1.paymentKey)
+            );
+            // lucid.selectWallet.fromSeed(users.signer2.seedPhrase);
+            const privKey2 = walletFromSeed(users.signer2.seedPhrase);
+            const partialSignSigner3 = yield* Effect.promise(() =>
+                endMultisigUnsigned.partialSign
+                    .withPrivateKey(privKey2.paymentKey)
+            );
+
+            console.log("partialSignSigner:", partialSignSigner);
+            console.log("partialSignSigner2:", partialSignSigner2);
+            console.log("partialSignSigner3:", partialSignSigner3);
+
+            const assembleTx = endMultisigUnsigned.assemble([
+                partialSignSigner,
+                partialSignSigner2,
+                partialSignSigner3,
+            ]);
             const completeSign = yield* Effect.promise(() =>
                 assembleTx.complete()
             );
-            console.log("completeSign:", completeSign.toCBOR());
+            console.log("partialSignatures:", partialSignatures.length);
+            console.dir(completeSign.toJSON(), { depth: null });
 
             const signTxHash = yield* Effect.promise(() =>
                 completeSign.submit()

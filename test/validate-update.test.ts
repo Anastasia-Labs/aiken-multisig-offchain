@@ -93,11 +93,6 @@ export const updateTestCase = (
     });
     if (emulator) yield* Effect.sync(() => emulator.awaitBlock(10));
 
-    const valAddress = validatorToAddress(
-      lucid.config().network,
-      multisigValidator.spendMultiSig,
-    );
-
     const signResult = yield* UpdateSignFlow.pipe(
       Effect.tapError((error) =>
         Effect.log(`Error creating Account: ${error}`)
