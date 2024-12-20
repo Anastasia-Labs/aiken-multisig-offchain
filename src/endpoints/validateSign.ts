@@ -47,8 +47,6 @@ export const validateSign = (
       )
     );
 
-    console.log("multisigUTxO:", multisigUTxO);
-
     const signRedeemer: RedeemerBuilder = {
       kind: "selected",
       makeRedeemer: (inputIndices: bigint[]) => {

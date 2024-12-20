@@ -111,16 +111,11 @@ export const makeMaestroContext = (
         turboSubmit: false,
     });
 
-    // const blockfrost = new Blockfrost(
-    //     "https://cardano-preprod.blockfrost.io/api/v0",
-    //     "preprodhfhVpg93ER5xDj0WQjASmhO3PBlOndis",
-    // );
-
     const lucid = yield* Effect.promise(() => Lucid(maestro, network));
-    const seed = yield* Effect.promise(() =>
-        generateAccountSeedPhrase({ lovelace: BigInt(1_000_000_000) })
-    );
-    console.log("Seed: ", seed);
+    // const seed = yield* Effect.promise(() =>
+    //     generateAccountSeedPhrase({ lovelace: BigInt(1_000_000_000) })
+    // );
+    // console.log("Seed: ", seed);
 
     return { lucid, users, emulator: undefined } as LucidContext;
 });
@@ -130,7 +125,7 @@ export const makeLucidContext = (
 ) => Effect.gen(function* ($) {
     const API_KEY = process.env.API_KEY;
     const selectedNetwork = network ?? NETWORK; // Default to Preprod if not specified
-    // const selectedNetwork = "Custom"; // Default to Preprod if not specified
+    // const selectedNetwork = "Custom";
 
     console.log("Network Target: ", selectedNetwork);
     if (API_KEY && selectedNetwork !== "Custom") {
