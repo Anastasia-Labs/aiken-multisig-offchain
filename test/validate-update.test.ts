@@ -67,6 +67,7 @@ export const updateTestCase = (
         updateValidatorConfig,
       );
 
+      const cboredTx = signTxUnSigned.toCBOR();
       const partialSignatures: string[] = [];
 
       for (
@@ -77,11 +78,11 @@ export const updateTestCase = (
         ]
       ) {
         lucid.selectWallet.fromSeed(signerSeed);
-        const partialSignSigner = yield* Effect.promise(() =>
-          signTxUnSigned.partialSign
-            .withWallet()
-        );
-        partialSignatures.push(partialSignSigner);
+        const partialSigner = yield* lucid
+          .fromTx(cboredTx)
+          .partialSign
+          .withWalletEffect();
+        partialSignatures.push(partialSigner);
       }
 
       const assembleTx = signTxUnSigned.assemble(partialSignatures);
@@ -92,11 +93,6 @@ export const updateTestCase = (
       return signTxHash;
     });
     if (emulator) yield* Effect.sync(() => emulator.awaitBlock(10));
-
-    const valAddress = validatorToAddress(
-      lucid.config().network,
-      multisigValidator.spendMultiSig,
-    );
 
     const signResult = yield* UpdateSignFlow.pipe(
       Effect.tapError((error) =>

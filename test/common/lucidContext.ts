@@ -1,4 +1,5 @@
 import {
+    Blockfrost,
     Emulator,
     generateEmulatorAccount,
     Lucid,
@@ -8,6 +9,7 @@ import {
 } from "@lucid-evolution/lucid";
 import { Effect } from "effect";
 import dotenv from "dotenv";
+import { generateAccountSeedPhrase } from "../../src";
 dotenv.config();
 
 export type LucidContext = {
@@ -109,11 +111,16 @@ export const makeMaestroContext = (
         turboSubmit: false,
     });
 
-    const lucid = yield* Effect.promise(() => Lucid(maestro, network));
-    // const seed = yield* Effect.promise(() =>
-    //     generateAccountSeedPhrase({ lovelace: BigInt(1_000_000_000) })
+    // const blockfrost = new Blockfrost(
+    //     "https://cardano-preprod.blockfrost.io/api/v0",
+    //     "preprodhfhVpg93ER5xDj0WQjASmhO3PBlOndis",
     // );
-    // console.log("Seed: ", seed);
+
+    const lucid = yield* Effect.promise(() => Lucid(maestro, network));
+    const seed = yield* Effect.promise(() =>
+        generateAccountSeedPhrase({ lovelace: BigInt(1_000_000_000) })
+    );
+    console.log("Seed: ", seed);
 
     return { lucid, users, emulator: undefined } as LucidContext;
 });

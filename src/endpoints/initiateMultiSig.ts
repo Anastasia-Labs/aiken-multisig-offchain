@@ -102,7 +102,7 @@ export const initiateMultiSig = (
                 [multisigNFT]: 1n,
             })
             .attach.MintingPolicy(validators.mintPolicy)
-            .completeProgram();
+            .completeProgram({ localUPLCEval: false });
 
         return tx;
     });

@@ -66,6 +66,7 @@ export const endMultiSigTestCase = (
                 signConfig,
             );
 
+            const cboredTx = endMultisigUnsigned.toCBOR();
             const partialSignatures: string[] = [];
 
             for (
@@ -76,11 +77,11 @@ export const endMultiSigTestCase = (
                 ]
             ) {
                 lucid.selectWallet.fromSeed(signerSeed);
-                const partialSignSigner = yield* Effect.promise(() =>
-                    endMultisigUnsigned.partialSign
-                        .withWallet()
-                );
-                partialSignatures.push(partialSignSigner);
+                const partialSigner = yield* lucid
+                    .fromTx(cboredTx)
+                    .partialSign
+                    .withWalletEffect();
+                partialSignatures.push(partialSigner);
             }
 
             const assembleTx = endMultisigUnsigned.assemble(partialSignatures);

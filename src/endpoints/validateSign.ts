@@ -47,6 +47,8 @@ export const validateSign = (
       )
     );
 
+    console.log("multisigUTxO:", multisigUTxO);
+
     const signRedeemer: RedeemerBuilder = {
       kind: "selected",
       makeRedeemer: (inputIndices: bigint[]) => {
@@ -100,6 +102,6 @@ export const validateSign = (
       .addSignerKey(config.signersList[0])
       .addSignerKey(config.signersList[1])
       .addSignerKey(config.signersList[2])
-      .completeProgram();
+      .completeProgram({ localUPLCEval: false });
     return tx;
   });
