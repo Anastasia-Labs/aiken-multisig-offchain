@@ -100,15 +100,22 @@ const multisigScripts = {
 ### Initiate Multisig Contract
 
 ```ts
-import { initiateMultisig, InitiateMultisigConfig } from "@anastasia-labs/aiken-multisig-offchain";
+import { initiateMultisig, MultiSigConfig } from "@anastasia-labs/aiken-multisig-offchain";
+import { multiSigScript } from "./common/constants";
 
 // Define signatories' public key hashes
 const initiatorPkh = getAddressDetails(initiatorAddress).paymentCredential?.hash!;
 const signer1Pkh = getAddressDetails(signer1Address).paymentCredential?.hash!;
 const signer2Pkh = getAddressDetails(signer2Address).paymentCredential?.hash!;
 
+// Use with multisig script miniting and spending endpoint.
+const multiSigScript = {
+    spending: ...,
+    minting: ...,
+};
+
 // Configure the multisig parameters
-const initConfig: InitiateMultisigConfig = {
+const initConfig: MultiSigConfig = {
   signers: [initiatorPkh, signer1Pkh, signer2Pkh],
   threshold: 2n, // Require two out of three signatures
   funds: {
@@ -141,8 +148,8 @@ import { validateSign, ValidateSignConfig } from "@anastasia-labs/aiken-multisig
 
 // Configure the sign transaction
 const validateSignConfig: ValidateSignConfig = {
-  withdrawalAmount: 5_000_000n, // Amount to withdraw in lovelace
-  recipientAddress: recipientAddress, // Address to receive the funds
+  withdrawal_amount: 5_000_000n, // Amount to withdraw in lovelace
+  recipient_address: recipient_address, // Address to receive the funds
   signersList: [initiatorPkh, signer1Pkh], // Signatories participating
   scripts: multisigScripts,
 };
@@ -189,7 +196,6 @@ const updateConfig: UpdateValidateConfig = {
   },
   newSpendingLimit: 15_000_000n,
   minimumAda: 2_000_000n,
-  scripts: multisigScripts,
 };
 
 // Validate and prepare the update transaction
@@ -233,7 +239,6 @@ const addSignerConfig: UpdateValidateConfig = {
   },
   newSpendingLimit: 20_000_000n,
   minimumAda: 2_000_000n,
-  scripts: multisigScripts,
 };
 
 // Proceed with validation and signing as shown in the update example
@@ -256,7 +261,6 @@ const removeSignerConfig: UpdateValidateConfig = {
   },
   newSpendingLimit: 10_000_000n,
   minimumAda: 2_000_000n,
-  scripts: multisigScripts,
 };
 
 // Proceed with validation and signing as shown in the update example

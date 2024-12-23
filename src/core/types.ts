@@ -15,26 +15,18 @@ export type MultiSigConfig = {
   signers: string[];
   threshold: bigint;
   funds: AssetClass;
-  spendingLimit: bigint;
-  totalFundsQty: bigint;
+  spending_limit: bigint;
+  total_funds_qty: bigint;
   minimum_ada: bigint;
-  scripts: {
-    spending: CborHex;
-    minting: CborHex;
-  };
 };
 
 export type SignConfig = {
   signers: string[];
   threshold: bigint;
   funds: AssetClass;
-  spendingLimit: bigint;
+  spending_limit: bigint;
   minimum_ada: bigint;
-  recipientAddress: Address;
-  scripts: {
-    spending: CborHex;
-    minting: CborHex;
-  };
+  recipient_address: Address;
 };
 
 export type MultiSigValidators = {
@@ -45,25 +37,17 @@ export type MultiSigValidators = {
 };
 
 export type ValidateSignConfig = {
-  withdrawalAmount: bigint;
-  recipientAddress: Address;
+  withdrawal_amount: bigint;
+  recipient_address: Address;
   signersList: string[];
-  scripts: {
-    spending: CborHex;
-    minting: CborHex;
-  };
 };
 
 export type UpdateValidateConfig = {
   new_signers: string[];
   new_threshold: bigint; // new threshold
   funds: AssetClass;
-  new_spendingLimit: bigint;
+  new_spending_limit: bigint;
   minimum_ada: bigint;
-  scripts: {
-    spending: CborHex;
-    minting: CborHex;
-  };
 };
 
 export type Config = {

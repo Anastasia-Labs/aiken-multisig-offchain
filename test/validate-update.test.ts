@@ -4,7 +4,6 @@ import { Effect } from "effect";
 import { getUserAddressAndPKH } from "../src/core/utils.js";
 import { validateUpdate } from "../src/endpoints/validateUpdate.js";
 import { LucidContext, makeLucidContext } from "./common/lucidContext.js";
-import { multiSigScript, multisigValidator } from "./common/constants.js";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase.js";
 
 type UpdateSignResult = {
@@ -54,9 +53,8 @@ export const updateTestCase = (
         policyId: "",
         assetName: "",
       },
-      new_spendingLimit: 20_000_000n,
+      new_spending_limit: 20_000_000n,
       minimum_ada: 2_000_000n,
-      scripts: multiSigScript,
     };
 
     lucid.selectWallet.fromSeed(users.initiator.seedPhrase);

@@ -4,7 +4,6 @@ import {
     LucidEvolution,
     mintingPolicyToId,
     RedeemerBuilder,
-    selectUTxOs,
     toUnit,
     TransactionError,
     TxSignBuilder,
@@ -14,6 +13,7 @@ import { Effect } from "effect";
 import { MultiSigConfig } from "../core/types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { generateUniqueAssetName } from "../core/utils/assets.js";
+import { multiSigScript } from "../core/constants.js";
 
 export const initiateMultiSig = (
     lucid: LucidEvolution,
@@ -23,7 +23,7 @@ export const initiateMultiSig = (
         const initiatorAddress: Address = yield* Effect.promise(() =>
             lucid.wallet().address()
         );
-        const validators = getSignValidators(lucid, config.scripts);
+        const validators = getSignValidators(lucid, multiSigScript);
         const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
 
         const initiatorUTxOs = yield* Effect.promise(() =>
@@ -40,8 +40,10 @@ export const initiateMultiSig = (
         const selectedUTxOs = initiatorUTxOs.filter(
             (utxo) =>
                 utxo.assets.lovelace >=
-                    config.totalFundsQty + config.minimum_ada,
+                    config.total_funds_qty + config.minimum_ada,
         );
+
+        console.log("selectedUTxOs: ", initiatorUTxOs);
 
         const tokenName = generateUniqueAssetName(selectedUTxOs[0], "");
 
@@ -76,7 +78,7 @@ export const initiateMultiSig = (
             signers: config.signers, // list of pub key hashes
             threshold: config.threshold,
             funds: config.funds,
-            spendingLimit: config.spendingLimit,
+            spendingLimit: config.spending_limit,
             minimum_ada: config.minimum_ada,
         };
 
@@ -98,7 +100,7 @@ export const initiateMultiSig = (
                 kind: "inline",
                 value: outputDatum,
             }, {
-                lovelace: config.totalFundsQty,
+                lovelace: config.total_funds_qty,
                 [multisigNFT]: 1n,
             })
             .attach.MintingPolicy(validators.mintPolicy)

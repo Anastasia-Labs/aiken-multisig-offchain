@@ -1,6 +1,6 @@
 import { mintingPolicyToId } from "@lucid-evolution/lucid";
-import { readMultiSigValidators } from "./validators";
-import blueprint from "../compiled/multisig_validator.json" assert {
+import { readMultiSigValidators } from "./utils/validators.js";
+import blueprint from "./compiled/multisig_validator.json" assert {
     type: "json",
 };
 

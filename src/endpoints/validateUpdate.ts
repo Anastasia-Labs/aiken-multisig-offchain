@@ -8,13 +8,13 @@ import {
   TransactionError,
   TxSignBuilder,
 } from "@lucid-evolution/lucid";
-
 import { UpdateValidateConfig } from "../core/types.js";
 import { Effect } from "effect";
 import { MultisigDatum } from "../core/contract.types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
 import { getMultisigDatum } from "../core/utils.js";
+import { multiSigScript } from "../core/constants.js";
 
 // adjust threshold
 // add signers
@@ -24,7 +24,7 @@ export const validateUpdate = (
   config: UpdateValidateConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
   Effect.gen(function* () {
-    const validators = getSignValidators(lucid, config.scripts);
+    const validators = getSignValidators(lucid, multiSigScript);
 
     const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
     const multisigAddress = validators.spendValAddress;
@@ -87,7 +87,7 @@ export const validateUpdate = (
       signers: config.new_signers, // list of pub key hashes
       threshold: config.new_threshold,
       funds: config.funds,
-      spendingLimit: config.new_spendingLimit,
+      spendingLimit: config.new_spending_limit,
       minimum_ada: config.minimum_ada,
     };
     const outputDatumData = Data.to<MultisigDatum>(outputDatum, MultisigDatum);

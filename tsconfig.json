@@ -101,5 +101,5 @@
   },
   "include": [
       "./src/**/*"
-  ]
+, "src/core/constants.ts"  ]
 }

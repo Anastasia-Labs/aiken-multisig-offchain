@@ -1,7 +1,6 @@
 import { Effect } from "effect";
 import { initiateMultiSig, MultiSigConfig } from "../src";
 import { LucidContext } from "./common/lucidContext";
-import { multiSigScript } from "./common/constants";
 import { getUserAddressAndPKH } from "../src/core/utils";
 
 type MultiSigResult = {
@@ -36,10 +35,9 @@ export const initiateMultiSigTestCase = (
                 policyId: "",
                 assetName: "",
             },
-            spendingLimit: 10_000_000n,
-            totalFundsQty: 200_000_000n,
+            spending_limit: 5_000_000n,
+            total_funds_qty: 90_000_000n,
             minimum_ada: 2_000_000n,
-            scripts: multiSigScript,
         };
         lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
 

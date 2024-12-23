@@ -22,6 +22,9 @@ export const getSignValidators = (
   };
 
   const network = lucid.config().network;
+  if (!network) {
+    throw Error("Invalid Network Selection");
+  }
 
   const multisigPolicyAddress = validatorToAddress(network, multisigPolicy);
   const multisigValAddress = validatorToAddress(network, multisigVal);

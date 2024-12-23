@@ -14,13 +14,14 @@ import { MultisigDatum } from "../core/contract.types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
 import { getMultisigDatum } from "../core/utils.js";
+import { multiSigScript } from "../core/constants.js";
 
 export const validateSign = (
   lucid: LucidEvolution,
   config: ValidateSignConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
   Effect.gen(function* () {
-    const validators = getSignValidators(lucid, config.scripts);
+    const validators = getSignValidators(lucid, multiSigScript);
     const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
     const multisigAddress = validators.spendValAddress;
 
@@ -80,7 +81,7 @@ export const validateSign = (
     };
     const outputDatum = Data.to<MultisigDatum>(multisigDatum, MultisigDatum);
     const multisigValue = multisigUTxO.assets.lovelace;
-    const contractBalance = multisigValue - config.withdrawalAmount;
+    const contractBalance = multisigValue - config.withdrawal_amount;
 
     const tx = yield* lucid
       .newTx()
@@ -93,8 +94,8 @@ export const validateSign = (
           [multisigNFT]: 1n,
         },
       )
-      .pay.ToAddress(config.recipientAddress, {
-        lovelace: config.withdrawalAmount,
+      .pay.ToAddress(config.recipient_address, {
+        lovelace: config.withdrawal_amount,
       })
       .attach.SpendingValidator(validators.spendValidator)
       .addSignerKey(config.signersList[0])

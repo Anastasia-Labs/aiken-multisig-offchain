@@ -15,13 +15,14 @@ import { Effect } from "effect";
 import { SignConfig } from "../core/types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
+import { multiSigScript } from "../core/constants.js";
 
 export const endMultiSig = (
     lucid: LucidEvolution,
     config: SignConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
     Effect.gen(function* () {
-        const validators = getSignValidators(lucid, config.scripts);
+        const validators = getSignValidators(lucid, multiSigScript);
         const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
 
         const multisigAddress = validators.mintPolicyAddress;
@@ -89,7 +90,7 @@ export const endMultiSig = (
             signers: config.signers, // list of pub key hashes
             threshold: config.threshold,
             funds: config.funds,
-            spendingLimit: config.spendingLimit,
+            spendingLimit: config.spending_limit,
             minimum_ada: config.minimum_ada,
         };
 
@@ -103,7 +104,7 @@ export const endMultiSig = (
             .newTx()
             .collectFrom([multisigUTxO], removeMultiSigRedeemer)
             .mintAssets(mintingAssets, endMultiSigRedeemer)
-            .pay.ToAddress(config.recipientAddress, multisigValue)
+            .pay.ToAddress(config.recipient_address, multisigValue)
             .attach.MintingPolicy(validators.mintPolicy)
             .attach.SpendingValidator(validators.spendValidator)
             .addSignerKey(multisigDatum.signers[0])
