@@ -48,19 +48,19 @@ export const validateSignTestCase = (
     const validateSignConfig: ValidateSignConfig = {
       withdrawal_amount: 10_000_000n,
       recipient_address: recipient.address,
-      signersList: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
+      signers_list: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
     };
 
     console.log("initiator: ", initiator.address);
 
     lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
     const validateSignFlow = Effect.gen(function* (_) {
-      const validatesignTxUnSigned = yield* validateSign(
+      const signTxUnsigned = yield* validateSign(
         lucid,
         validateSignConfig,
       );
 
-      const cboredTx = validatesignTxUnSigned.toCBOR();
+      const cboredTx = signTxUnsigned.toCBOR();
       const partialSignatures: string[] = [];
 
       for (
@@ -78,7 +78,7 @@ export const validateSignTestCase = (
           .withWalletEffect();
         partialSignatures.push(partialSigner);
       }
-      const assembleTx = validatesignTxUnSigned.assemble(partialSignatures);
+      const assembleTx = signTxUnsigned.assemble(partialSignatures);
       const completeSign = yield* Effect.promise(() => assembleTx.complete());
 
       const signTxHash = yield* Effect.promise(() => completeSign.submit());

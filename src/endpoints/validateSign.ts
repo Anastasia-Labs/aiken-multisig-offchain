@@ -76,7 +76,7 @@ export const validateSign = (
       signers: parsedDatum[0].signers, // list of pub key hashes
       threshold: parsedDatum[0].threshold,
       funds: parsedDatum[0].funds,
-      spendingLimit: parsedDatum[0].spendingLimit,
+      spending_limit: parsedDatum[0].spending_limit,
       minimum_ada: parsedDatum[0].minimum_ada,
     };
     const outputDatum = Data.to<MultisigDatum>(multisigDatum, MultisigDatum);
@@ -98,9 +98,9 @@ export const validateSign = (
         lovelace: config.withdrawal_amount,
       })
       .attach.SpendingValidator(validators.spendValidator)
-      .addSignerKey(config.signersList[0])
-      .addSignerKey(config.signersList[1])
-      .addSignerKey(config.signersList[2])
+      .addSignerKey(config.signers_list[0])
+      .addSignerKey(config.signers_list[1])
+      .addSignerKey(config.signers_list[2])
       .completeProgram({ localUPLCEval: false });
     return tx;
   });

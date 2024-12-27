@@ -29,7 +29,7 @@ export const MultisigDatumSchema = Data.Object({
   signers: Data.Array(Data.Bytes()), // list of pub key hashes
   threshold: Data.Integer(),
   funds: AssetClassSchema,
-  spendingLimit: Data.Integer(),
+  spending_limit: Data.Integer(),
   minimum_ada: Data.Integer(),
 });
 

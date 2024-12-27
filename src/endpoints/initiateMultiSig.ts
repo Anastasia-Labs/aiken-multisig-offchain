@@ -43,8 +43,6 @@ export const initiateMultiSig = (
                     config.total_funds_qty + config.minimum_ada,
         );
 
-        console.log("selectedUTxOs: ", initiatorUTxOs);
-
         const tokenName = generateUniqueAssetName(selectedUTxOs[0], "");
 
         const initiateMultiSigRedeemer: RedeemerBuilder = {
@@ -78,7 +76,7 @@ export const initiateMultiSig = (
             signers: config.signers, // list of pub key hashes
             threshold: config.threshold,
             funds: config.funds,
-            spendingLimit: config.spending_limit,
+            spending_limit: config.spending_limit,
             minimum_ada: config.minimum_ada,
         };
 

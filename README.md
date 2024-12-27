@@ -78,41 +78,26 @@ import Script from "../src/validator/multisig_validator.json" assert { type: "js
 
 const lucid = await Lucid(
   new Maestro({
-    network: "Preprod", // For MAINNET: "Mainnet"
+    network: "Preprod",
     apiKey: "<Your-API-Key>", // Get yours by visiting https://docs.gomaestro.org/docs/Getting-started/Sign-up-login
     turboSubmit: false, // Read about paid turbo transaction submission feature at https://docs.gomaestro.org/docs/Dapp%20Platform/Turbo%20Transaction
   }),
-  "Preprod" // For MAINNET: "Mainnet"
+  "Preprod" 
 );
 
 lucid.selectWallet.fromPrivateKey("your secret key here e.g. ed25519_...");
 
-const multiSigVal: SpendingValidator = {
-  type: "PlutusV2",
-  script: Script.validators[0].compiledCode,
-};
-
-const multisigScripts = {
-  multisig: multisigScript.script,
-};
 ```
 
 ### Initiate Multisig Contract
 
 ```ts
 import { initiateMultisig, MultiSigConfig } from "@anastasia-labs/aiken-multisig-offchain";
-import { multiSigScript } from "./common/constants";
 
 // Define signatories' public key hashes
 const initiatorPkh = getAddressDetails(initiatorAddress).paymentCredential?.hash!;
 const signer1Pkh = getAddressDetails(signer1Address).paymentCredential?.hash!;
 const signer2Pkh = getAddressDetails(signer2Address).paymentCredential?.hash!;
-
-// Use with multisig script miniting and spending endpoint.
-const multiSigScript = {
-    spending: ...,
-    minting: ...,
-};
 
 // Configure the multisig parameters
 const initConfig: MultiSigConfig = {
@@ -122,9 +107,9 @@ const initConfig: MultiSigConfig = {
     policyId: "", // For ADA, leave empty
     assetName: "", // For ADA, leave empty
   },
-  spendingLimit: 10_000_000n, // 10 ADA in lovelace
-  minimumAda: 2_000_000n, // Minimum ADA required in lovelace
-  scripts: multisigScripts,
+  spending_limit: 10_000_000n, // 10 ADA in lovelace
+  total_funds_qty: 90_000_000n, // Total ADA in lovelace to be locked in the contract
+  minimum_ada: 2_000_000n, // Minimum ADA required in lovelace
 };
 
 // Initiate the multisig contract
@@ -150,8 +135,7 @@ import { validateSign, ValidateSignConfig } from "@anastasia-labs/aiken-multisig
 const validateSignConfig: ValidateSignConfig = {
   withdrawal_amount: 5_000_000n, // Amount to withdraw in lovelace
   recipient_address: recipient_address, // Address to receive the funds
-  signersList: [initiatorPkh, signer1Pkh], // Signatories participating
-  scripts: multisigScripts,
+  signers_list: [initiatorPkh, signer1Pkh], // Signatories participating
 };
 
 // Validate and prepare the transaction
@@ -178,7 +162,6 @@ if (signTxUnsigned.type === "ok") {
 
 ```
 
-
 ### Update Multisig Contract
 
 #### Adjust Signer Threshold
@@ -188,14 +171,14 @@ import { validateUpdate, UpdateValidateConfig } from "@anastasia-labs/aiken-mult
 
 // Adjust the threshold to require all three signatures
 const updateConfig: UpdateValidateConfig = {
-  newSigners: [initiatorPkh, signer1Pkh, signer2Pkh],
-  newThreshold: 3n,
+  new_signers: [initiatorPkh, signer1Pkh, signer2Pkh],
+  new_threshold: 3n,
   funds: {
     policyId: "",
     assetName: "",
   },
-  newSpendingLimit: 15_000_000n,
-  minimumAda: 2_000_000n,
+  new_spending_limit: 15_000_000n,
+  minimum_ada: 2_000_000n,
 };
 
 // Validate and prepare the update transaction
@@ -231,14 +214,14 @@ const signer3Pkh = getAddressDetails(signer3Address).paymentCredential?.hash!;
 
 // Update the signers list and threshold
 const addSignerConfig: UpdateValidateConfig = {
-  newSigners: [initiatorPkh, signer1Pkh, signer2Pkh, signer3Pkh],
-  newThreshold: 3n,
+  new_signers: [initiatorPkh, signer1Pkh, signer2Pkh, signer3Pkh],
+  new_threshold: 3n,
   funds: {
     policyId: "",
     assetName: "",
   },
-  newSpendingLimit: 20_000_000n,
-  minimumAda: 2_000_000n,
+  new_spending_limit: 20_000_000n,
+  minimum_ada: 2_000_000n,
 };
 
 // Proceed with validation and signing as shown in the update example
@@ -253,21 +236,19 @@ const updatedSigners = [initiatorPkh, signer1Pkh];
 
 // Update the signers list and threshold
 const removeSignerConfig: UpdateValidateConfig = {
-  newSigners: updatedSigners,
-  newThreshold: 2n,
+  new_signers: updatedSigners,
+  new_threshold: 2n,
   funds: {
     policyId: "",
     assetName: "",
   },
-  newSpendingLimit: 10_000_000n,
-  minimumAda: 2_000_000n,
+  new_spending_limit: 10_000_000n,
+  minimum_ada: 2_000_000n,
 };
 
 // Proceed with validation and signing as shown in the update example
 
 ```
-
-
 
 ## Local Build
 

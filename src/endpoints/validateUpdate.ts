@@ -79,7 +79,7 @@ export const validateUpdate = (
       signers: parsedDatum[0].signers, // list of pub key hashes
       threshold: parsedDatum[0].threshold,
       funds: parsedDatum[0].funds,
-      spendingLimit: parsedDatum[0].spendingLimit,
+      spending_limit: parsedDatum[0].spending_limit,
       minimum_ada: parsedDatum[0].minimum_ada,
     };
 
@@ -87,7 +87,7 @@ export const validateUpdate = (
       signers: config.new_signers, // list of pub key hashes
       threshold: config.new_threshold,
       funds: config.funds,
-      spendingLimit: config.new_spending_limit,
+      spending_limit: config.new_spending_limit,
       minimum_ada: config.minimum_ada,
     };
     const outputDatumData = Data.to<MultisigDatum>(outputDatum, MultisigDatum);
