@@ -3,8 +3,6 @@ import {
     getUserAddressAndPKH,
     LucidEvolution,
     SignConfig,
-    UpdateValidateConfig,
-    validateUpdate,
 } from "@anastasia-labs/aiken-multisig-offchain";
 
 export const runEnd = async (
@@ -36,12 +34,12 @@ export const runEnd = async (
         minimum_ada: 2_000_000n,
         recipient_address: recipient.address,
     };
-    // Sign multisig
+    // End multisig
     try {
         lucid.selectWallet.fromSeed(INITIATOR_SEED);
-        const signTxUnsigned = await endMultiSig(lucid, signConfig);
+        const endTxUnsigned = await endMultiSig(lucid, signConfig);
 
-        const cboredTx = signTxUnsigned.toCBOR();
+        const cboredTx = endTxUnsigned.toCBOR();
         const partialSignatures: string[] = [];
 
         for (
@@ -60,7 +58,7 @@ export const runEnd = async (
             partialSignatures.push(partialSigner);
         }
 
-        const assembleTx = signTxUnsigned.assemble(partialSignatures);
+        const assembleTx = endTxUnsigned.assemble(partialSignatures);
 
         const completeSign = await assembleTx.complete();
 

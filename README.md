@@ -206,9 +206,9 @@ const updateConfig: UpdateValidateConfig = {
 };
 
 try {
-  const signTxUnsigned = await validateUpdate(lucid, updateConfig);
+  const updateTxUnsigned = await validateUpdate(lucid, updateConfig);
 
-  const cboredTx = signTxUnsigned.toCBOR();
+  const cboredTx = updateTxUnsigned.toCBOR();
   const partialSignatures: string[] = [];
 
   for (const signerSeed of [
@@ -222,7 +222,7 @@ try {
     partialSignatures.push(partialSigner);
   }
 
-  const assembleTx = signTxUnsigned.assemble(partialSignatures);
+  const assembleTx = updateTxUnsigned.assemble(partialSignatures);
   const completeSign = await assembleTx.complete();
   const signTxHash = await completeSign.submit();
 
@@ -253,9 +253,9 @@ const signConfig: SignConfig = {
     // Sign multisig
     try {
         lucid.selectWallet.fromSeed(INITIATOR_SEED);
-        const signTxUnsigned = await endMultiSig(lucid, signConfig);
+        const endTxUnsigned = await endMultiSig(lucid, signConfig);
 
-        const cboredTx = signTxUnsigned.toCBOR();
+        const cboredTx = endTxUnsigned.toCBOR();
         const partialSignatures: string[] = [];
 
         for (
@@ -274,7 +274,7 @@ const signConfig: SignConfig = {
             partialSignatures.push(partialSigner);
         }
 
-        const assembleTx = signTxUnsigned.assemble(partialSignatures);
+        const assembleTx = endTxUnsigned.assemble(partialSignatures);
 
         const completeSign = await assembleTx.complete();
 

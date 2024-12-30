@@ -3,7 +3,6 @@ import {
     initiateMultiSig,
     LucidEvolution,
     MultiSigConfig,
-    walletFromSeed,
 } from "@anastasia-labs/aiken-multisig-offchain";
 
 export const runInit = async (
