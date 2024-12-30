@@ -70,11 +70,12 @@ or
 pnpm install @anastasia-labs/aiken-multisig-offchain
 ```
 
-Below are the basic instructions on how to use the multisig endpoints. For a more comprehensive/ working example and to try it out before implementing yourself, checkout the examples folder.
+Below are the basic instructions on how to use the multisig endpoints. To try out a more comprehensive working example, checkout the [examples folder](https://github.com/Anastasia-Labs/aiken-multisig-offchain/tree/examples/examples).
 
 ### Setup Lucid & Multisig Scripts
 
 Ensure that all the signers have enough funds in their wallet to effectively use this SDK.
+
 Each partial signature should be stored in a database or whichever persistence layer you have and retrieved once enough signatures are collected, to pass to the transaction assembly. 
 
 ```ts
@@ -290,6 +291,7 @@ const removeSignerConfig: UpdateValidateConfig = {
 ### End Multisig Contract
 
 ```ts
+import { validateUpdate, UpdateValidateConfig } from "@anastasia-labs/aiken-multisig-offchain";
 
 const signConfig: SignConfig = {
         signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
