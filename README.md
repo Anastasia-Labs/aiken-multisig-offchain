@@ -72,7 +72,7 @@ pnpm install @anastasia-labs/aiken-multisig-offchain
 
 Below are the basic instructions on how to use the multisig endpoints. 
 
-For a more comprehensive working example, checkout the [examples folder](https://github.com/Anastasia-Labs/aiken-multisig-offchain/tree/examples/examples).
+For a more comprehensive working example, checkout the [examples folder](https://github.com/Anastasia-Labs/aiken-multisig-offchain/tree/main/examples).
 
 ### Setup Lucid & Multisig Scripts
 
