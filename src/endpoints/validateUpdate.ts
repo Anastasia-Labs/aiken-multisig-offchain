@@ -19,7 +19,7 @@ import { multiSigScript } from "../core/constants.js";
 // adjust threshold
 // add signers
 // remove signer and adjust thershold
-export const validateUpdate = (
+export const validateUpdateProgram = (
   lucid: LucidEvolution,
   config: UpdateValidateConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>

@@ -108,7 +108,7 @@ const initConfig: MultiSigConfig = {
     assetName: "", // For ADA, leave empty
   },
   spending_limit: 10_000_000n, // 10 ADA in lovelace
-  total_funds_qty: 90_000_000n, // Total ADA in lovelace to be locked in the contract
+  total_funds_qty: 100_000_000n, // Total ADA in lovelace to be locked in the contract
   minimum_ada: 2_000_000n, // Minimum ADA required in lovelace
 };
 

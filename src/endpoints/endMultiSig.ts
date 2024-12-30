@@ -17,7 +17,7 @@ import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
 import { multiSigScript } from "../core/constants.js";
 
-export const endMultiSig = (
+export const endMultiSigProgram = (
     lucid: LucidEvolution,
     config: SignConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>

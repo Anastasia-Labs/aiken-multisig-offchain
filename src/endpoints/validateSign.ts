@@ -16,7 +16,7 @@ import { tokenNameFromUTxO } from "../core/utils/assets.js";
 import { getMultisigDatum } from "../core/utils.js";
 import { multiSigScript } from "../core/constants.js";
 
-export const validateSign = (
+export const validateSignProgram = (
   lucid: LucidEvolution,
   config: ValidateSignConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>

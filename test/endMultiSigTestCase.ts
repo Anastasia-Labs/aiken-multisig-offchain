@@ -1,5 +1,10 @@
 import { Effect } from "effect";
-import { endMultiSig, getUserAddressAndPKH, SignConfig } from "../src";
+import {
+    endMultiSig,
+    endMultiSigProgram,
+    getUserAddressAndPKH,
+    SignConfig,
+} from "../src";
 import { LucidContext } from "./common/lucidContext";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase";
 import { expect } from "vitest";
@@ -59,7 +64,7 @@ export const endMultiSigTestCase = (
 
         lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
         const endMultiSigFlow = Effect.gen(function* (_) {
-            const endMultisigUnsigned = yield* endMultiSig(
+            const endMultisigUnsigned = yield* endMultiSigProgram(
                 lucid,
                 signConfig,
             );

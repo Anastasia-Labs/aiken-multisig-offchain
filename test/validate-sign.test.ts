@@ -1,7 +1,7 @@
 import { ValidateSignConfig, validatorToAddress } from "../src/index.js";
 import { expect, test } from "vitest";
 import { Effect } from "effect";
-import { validateSign } from "../src/endpoints/validateSign.js";
+import { validateSignProgram } from "../src/endpoints/validateSign.js";
 import { LucidContext, makeLucidContext } from "./common/lucidContext.js";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase.js";
 import { getUserAddressAndPKH } from "../src/core/utils.js";
@@ -46,7 +46,7 @@ export const validateSignTestCase = (
     }
 
     const validateSignConfig: ValidateSignConfig = {
-      withdrawal_amount: 10_000_000n,
+      withdrawal_amount: 5_000_000n,
       recipient_address: recipient.address,
       signers_list: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
     };
@@ -55,7 +55,7 @@ export const validateSignTestCase = (
 
     lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
     const validateSignFlow = Effect.gen(function* (_) {
-      const signTxUnsigned = yield* validateSign(
+      const signTxUnsigned = yield* validateSignProgram(
         lucid,
         validateSignConfig,
       );

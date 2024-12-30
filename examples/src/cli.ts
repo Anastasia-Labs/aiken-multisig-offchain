@@ -1,43 +1,66 @@
-// // src/cli.ts
-// import { config } from "dotenv";
-// config(); // Load environment variables from .env if you want
+#!/usr/bin/env node
+import { Command } from "commander";
+import { run } from "./init_multi_sig.js";
+import dotenv from "dotenv";
+import { Lucid, Maestro } from "@anastasia-labs/aiken-multisig-offchain";
 
-// import { run } from "./init_multi_sig.js";
-// // ^ Adjust path as needed (if using NodeNext/ESM, remember the .js/.ts extension)
+// Load environment variables
+dotenv.config();
 
-// async function main() {
-//     // 1) Grab env variables
-//     const apiKey = process.env.API_KEY; // Maestro API Key
-//     const initiatorSeed = process.env.INITIATOR_SEED;
-//     const signerOneSeed = process.env.SIGNER_ONE_SEED;
-//     const signerTwoSeed = process.env.SIGNER_TWO_SEED;
+const program = new Command();
 
-//     // 2) Verify they exist
-//     if (!apiKey || !initiatorSeed || !signerOneSeed || !signerTwoSeed) {
-//         throw new Error(
-//             "Missing environment variables. Check .env or your shell environment.",
-//         );
-//     }
+program
+    .name("multisig-cli")
+    .description("CLI for managing multisig operations")
+    .version("1.0.0");
 
-//     // 3) Call the run function
-//     const result = await run(
-//         apiKey,
-//         initiatorSeed,
-//         signerOneSeed,
-//         signerTwoSeed,
-//     );
+program
+    .command("init")
+    .description("Initialize a new multisig contract")
+    .option(
+        "-n, --network <network>",
+        "Network to use (preprod/mainnet)",
+        "preprod",
+    )
+    .option("-t, --threshold <number>", "Number of required signatures", "2")
+    .option("-l, --limit <number>", "Spending limit in lovelace", "10000000")
+    .option("-f, --funds <number>", "Total funds in lovelace", "90000000")
+    .option("-m, --min-ada <number>", "Minimum ADA requirement", "2000000")
+    .action(async (options) => {
+        try {
+            const API_KEY = process.env.API_KEY!;
+            const INITIATOR_SEED = process.env.INITIATOR_SEED!;
+            const SIGNER_ONE_SEED = process.env.SIGNER_ONE_SEED!;
+            const SIGNER_TWO_SEED = process.env.SIGNER_TWO_SEED!;
+            const SIGNER_THREE_SEED = process.env.SIGNER_THREE_SEED!;
 
-//     // 4) Check if it returned an error
-//     if (result instanceof Error) {
-//         console.error("Error in multisig flow:", result.message);
-//         process.exit(1);
-//     } else {
-//         console.log("Multisig flow completed successfully!");
-//     }
-// }
+            if (!API_KEY) {
+                throw new Error("Missing required API_KEY.");
+            }
 
-// // 5) Execute main()
-// main().catch((err) => {
-//     console.error("Fatal error:", err);
-//     process.exit(1);
-// });
+            console.log("LOGGG ", API_KEY);
+            // Create Lucid instance (remove top-level await)
+            const lucid = await Lucid(
+                new Maestro({
+                    network: "Preprod",
+                    apiKey: API_KEY,
+                    turboSubmit: false,
+                }),
+                "Preprod",
+            );
+
+            await run(
+                lucid,
+                INITIATOR_SEED,
+                SIGNER_ONE_SEED,
+                SIGNER_TWO_SEED,
+                SIGNER_THREE_SEED,
+            );
+            process.exit(0);
+        } catch (error) {
+            console.error("Error:", error);
+            process.exit(1);
+        }
+    });
+
+program.parse();

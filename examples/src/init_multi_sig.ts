@@ -1,89 +1,61 @@
-// import {
-//     getAddressDetails,
-//     InitiateMultiSig,
-//     initiateMultiSig,
-//     Lucid,
-//     Maestro,
-//     MultiSigConfig,
-//     TxSignBuilder,
-//     walletFromSeed,
-// } from "@anastasia-labs/aiken-multisig-offchain";
-// // import { createMultisig } from "../../src/endpoints";
-// // ^ You also might hit ESM vs CJS issues here if your library is pure ESM
-// import { Effect } from "effect";
+import {
+    getUserAddressAndPKH,
+    initiateMultiSigPromise,
+    LucidEvolution,
+    MultiSigConfig,
+} from "@anastasia-labs/aiken-multisig-offchain";
 
-// const API_KEY = process.env.API_KEY!;
-// const INITIATOR_SEED = process.env.INITIATOR_SEED!;
-// const SIGNER_ONE_SEED = process.env.SIGNER_ONE_SEED!;
-// const SIGNER_TWO_SEED = process.env.SIGNER_TWO_SEED!;
+export const run = async (
+    lucid: LucidEvolution,
+    INITIATOR_SEED: string,
+    SIGNER_ONE_SEED: string,
+    SIGNER_TWO_SEED: string,
+    SIGNER_THREE_SEED: string,
+): Promise<Error | void> => {
+    if (!INITIATOR_SEED || !SIGNER_ONE_SEED || !SIGNER_TWO_SEED) {
+        throw new Error("Missing required environment variables.");
+    }
 
-// if (!API_KEY || !INITIATOR_SEED || !SIGNER_ONE_SEED || !SIGNER_TWO_SEED) {
-//     throw new Error("Missing required environment variables.");
-// }
+    const initiator = await getUserAddressAndPKH(lucid, INITIATOR_SEED);
+    const signer1 = await getUserAddressAndPKH(lucid, SIGNER_ONE_SEED);
+    const signer2 = await getUserAddressAndPKH(lucid, SIGNER_TWO_SEED);
+    const signer3 = await getUserAddressAndPKH(lucid, SIGNER_THREE_SEED);
 
-// // Create Lucid instance (remove top-level await)
-// const lucid = await Lucid(
-//     new Maestro({
-//         network: "Preprod",
-//         apiKey: API_KEY,
-//         turboSubmit: false,
-//     }),
-//     "Preprod",
-// );
+    console.log("initiator: ", initiator.address);
+    const initiatorUTxOs = await lucid.utxosAt(initiator.address);
+    console.log("initiatorUTxOs: ", initiatorUTxOs);
 
-// const initPrivKey = walletFromSeed(INITIATOR_SEED);
-// const signer1PrivKey = walletFromSeed(SIGNER_ONE_SEED);
-// const signer2PrivKey = walletFromSeed(SIGNER_TWO_SEED);
+    console.log("signer1: ", signer1.address);
+    const signer1UTxOs = await lucid.utxosAt(signer1.address);
+    console.log("signer1UTxOs: ", signer1UTxOs);
 
-// lucid.selectWallet.fromPrivateKey(initPrivKey.paymentKey);
+    console.log("signer2: ", signer2.address);
+    const signer2UTxOs = await lucid.utxosAt(signer2.address);
+    console.log("signer2UTxOs: ", signer2UTxOs);
 
-// const initiatorPkh = getAddressDetails(initPrivKey.address)
-//     .paymentCredential?.hash!;
-// const signer1Pkh = getAddressDetails(signer1PrivKey.address)
-//     .paymentCredential?.hash!;
-// const signer2Pkh = getAddressDetails(signer2PrivKey.address)
-//     .paymentCredential?.hash!;
+    console.log("signer3: ", signer3.address);
+    const signer3UTxOs = await lucid.utxosAt(signer3.address);
+    console.log("signer3UTxOs: ", signer3UTxOs);
 
-// const initConfig: MultiSigConfig = {
-//     signers: [initiatorPkh, signer1Pkh, signer2Pkh],
-//     threshold: 2n,
-//     funds: { policyId: "", assetName: "" },
-//     spending_limit: 10_000_000n,
-//     total_funds_qty: 90_000_000n,
-//     minimum_ada: 2_000_000n,
-// };
+    const initConfig: MultiSigConfig = {
+        signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
+        threshold: 2n,
+        funds: { policyId: "", assetName: "" },
+        spending_limit: 10_000_000n,
+        total_funds_qty: 100_000_000n,
+        minimum_ada: 2_000_000n,
+    };
 
-// // Helper function to sign a Tx
-// const signTransaction = async (
-//     txUnsigned: TxSignBuilder,
-//     privateKey: string,
-// ) => {
-//     lucid.selectWallet.fromPrivateKey(privateKey);
-//     return await txUnsigned.partialSign.withWallet();
-// };
+    // Initiate multisig
+    try {
+        const initTxUnsigned = await initiateMultiSigPromise(lucid, initConfig);
 
-// // Initiate multisig
-// try {
-//     const initTxUnsigned: TxSignBuilder = await Effect.runPromise(
-//         initiateMultiSig(lucid, initConfig),
-//     );
+        const initTxSigned = await initTxUnsigned.sign.withWallet().complete();
 
-//     const partialSignatures: string[] = [];
-//     partialSignatures.push(
-//         await signTransaction(initTxUnsigned, initPrivKey.paymentKey),
-//     );
-//     partialSignatures.push(
-//         await signTransaction(initTxUnsigned, signer1PrivKey.paymentKey),
-//     );
-//     partialSignatures.push(
-//         await signTransaction(initTxUnsigned, signer2PrivKey.paymentKey),
-//     );
+        const initTxHash = await initTxSigned.submit();
 
-//     const assembleTx = initTxUnsigned.assemble(partialSignatures);
-//     const completeTx = await assembleTx.complete();
-//     const txHash = await completeTx.submit();
-
-//     console.log(`Multisig Contract Initiated: ${txHash}`);
-// } catch (error) {
-//     console.error("Failed to initiate multisig:", error);
-// }
+        console.log(`Multisig Contract Initiated: ${initTxHash}`);
+    } catch (error) {
+        console.error("Failed to initiate multisig:", error);
+    }
+};

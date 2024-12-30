@@ -15,7 +15,7 @@ import { getSignValidators } from "../core/utils/misc.js";
 import { generateUniqueAssetName } from "../core/utils/assets.js";
 import { multiSigScript } from "../core/constants.js";
 
-export const initiateMultiSig = (
+export const initiateMultiSigProgram = (
     lucid: LucidEvolution,
     config: MultiSigConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
@@ -42,6 +42,12 @@ export const initiateMultiSig = (
                 utxo.assets.lovelace >=
                     config.total_funds_qty + config.minimum_ada,
         );
+
+        if (!selectedUTxOs.length) {
+            throw new Error(
+                "No UTxO contains enough lovelace to cover total_funds_qty + minimum_ada.",
+            );
+        }
 
         const tokenName = generateUniqueAssetName(selectedUTxOs[0], "");
 
@@ -102,6 +108,7 @@ export const initiateMultiSig = (
                 [multisigNFT]: 1n,
             })
             .attach.MintingPolicy(validators.mintPolicy)
+            .addSignerKey(multisigDatum.signers[0])
             .completeProgram({ localUPLCEval: false });
 
         return tx;

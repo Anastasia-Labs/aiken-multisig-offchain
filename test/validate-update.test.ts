@@ -2,7 +2,7 @@ import { UpdateValidateConfig, validatorToAddress } from "../src/index.js";
 import { expect, test } from "vitest";
 import { Effect } from "effect";
 import { getUserAddressAndPKH } from "../src/core/utils.js";
-import { validateUpdate } from "../src/endpoints/validateUpdate.js";
+import { validateUpdateProgram } from "../src/endpoints/validateUpdate.js";
 import { LucidContext, makeLucidContext } from "./common/lucidContext.js";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase.js";
 
@@ -60,7 +60,7 @@ export const updateTestCase = (
     lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
 
     const UpdateSignFlow = Effect.gen(function* (_) {
-      const updateTxUnsigned = yield* validateUpdate(
+      const updateTxUnsigned = yield* validateUpdateProgram(
         lucid,
         updateValidatorConfig,
       );
