@@ -1,5 +1,4 @@
 import {
-    Blockfrost,
     Emulator,
     generateEmulatorAccount,
     Lucid,
@@ -9,7 +8,6 @@ import {
 } from "@lucid-evolution/lucid";
 import { Effect } from "effect";
 import dotenv from "dotenv";
-import { generateAccountSeedPhrase } from "../../src";
 dotenv.config();
 
 export type LucidContext = {

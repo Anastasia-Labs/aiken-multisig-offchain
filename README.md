@@ -70,13 +70,15 @@ or
 pnpm install @anastasia-labs/aiken-multisig-offchain
 ```
 
-Below are the basic instructions on how to use the multisig endpoints. To try out a more comprehensive working example, checkout the [examples folder](https://github.com/Anastasia-Labs/aiken-multisig-offchain/tree/examples/examples).
+Below are the basic instructions on how to use the multisig endpoints. 
+
+For a more comprehensive working example, checkout the [examples folder](https://github.com/Anastasia-Labs/aiken-multisig-offchain/tree/examples/examples).
 
 ### Setup Lucid & Multisig Scripts
 
-Ensure that all the signers have enough funds in their wallet to effectively use this SDK.
+1. Ensure all signers have enough funds in their wallets.
 
-Each partial signature should be stored in a database or whichever persistence layer you have and retrieved once enough signatures are collected, to pass to the transaction assembly. 
+1. Each partial signature should be stored in a persistence layer (database, server, etc.) and retrieved once enough signatures are collected. 
 
 ```ts
 import Script from "../src/validator/multisig_validator.json" assert { type: "json" };
@@ -96,7 +98,7 @@ lucid.selectWallet.fromPrivateKey("your secret key here e.g. ed25519_...");
 
 ### Initiate Multisig Contract
 
-The wallet initiating the transaction should contain enough funds + the minimum transaction ADA to allow successful locking in the contract.
+(*Wallet must contain enough lovelace to fund the contract.*)
 
 ```ts
 import { initiateMultisig, MultiSigConfig, LucidEvolution } from "@anastasia-labs/aiken-multisig-offchain";
@@ -186,109 +188,53 @@ const signConfig: ValidateSignConfig = {
 ```
 
 ### Update Multisig Contract
-
-#### Adjust Signer Threshold
+(*Adjust threshold, signers, or spending limits.*)
 
 ```ts
-import { validateUpdate, UpdateValidateConfig } from "@anastasia-labs/aiken-multisig-offchain";
+import {
+  validateUpdate,
+  UpdateValidateConfig
+} from "@anastasia-labs/aiken-multisig-offchain";
 
-// Adjust the threshold to require all three signatures
+// Example: adjusting threshold to 3-of-3
 const updateConfig: UpdateValidateConfig = {
   new_signers: [initiatorPkh, signer1Pkh, signer2Pkh],
   new_threshold: 3n,
-  funds: {
-    policyId: "",
-    assetName: "",
-  },
+  funds: { policyId: "", assetName: "" },
   new_spending_limit: 15_000_000n,
   minimum_ada: 2_000_000n,
 };
 
-// Validate and prepare the update transaction
-const updateTxUnsigned = await validateUpdate(lucid, updateConfig);
+try {
+  const signTxUnsigned = await validateUpdate(lucid, updateConfig);
 
- try {
-        lucid.selectWallet.fromSeed(INITIATOR_SEED);
-        const signTxUnsigned = await validateUpdate(lucid, updateConfig);
+  const cboredTx = signTxUnsigned.toCBOR();
+  const partialSignatures: string[] = [];
 
-        const cboredTx = signTxUnsigned.toCBOR();
-        const partialSignatures: string[] = [];
+  for (const signerSeed of [
+    INITIATOR_SEED,
+    SIGNER_ONE_SEED,
+    SIGNER_TWO_SEED,
+    SIGNER_THREE_SEED,
+  ]) {
+    lucid.selectWallet.fromSeed(signerSeed);
+    const partialSigner = await lucid.fromTx(cboredTx).partialSign.withWallet();
+    partialSignatures.push(partialSigner);
+  }
 
-        for (
-            const signerSeed of [
-                INITIATOR_SEED,
-                SIGNER_ONE_SEED,
-                SIGNER_TWO_SEED,
-                SIGNER_THREE_SEED,
-            ]
-        ) {
-            lucid.selectWallet.fromSeed(signerSeed);
-            const partialSigner = await lucid
-                .fromTx(cboredTx)
-                .partialSign
-                .withWallet();
-            partialSignatures.push(partialSigner);
-        }
+  const assembleTx = signTxUnsigned.assemble(partialSignatures);
+  const completeSign = await assembleTx.complete();
+  const signTxHash = await completeSign.submit();
 
-        const assembleTx = signTxUnsigned.assemble(partialSignatures);
-
-        const completeSign = await assembleTx.complete();
-
-        const signTxHash = await completeSign.submit();
-
-        console.log(`Multisig Contract Updated Successfully: ${signTxHash}`);
-    } catch (error) {
-        console.error("Failed to Update multisig:", error);
-    }
-
-```
-
-#### Add or Remove Signers
-#### Adding a New Signer:
-
-```ts
-// Add a new signer
-const signer3Pkh = getAddressDetails(signer3Address).paymentCredential?.hash!;
-
-// Update the signers list and threshold
-const addSignerConfig: UpdateValidateConfig = {
-  new_signers: [initiatorPkh, signer1Pkh, signer2Pkh, signer3Pkh],
-  new_threshold: 3n,
-  funds: {
-    policyId: "",
-    assetName: "",
-  },
-  new_spending_limit: 20_000_000n,
-  minimum_ada: 2_000_000n,
-};
-
-// Proceed with validation and signing as shown in the update example
-
-```
-
-#### Removing a Signer:
-
-```ts
-// Remove a signer (e.g., signer2)
-const updatedSigners = [initiatorPkh, signer1Pkh];
-
-// Update the signers list and threshold
-const removeSignerConfig: UpdateValidateConfig = {
-  new_signers: updatedSigners,
-  new_threshold: 2n,
-  funds: {
-    policyId: "",
-    assetName: "",
-  },
-  new_spending_limit: 10_000_000n,
-  minimum_ada: 2_000_000n,
-};
-
-// Proceed with validation and signing as shown in the update example
+  console.log(`Multisig Contract Updated Successfully: ${signTxHash}`);
+} catch (error) {
+  console.error("Failed to Update multisig:", error);
+}
 
 ```
 
 ### End Multisig Contract
+(*Release funds or close the contract.*)
 
 ```ts
 import { validateUpdate, UpdateValidateConfig } from "@anastasia-labs/aiken-multisig-offchain";
@@ -340,7 +286,10 @@ const signConfig: SignConfig = {
     }
 ```
 
+Notes
+- **Partial Signatures:** Remember to store partial signatures in a database or some persistent store if signers sign at different times. Retrieve them all once enough signers (≥ threshold) have signed.
 
+- **Funding:** Make sure each wallet has enough lovelace to cover transaction fees and locked amounts.
 ## Local Build
 
 In the main directory
