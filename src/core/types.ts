@@ -39,7 +39,7 @@ export type MultiSigValidators = {
 export type ValidateSignConfig = {
   withdrawal_amount: bigint;
   recipient_address: Address;
-  signersList: string[];
+  signers_list: string[];
 };
 
 export type UpdateValidateConfig = {

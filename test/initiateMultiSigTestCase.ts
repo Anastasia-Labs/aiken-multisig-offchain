@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { initiateMultiSig, MultiSigConfig } from "../src";
+import { initiateMultiSigProgram, MultiSigConfig } from "../src";
 import { LucidContext } from "./common/lucidContext";
 import { getUserAddressAndPKH } from "../src/core/utils";
 
@@ -42,7 +42,7 @@ export const initiateMultiSigTestCase = (
         lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
 
         const initiateMultiSigFlow = Effect.gen(function* (_) {
-            const initiateMultisigUnsigned = yield* initiateMultiSig(
+            const initTxUnsigned = yield* initiateMultiSigProgram(
                 lucid,
                 multisigConfig,
             );
@@ -58,13 +58,13 @@ export const initiateMultiSigTestCase = (
             ) {
                 lucid.selectWallet.fromSeed(signerSeed);
                 const partialSignSigner = yield* Effect.promise(() =>
-                    initiateMultisigUnsigned.partialSign
+                    initTxUnsigned.partialSign
                         .withWallet()
                 );
                 partialSignatures.push(partialSignSigner);
             }
 
-            const assembleTx = initiateMultisigUnsigned.assemble(
+            const assembleTx = initTxUnsigned.assemble(
                 partialSignatures,
             );
             const completeSign = yield* Effect.promise(() =>

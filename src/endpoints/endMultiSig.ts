@@ -17,7 +17,7 @@ import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
 import { multiSigScript } from "../core/constants.js";
 
-export const endMultiSig = (
+export const endMultiSigProgram = (
     lucid: LucidEvolution,
     config: SignConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
@@ -90,7 +90,7 @@ export const endMultiSig = (
             signers: config.signers, // list of pub key hashes
             threshold: config.threshold,
             funds: config.funds,
-            spendingLimit: config.spending_limit,
+            spending_limit: config.spending_limit,
             minimum_ada: config.minimum_ada,
         };
 

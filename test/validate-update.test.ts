@@ -2,7 +2,7 @@ import { UpdateValidateConfig, validatorToAddress } from "../src/index.js";
 import { expect, test } from "vitest";
 import { Effect } from "effect";
 import { getUserAddressAndPKH } from "../src/core/utils.js";
-import { validateUpdate } from "../src/endpoints/validateUpdate.js";
+import { validateUpdateProgram } from "../src/endpoints/validateUpdate.js";
 import { LucidContext, makeLucidContext } from "./common/lucidContext.js";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase.js";
 
@@ -60,12 +60,12 @@ export const updateTestCase = (
     lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
 
     const UpdateSignFlow = Effect.gen(function* (_) {
-      const signTxUnSigned = yield* validateUpdate(
+      const updateTxUnsigned = yield* validateUpdateProgram(
         lucid,
         updateValidatorConfig,
       );
 
-      const cboredTx = signTxUnSigned.toCBOR();
+      const cboredTx = updateTxUnsigned.toCBOR();
       const partialSignatures: string[] = [];
 
       for (
@@ -83,7 +83,7 @@ export const updateTestCase = (
         partialSignatures.push(partialSigner);
       }
 
-      const assembleTx = signTxUnSigned.assemble(partialSignatures);
+      const assembleTx = updateTxUnsigned.assemble(partialSignatures);
       const completeSign = yield* Effect.promise(() => assembleTx.complete());
 
       const signTxHash = yield* Effect.promise(() => completeSign.submit());

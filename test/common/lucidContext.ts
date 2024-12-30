@@ -1,5 +1,4 @@
 import {
-    Blockfrost,
     Emulator,
     generateEmulatorAccount,
     Lucid,
@@ -9,7 +8,6 @@ import {
 } from "@lucid-evolution/lucid";
 import { Effect } from "effect";
 import dotenv from "dotenv";
-import { generateAccountSeedPhrase } from "../../src";
 dotenv.config();
 
 export type LucidContext = {
@@ -127,7 +125,7 @@ export const makeLucidContext = (
     const selectedNetwork = network ?? NETWORK; // Default to Preprod if not specified
     // const selectedNetwork = "Custom";
 
-    console.log("Network Target: ", selectedNetwork);
+    // console.log("Network Target: ", selectedNetwork);
     if (API_KEY && selectedNetwork !== "Custom") {
         // Use Maestro context
         return yield* $(makeMaestroContext(selectedNetwork));
