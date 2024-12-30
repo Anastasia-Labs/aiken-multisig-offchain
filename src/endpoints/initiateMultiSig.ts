@@ -45,7 +45,8 @@ export const initiateMultiSigProgram = (
 
         if (!selectedUTxOs.length) {
             throw new Error(
-                "No UTxO contains enough lovelace to cover total_funds_qty + minimum_ada.",
+                "No UTxO contains enough lovelace to cover total_funds_qty + minimum_ada at " +
+                    initiatorAddress,
             );
         }
 
