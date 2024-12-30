@@ -31,7 +31,7 @@ importers:
 packages:
 
   '@anastasia-labs/aiken-multisig-offchain@file:../anastasia-labs-aiken-multisig-offchain-1.0.1.tgz':
-    resolution: {integrity: sha512-lWDA+7aPviXaxmJkzz52OG5beSmizKw4G/Gc15qHGp+dHMw/OZ8vaqiy6uT9lq/LhObTvo7Ma98Hz9Aaa6wciQ==, tarball: file:../anastasia-labs-aiken-multisig-offchain-1.0.1.tgz}
+    resolution: {integrity: sha512-bidipQ51EGMaTwcW91TYQUTQnPgDLr4rrfW49+gDSdpboZOneyTqoNnuy2P8kfL57Yl6h+ZRZalCzxzpTlDu7Q==, tarball: file:../anastasia-labs-aiken-multisig-offchain-1.0.1.tgz}
     version: 1.0.1
 
   '@anastasia-labs/cardano-multiplatform-lib-browser@6.0.2-2':

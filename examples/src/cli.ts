@@ -1,8 +1,11 @@
 #!/usr/bin/env node
 import { Command } from "commander";
-import { run } from "./init_multi_sig.js";
+import { runInit } from "./init_multi_sig.js";
 import dotenv from "dotenv";
 import { Lucid, Maestro } from "@anastasia-labs/aiken-multisig-offchain";
+import { runSign } from "./validate_sign.js";
+import { runUpdate } from "./validate_update.js";
+import { runEnd } from "./end_multi_sig.js";
 
 // Load environment variables
 dotenv.config();
@@ -15,24 +18,16 @@ program
     .version("1.0.0");
 
 program
-    .command("init")
-    .description("Initialize a new multisig contract")
-    .option(
-        "-n, --network <network>",
-        "Network to use (preprod/mainnet)",
-        "preprod",
-    )
-    .option("-t, --threshold <number>", "Number of required signatures", "2")
-    .option("-l, --limit <number>", "Spending limit in lovelace", "10000000")
-    .option("-f, --funds <number>", "Total funds in lovelace", "90000000")
-    .option("-m, --min-ada <number>", "Minimum ADA requirement", "2000000")
-    .action(async (options) => {
+    .command("multisig [action]")
+    .description("Manage multisig operations")
+    .action(async (action) => {
         try {
             const API_KEY = process.env.API_KEY!;
             const INITIATOR_SEED = process.env.INITIATOR_SEED!;
             const SIGNER_ONE_SEED = process.env.SIGNER_ONE_SEED!;
             const SIGNER_TWO_SEED = process.env.SIGNER_TWO_SEED!;
             const SIGNER_THREE_SEED = process.env.SIGNER_THREE_SEED!;
+            const RECIPIENT_SEED = process.env.RECIPIENT_SEED!;
 
             if (!API_KEY) {
                 throw new Error("Missing required API_KEY.");
@@ -48,14 +43,53 @@ program
                 }),
                 "Preprod",
             );
+            switch (action) {
+                case "init":
+                    console.log("init called...");
+                    await runInit(
+                        lucid,
+                        INITIATOR_SEED,
+                        SIGNER_ONE_SEED,
+                        SIGNER_TWO_SEED,
+                        SIGNER_THREE_SEED,
+                    );
+                    break;
+                case "sign":
+                    console.log("sign called...");
+                    await runSign(
+                        lucid,
+                        INITIATOR_SEED,
+                        SIGNER_ONE_SEED,
+                        SIGNER_TWO_SEED,
+                        SIGNER_THREE_SEED,
+                        RECIPIENT_SEED,
+                    );
+                    break;
+                case "update":
+                    console.log("update called...");
+                    await runUpdate(
+                        lucid,
+                        INITIATOR_SEED,
+                        SIGNER_ONE_SEED,
+                        SIGNER_TWO_SEED,
+                        SIGNER_THREE_SEED,
+                    );
+                    break;
+                case "end":
+                    console.log("end called...");
+                    await runEnd(
+                        lucid,
+                        INITIATOR_SEED,
+                        SIGNER_ONE_SEED,
+                        SIGNER_TWO_SEED,
+                        SIGNER_THREE_SEED,
+                        RECIPIENT_SEED,
+                    );
+                    break;
+                default:
+                    console.log(`Unknown action: ${action}`);
+            }
 
-            await run(
-                lucid,
-                INITIATOR_SEED,
-                SIGNER_ONE_SEED,
-                SIGNER_TWO_SEED,
-                SIGNER_THREE_SEED,
-            );
             process.exit(0);
         } catch (error) {
             console.error("Error:", error);
