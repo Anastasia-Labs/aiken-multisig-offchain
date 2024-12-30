@@ -23,22 +23,6 @@ export const runSign = async (
     const signer3 = await getUserAddressAndPKH(lucid, SIGNER_THREE_SEED);
     const recipient = await getUserAddressAndPKH(lucid, RECIPIENT_SEED);
 
-    console.log("initiator: ", initiator.address);
-    const initiatorUTxOs = await lucid.utxosAt(initiator.address);
-    console.log("initiatorUTxOs: ", initiatorUTxOs);
-
-    console.log("signer1: ", signer1.address);
-    const signer1UTxOs = await lucid.utxosAt(signer1.address);
-    console.log("signer1UTxOs: ", signer1UTxOs);
-
-    console.log("signer2: ", signer2.address);
-    const signer2UTxOs = await lucid.utxosAt(signer2.address);
-    console.log("signer2UTxOs: ", signer2UTxOs);
-
-    console.log("signer3: ", signer3.address);
-    const signer3UTxOs = await lucid.utxosAt(signer3.address);
-    console.log("signer3UTxOs: ", signer3UTxOs);
-
     const signConfig: ValidateSignConfig = {
         withdrawal_amount: 5_000_000n,
         recipient_address: recipient.address,

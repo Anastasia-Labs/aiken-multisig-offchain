@@ -51,8 +51,6 @@ export const validateSignTestCase = (
       signers_list: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
     };
 
-    console.log("initiator: ", initiator.address);
-
     lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
     const validateSignFlow = Effect.gen(function* (_) {
       const signTxUnsigned = yield* validateSignProgram(

@@ -23,22 +23,6 @@ export const runUpdate = async (
     const signer2 = await getUserAddressAndPKH(lucid, SIGNER_TWO_SEED);
     const signer3 = await getUserAddressAndPKH(lucid, SIGNER_THREE_SEED);
 
-    console.log("initiator: ", initiator.address);
-    const initiatorUTxOs = await lucid.utxosAt(initiator.address);
-    console.log("initiatorUTxOs: ", initiatorUTxOs);
-
-    console.log("signer1: ", signer1.address);
-    const signer1UTxOs = await lucid.utxosAt(signer1.address);
-    console.log("signer1UTxOs: ", signer1UTxOs);
-
-    console.log("signer2: ", signer2.address);
-    const signer2UTxOs = await lucid.utxosAt(signer2.address);
-    console.log("signer2UTxOs: ", signer2UTxOs);
-
-    console.log("signer3: ", signer3.address);
-    const signer3UTxOs = await lucid.utxosAt(signer3.address);
-    console.log("signer3UTxOs: ", signer3UTxOs);
-
     const updateConfig: UpdateValidateConfig = {
         new_signers: [
             initiator.pkh,

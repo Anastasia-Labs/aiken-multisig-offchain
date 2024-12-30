@@ -33,7 +33,6 @@ program
                 throw new Error("Missing required API_KEY.");
             }
 
-            console.log("LOGGG ", API_KEY);
             // Create Lucid instance (remove top-level await)
             const lucid = await Lucid(
                 new Maestro({
@@ -45,7 +44,6 @@ program
             );
             switch (action) {
                 case "init":
-                    console.log("init called...");
                     await runInit(
                         lucid,
                         INITIATOR_SEED,
@@ -55,7 +53,6 @@ program
                     );
                     break;
                 case "sign":
-                    console.log("sign called...");
                     await runSign(
                         lucid,
                         INITIATOR_SEED,
@@ -66,7 +63,6 @@ program
                     );
                     break;
                 case "update":
-                    console.log("update called...");
                     await runUpdate(
                         lucid,
                         INITIATOR_SEED,
@@ -76,7 +72,6 @@ program
                     );
                     break;
                 case "end":
-                    console.log("end called...");
                     await runEnd(
                         lucid,
                         INITIATOR_SEED,
