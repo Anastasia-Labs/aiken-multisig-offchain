@@ -1,9 +1,8 @@
 import { Effect } from "effect";
 import {
-    endMultiSig,
+    EndMultisigConfig,
     endMultiSigProgram,
     getUserAddressAndPKH,
-    SignConfig,
 } from "../src";
 import { LucidContext } from "./common/lucidContext";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase";
@@ -11,7 +10,7 @@ import { expect } from "vitest";
 
 type EndMultiSigResult = {
     txHash: string;
-    signConfig: SignConfig;
+    endConfig: EndMultisigConfig;
 };
 
 export const endMultiSigTestCase = (
@@ -50,7 +49,7 @@ export const endMultiSigTestCase = (
             yield* Effect.sync(() => emulator.awaitBlock(10));
         }
 
-        const signConfig: SignConfig = {
+        const endConfig: EndMultisigConfig = {
             signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
             threshold: 3n,
             funds: {
@@ -66,7 +65,7 @@ export const endMultiSigTestCase = (
         const endMultiSigFlow = Effect.gen(function* (_) {
             const endMultisigUnsigned = yield* endMultiSigProgram(
                 lucid,
-                signConfig,
+                endConfig,
             );
 
             const cboredTx = endMultisigUnsigned.toCBOR();
@@ -110,7 +109,7 @@ export const endMultiSigTestCase = (
 
         return {
             txHash: multisigResult,
-            signConfig: signConfig,
+            endConfig: endConfig,
         };
     });
 };

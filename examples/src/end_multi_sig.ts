@@ -1,8 +1,8 @@
 import {
     endMultiSig,
+    EndMultisigConfig,
     getUserAddressAndPKH,
     LucidEvolution,
-    SignConfig,
 } from "@anastasia-labs/aiken-multisig-offchain";
 
 export const runEnd = async (
@@ -23,7 +23,7 @@ export const runEnd = async (
     const signer3 = await getUserAddressAndPKH(lucid, SIGNER_THREE_SEED);
     const recipient = await getUserAddressAndPKH(lucid, RECIPIENT_SEED);
 
-    const signConfig: SignConfig = {
+    const endConfig: EndMultisigConfig = {
         signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
         threshold: 3n,
         funds: {
@@ -37,7 +37,7 @@ export const runEnd = async (
     // End multisig
     try {
         lucid.selectWallet.fromSeed(INITIATOR_SEED);
-        const endTxUnsigned = await endMultiSig(lucid, signConfig);
+        const endTxUnsigned = await endMultiSig(lucid, endConfig);
 
         const cboredTx = endTxUnsigned.toCBOR();
         const partialSignatures: string[] = [];
@@ -59,9 +59,7 @@ export const runEnd = async (
         }
 
         const assembleTx = endTxUnsigned.assemble(partialSignatures);
-
         const completeSign = await assembleTx.complete();
-
         const signTxHash = await completeSign.submit();
 
         console.log(`Multisig Contract Ended Successfully: ${signTxHash}`);

@@ -20,7 +20,7 @@ export type MultiSigConfig = {
   minimum_ada: bigint;
 };
 
-export type SignConfig = {
+export type EndMultisigConfig = {
   signers: string[];
   threshold: bigint;
   funds: AssetClass;

@@ -12,14 +12,14 @@ import {
 } from "@lucid-evolution/lucid";
 import { MultisigDatum } from "../core/contract.types.js";
 import { Effect } from "effect";
-import { SignConfig } from "../core/types.js";
+import { EndMultisigConfig } from "../core/types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
 import { multiSigScript } from "../core/constants.js";
 
 export const endMultiSigProgram = (
     lucid: LucidEvolution,
-    config: SignConfig,
+    config: EndMultisigConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
     Effect.gen(function* () {
         const validators = getSignValidators(lucid, multiSigScript);

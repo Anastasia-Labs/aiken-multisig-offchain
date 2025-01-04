@@ -61,9 +61,7 @@ export const runUpdate = async (
         }
 
         const assembleTx = updateTxUnsigned.assemble(partialSignatures);
-
         const completeSign = await assembleTx.complete();
-
         const signTxHash = await completeSign.submit();
 
         console.log(`Multisig Contract Updated Successfully: ${signTxHash}`);

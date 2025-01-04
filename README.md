@@ -237,9 +237,9 @@ try {
 (*Release funds or close the contract.*)
 
 ```ts
-import { validateUpdate, UpdateValidateConfig } from "@anastasia-labs/aiken-multisig-offchain";
+import { endMultiSig, EndMultisigConfig } from "@anastasia-labs/aiken-multisig-offchain";
 
-const signConfig: SignConfig = {
+const endConfig: EndMultisigConfig = {
         signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
         threshold: 3n,
         funds: {
@@ -253,7 +253,7 @@ const signConfig: SignConfig = {
     // Sign multisig
     try {
         lucid.selectWallet.fromSeed(INITIATOR_SEED);
-        const endTxUnsigned = await endMultiSig(lucid, signConfig);
+        const endTxUnsigned = await endMultiSig(lucid, endConfig);
 
         const cboredTx = endTxUnsigned.toCBOR();
         const partialSignatures: string[] = [];

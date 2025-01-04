@@ -6,7 +6,6 @@
   "main": "dist/index.js",
   "bin": {
     "cli": "./dist/cli"
-    
   },
   "files": [
     "/dist/"
@@ -22,7 +21,7 @@
   "author": "Anastasia Labs",
   "license": "ISC",
   "dependencies": {
-    "@anastasia-labs/aiken-multisig-offchain": "file:../anastasia-labs-aiken-multisig-offchain-1.0.1.tgz",
+    "@anastasia-labs/aiken-multisig-offchain": "file:../anastasia-labs-aiken-multisig-offchain-1.0.3.tgz",
     "commander": "^12.1.0",
     "tsup": "^8.3.5"
   },

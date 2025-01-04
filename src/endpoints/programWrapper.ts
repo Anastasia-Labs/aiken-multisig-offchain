@@ -4,8 +4,8 @@ import { Effect } from "effect";
 import { initiateMultiSigProgram } from "./initiateMultiSig.js";
 import { LucidEvolution, TxSignBuilder } from "@lucid-evolution/lucid";
 import {
+    EndMultisigConfig,
     MultiSigConfig,
-    SignConfig,
     UpdateValidateConfig,
     ValidateSignConfig,
 } from "../core/types.js";
@@ -43,7 +43,7 @@ export async function validateUpdate(
 
 export async function endMultiSig(
     lucid: LucidEvolution,
-    config: SignConfig,
+    config: EndMultisigConfig,
 ): Promise<TxSignBuilder> {
     return Effect.runPromise(
         endMultiSigProgram(lucid, config),

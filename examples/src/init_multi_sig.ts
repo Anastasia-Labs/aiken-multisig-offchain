@@ -34,9 +34,7 @@ export const runInit = async (
     try {
         lucid.selectWallet.fromSeed(INITIATOR_SEED);
         const initTxUnsigned = await initiateMultiSig(lucid, initConfig);
-
         const initTxSigned = await initTxUnsigned.sign.withWallet().complete();
-
         const initTxHash = await initTxSigned.submit();
 
         console.log(`Multisig Contract Initiated Successfully: ${initTxHash}`);
