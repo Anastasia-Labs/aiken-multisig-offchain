@@ -57,14 +57,9 @@ export const validateUpdate = (
       kind: "selected",
       makeRedeemer: (inputIndices: bigint[]) => {
         // Construct the redeemer using the input indices
-        const multisigRedeemer: SignMultiSig = {
-          input_index: inputIndices[0],
-          output_index: 1n,
-        };
 
         return Data.to(
-          multisigRedeemer,
-          SignMultiSig,
+          new Constr(1, [BigInt(inputIndices[0]), 0n]),
         );
       },
       // Specify the inputs relevant to the redeemer

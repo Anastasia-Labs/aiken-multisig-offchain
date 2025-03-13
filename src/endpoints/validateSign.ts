@@ -82,7 +82,6 @@ export const validateSign = (
     const outputDatum = Data.to<MultisigDatum>(multisigDatum, MultisigDatum);
     const multisigValue = multisigUTxO.assets.lovelace;
     const contractBalance = multisigValue - config.withdrawal_amount;
-    console.log("Signers: ", config.signers_list);
 
     const tx = yield* lucid
       .newTx()

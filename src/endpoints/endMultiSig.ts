@@ -1,5 +1,4 @@
 import {
-    Address,
     Assets,
     Constr,
     Data,
@@ -12,16 +11,17 @@ import {
 } from "@lucid-evolution/lucid";
 import { MultisigDatum } from "../core/contract.types.js";
 import { Effect } from "effect";
-import { SignConfig } from "../core/types.js";
+import { EndSigConfig } from "../core/types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
+import { multiSigScript } from "../core/validators/constants.js";
 
 export const endMultiSig = (
     lucid: LucidEvolution,
-    config: SignConfig,
+    config: EndSigConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
     Effect.gen(function* () {
-        const validators = getSignValidators(lucid, config.scripts);
+        const validators = getSignValidators(lucid, multiSigScript);
         const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
 
         const multisigAddress = validators.mintPolicyAddress;
@@ -53,15 +53,9 @@ export const endMultiSig = (
             kind: "selected",
             makeRedeemer: (inputIndices: bigint[]) => {
                 // Construct the redeemer using the input indices
-                const multisigIndex = inputIndices[0];
-                const multisigOutIndex = inputIndices[0];
-
                 return Data.to(
-                    new Constr(1, [
-                        new Constr(2, [
-                            BigInt(multisigIndex),
-                            BigInt(multisigOutIndex),
-                        ]),
+                    new Constr(2, [
+                        BigInt(inputIndices[0]),
                     ]),
                 );
             },
@@ -69,42 +63,22 @@ export const endMultiSig = (
             inputs: [multisigUTxO],
         };
 
-        const endMultiSigRedeemer: RedeemerBuilder = {
-            kind: "selected",
-            makeRedeemer: (inputIndices: bigint[]) => {
-                // Construct the redeemer using the input indices
-                const multisigIndex = inputIndices[0];
-
-                return Data.to(
-                    new Constr(1, [
-                        BigInt(multisigIndex),
-                    ]),
-                );
-            },
-            // Specify the inputs relevant to the redeemer
-            inputs: [multisigUTxO],
-        };
+        const endMultiSigRedeemer = Data.to(new Constr(1, []));
 
         const multisigDatum: MultisigDatum = {
             signers: config.signers, // list of pub key hashes
             threshold: config.threshold,
-            funds: config.funds,
-            spendingLimit: config.spending_limit,
-            minimum_ada: config.minimum_ada,
+            fund_policy_id: config.fund_policy_id,
+            fund_asset_name: config.fund_asset_name,
+            spending_limit: config.spending_limit,
         };
+        console.log("signers: ", multisigDatum.signers);
 
         const multisigValue = { lovelace: multisigUTxO.assets.lovelace };
 
         const mintingAssets: Assets = {
             [multisigNFT]: -1n,
         };
-
-        // console.log("Signers:", multisigDatum.signers);
-        console.log("Threshold:", multisigDatum.threshold);
-
-        console.log("multisigDatum initiator", multisigDatum.signers[0]);
-        console.log("multisigDatum signer1", multisigDatum.signers[1]);
-        console.log("multisigDatum signer2", multisigDatum.signers[2]);
 
         const tx = yield* lucid
             .newTx()
@@ -116,10 +90,7 @@ export const endMultiSig = (
             .addSignerKey(multisigDatum.signers[0])
             .addSignerKey(multisigDatum.signers[1])
             .addSignerKey(multisigDatum.signers[2])
-            .completeProgram({
-                localUPLCEval: false,
-                setCollateral: 0n,
-            });
+            .completeProgram();
 
         return tx;
     });

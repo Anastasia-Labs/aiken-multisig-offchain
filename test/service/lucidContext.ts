@@ -112,20 +112,6 @@ export const makeMaestroContext = (
         turboSubmit: false,
     });
 
-    // const koios = new Koios(
-    //     "https://preprod.koios.rest/api/v1",
-    // );
-
-    // const kupmios = new Kupmios(
-    //     "https://kupo.com/api",
-    //     "https://ogmios.com/api",
-    // );
-
-    // const blockfrost = new Blockfrost(
-    //     "https://cardano-preprod.blockfrost.io/api/v0",
-    //     "preprodhfhVpg93ER5xDj0WQjASmhO3PBlOndis",
-    // );
-
     const lucid = yield* Effect.promise(() => Lucid(maestro, network));
     // const seed = yield* Effect.promise(() =>
     //     generateAccountSeedPhrase({ lovelace: BigInt(1_000_000_000) })

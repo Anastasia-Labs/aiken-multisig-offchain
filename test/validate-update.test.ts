@@ -57,11 +57,12 @@ export const updateTestCase = (
     lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
 
     const UpdateSignFlow = Effect.gen(function* (_) {
-      const signTxUnSigned = yield* validateUpdate(
+      const updateTxUnSigned = yield* validateUpdate(
         lucid,
         updateValidatorConfig,
       );
 
+      const cboredTx = updateTxUnSigned.toCBOR();
       const partialSignatures: string[] = [];
 
       for (
@@ -72,14 +73,14 @@ export const updateTestCase = (
         ]
       ) {
         lucid.selectWallet.fromSeed(signerSeed);
-        const partialSignSigner = yield* Effect.promise(() =>
-          signTxUnSigned.partialSign
-            .withWallet()
-        );
-        partialSignatures.push(partialSignSigner);
+        const partialSigner = yield* lucid
+          .fromTx(cboredTx)
+          .partialSign
+          .withWalletEffect();
+        partialSignatures.push(partialSigner);
       }
 
-      const assembleTx = signTxUnSigned.assemble(partialSignatures);
+      const assembleTx = updateTxUnSigned.assemble(partialSignatures);
       const completeSign = yield* Effect.promise(() => assembleTx.complete());
 
       const signTxHash = yield* Effect.promise(() => completeSign.submit());

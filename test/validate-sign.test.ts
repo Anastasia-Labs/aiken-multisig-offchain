@@ -78,7 +78,6 @@ export const validateSignTestCase = (
       }
       const assembleTx = validatesignTxUnSigned.assemble(partialSignatures);
       const completeSign = yield* Effect.promise(() => assembleTx.complete());
-      console.log("We're here: ", assembleTx.toJSON);
 
       const signTxHash = yield* Effect.promise(() => completeSign.submit());
 

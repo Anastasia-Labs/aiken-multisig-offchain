@@ -62,8 +62,6 @@ export const initiateMultiSig = (
             // Specify the inputs relevant to the redeemer
             inputs: [selectedUTxOs[0]],
         };
-        console.log(`selectedUTxOs: `, selectedUTxOs);
-        console.log(`validators.mintPolicy: ${validators.mintPolicy}`);
 
         const multisigDatum: MultisigDatum = {
             signers: config.signers, // list of pub key hashes
@@ -82,8 +80,6 @@ export const initiateMultiSig = (
             multisigPolicyId,
             fromText(MULTISIG_TOKEN_NAME),
         );
-
-        console.log(`selectedUTxOs: `, selectedUTxOs);
 
         const tx = yield* lucid
             .newTx()

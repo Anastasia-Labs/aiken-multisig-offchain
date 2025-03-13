@@ -19,7 +19,7 @@ export type MultiSigConfig = {
   total_funds_qty: bigint;
 };
 
-export type SignConfig = {
+export type EndSigConfig = {
   signers: string[];
   threshold: bigint;
   fund_policy_id: string;
