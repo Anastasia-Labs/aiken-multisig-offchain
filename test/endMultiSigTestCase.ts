@@ -90,7 +90,7 @@ export const endMultiSigTestCase = (
             const completeSign = yield* Effect.promise(() =>
                 assembleTx.complete()
             );
-            console.dir(completeSign.toJSON(), { depth: null });
+            // console.dir(completeSign.toJSON(), { depth: null });
 
             const signTxHash = yield* Effect.promise(() =>
                 completeSign.submit()

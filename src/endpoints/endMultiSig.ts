@@ -72,7 +72,7 @@ export const endMultiSig = (
             fund_asset_name: config.fund_asset_name,
             spending_limit: config.spending_limit,
         };
-        console.log("signers: ", multisigDatum.signers);
+        // console.log("signers: ", multisigDatum.signers);
 
         const multisigValue = { lovelace: multisigUTxO.assets.lovelace };
 

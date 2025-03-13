@@ -20,7 +20,7 @@ export function readMultiSigValidators(
             v.title === title
         );
         if (!validator) throw new Error(`Validator not found: ${title}`);
-        console.log(`Validator found: ${title}`);
+        // console.log(`Validator found: ${title}`);
 
         let script = applyDoubleCborEncoding(validator.compiledCode);
 
