@@ -12,11 +12,11 @@ import {
 import { AddressD, MultisigDatum } from "./contract.types.js";
 import { Either } from "./types.js";
 
-export type LucidContext = {
-  lucid: LucidEvolution;
-  users: any;
-  emulator: Emulator;
-};
+// export type LucidContext = {
+//   lucid: LucidEvolution;
+//   users: any;
+//   emulator: Emulator;
+// };
 
 export function fromAddress(address: Address): AddressD {
   // We do not support pointer addresses!

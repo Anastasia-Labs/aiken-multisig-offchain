@@ -1,7 +1,7 @@
 import { Effect } from "effect";
-import { LucidContext, makeLucidContext } from "./common/lucidContext";
 import { expect, test } from "vitest";
 import { endMultiSigTestCase } from "./endMultiSigTestCase";
+import { LucidContext, makeLucidContext } from "./service/lucidContext";
 
 test<LucidContext>("Test 4 - End Multisig", async () => {
     const program = Effect.gen(function* ($) {

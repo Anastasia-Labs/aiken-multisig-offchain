@@ -112,9 +112,9 @@ export const makeMaestroContext = (
         turboSubmit: false,
     });
 
-    const koios = new Koios(
-        "https://preprod.koios.rest/api/v1",
-    );
+    // const koios = new Koios(
+    //     "https://preprod.koios.rest/api/v1",
+    // );
 
     // const kupmios = new Kupmios(
     //     "https://kupo.com/api",
@@ -126,7 +126,7 @@ export const makeMaestroContext = (
     //     "preprodhfhVpg93ER5xDj0WQjASmhO3PBlOndis",
     // );
 
-    const lucid = yield* Effect.promise(() => Lucid(koios, network));
+    const lucid = yield* Effect.promise(() => Lucid(maestro, network));
     // const seed = yield* Effect.promise(() =>
     //     generateAccountSeedPhrase({ lovelace: BigInt(1_000_000_000) })
     // );
@@ -143,7 +143,7 @@ export const makeLucidContext = (
     // const selectedNetwork = "Custom"; // Default to Preprod if not specified
 
     console.log("Network Target: ", selectedNetwork);
-    if (API_KEY && selectedNetwork !== "Custom") {
+    if (API_KEY && selectedNetwork && selectedNetwork !== "Custom") {
         // Use Maestro context
         return yield* $(makeMaestroContext(selectedNetwork));
     } else {

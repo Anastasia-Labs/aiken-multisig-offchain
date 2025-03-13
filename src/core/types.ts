@@ -1,5 +1,4 @@
 import { Address, Assets, OutRef, Script } from "@lucid-evolution/lucid";
-import { AssetClass } from "./contract.types.js";
 
 export type CborHex = string;
 
@@ -14,27 +13,19 @@ export type Either<L, R> =
 export type MultiSigConfig = {
   signers: string[];
   threshold: bigint;
-  funds: AssetClass;
-  spendingLimit: bigint;
-  totalFundsQty: bigint;
-  minimum_ada: bigint;
-  scripts: {
-    spending: CborHex;
-    minting: CborHex;
-  };
+  fund_policy_id: string;
+  fund_asset_name: string;
+  spending_limit: bigint;
+  total_funds_qty: bigint;
 };
 
 export type SignConfig = {
   signers: string[];
   threshold: bigint;
-  funds: AssetClass;
-  spendingLimit: bigint;
-  minimum_ada: bigint;
-  recipientAddress: Address;
-  scripts: {
-    spending: CborHex;
-    minting: CborHex;
-  };
+  fund_policy_id: string;
+  fund_asset_name: string;
+  spending_limit: bigint;
+  recipient_address: Address;
 };
 
 export type MultiSigValidators = {
@@ -45,32 +36,17 @@ export type MultiSigValidators = {
 };
 
 export type ValidateSignConfig = {
-  withdrawalAmount: bigint;
-  recipientAddress: Address;
-  signersList: string[];
-  scripts: {
-    spending: CborHex;
-    minting: CborHex;
-  };
+  withdrawal_amount: bigint;
+  recipient_address: Address;
+  signers_list: string[];
 };
 
 export type UpdateValidateConfig = {
   new_signers: string[];
   new_threshold: bigint; // new threshold
-  funds: AssetClass;
-  new_spendingLimit: bigint;
-  minimum_ada: bigint;
-  scripts: {
-    spending: CborHex;
-    minting: CborHex;
-  };
-};
-
-export type Config = {
-  scripts: {
-    spending: CborHex;
-    minting: CborHex;
-  };
+  fund_policy_id: string;
+  fund_asset_name: string;
+  new_spending_limit: bigint;
 };
 
 export type ReadableUTxO<T> = {

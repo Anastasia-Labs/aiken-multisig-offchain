@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { initiateMultiSig, MultiSigConfig } from "../src";
-import { LucidContext } from "./common/lucidContext";
-import { multiSigScript } from "./common/constants";
+import { LucidContext } from "./service/lucidContext";
+import { multiSigScript } from "../src/core/validators/constants";
 import { getUserAddressAndPKH } from "../src/core/utils";
 
 type MultiSigResult = {
@@ -28,26 +28,16 @@ export const initiateMultiSigTestCase = (
         const signer3 = yield* Effect.promise(() =>
             getUserAddressAndPKH(lucid, users.signer3.seedPhrase)
         );
-        console.log("initiator", initiator.pkh);
-        console.log("initiator", initiator.address);
-        console.log("signer1", signer1.pkh);
-        console.log("signer1", signer1.address);
-        console.log("signer2", signer2.pkh);
-        console.log("signer2", signer2.address);
-        console.log("signer3", signer3.pkh);
 
         const multisigConfig: MultiSigConfig = {
             signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
             threshold: 3n,
-            funds: {
-                policyId: "",
-                assetName: "",
-            },
-            spendingLimit: 10_000_000n,
-            totalFundsQty: 200_000_000n,
-            minimum_ada: 2_000_000n,
-            scripts: multiSigScript,
+            fund_policy_id: "",
+            fund_asset_name: "",
+            spending_limit: 10_000_000n,
+            total_funds_qty: 200_000_000n,
         };
+
         lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
 
         const initiateMultiSigFlow = Effect.gen(function* (_) {
