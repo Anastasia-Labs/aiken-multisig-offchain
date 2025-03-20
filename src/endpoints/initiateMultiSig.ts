@@ -1,5 +1,6 @@
 import {
     Address,
+    Constr,
     Data,
     fromText,
     LucidEvolution,
@@ -16,6 +17,7 @@ import { MultiSigConfig } from "../core/types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { multiSigScript } from "../core/validators/constants.js";
 import { MULTISIG_TOKEN_NAME } from "../core/utils/constants.js";
+import { generateUniqueAssetName } from "../core/utils/assets.js";
 
 export const initiateMultiSig = (
     lucid: LucidEvolution,
@@ -49,6 +51,10 @@ export const initiateMultiSig = (
             makeRedeemer: (inputIndices: bigint[]) => {
                 // Construct the redeemer using the input indices
                 const multisigRedeemer: InitiateMultiSig = {
+                    output_reference: {
+                        txHash: selectedUTxOs[0].txHash,
+                        outputIndex: BigInt(selectedUTxOs[0].outputIndex),
+                    },
                     output_index: inputIndices[0],
                 };
 
@@ -75,10 +81,13 @@ export const initiateMultiSig = (
             multisigDatum,
             MultisigDatum,
         );
-
+        const tokenName = generateUniqueAssetName(
+            selectedUTxOs[0],
+            fromText("multisig"),
+        );
         const multisigNFT = toUnit(
             multisigPolicyId,
-            fromText(MULTISIG_TOKEN_NAME),
+            tokenName,
         );
 
         const tx = yield* lucid
@@ -93,6 +102,10 @@ export const initiateMultiSig = (
                 lovelace: config.total_funds_qty,
             })
             .attach.MintingPolicy(validators.mintPolicy)
+            .addSignerKey(config.signers[0])
+            .addSignerKey(config.signers[1])
+            .addSignerKey(config.signers[2])
+            .addSignerKey(config.signers[3])
             .completeProgram();
 
         return tx;

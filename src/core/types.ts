@@ -49,8 +49,7 @@ export type UpdateValidateConfig = {
   new_spending_limit: bigint;
 };
 
-export type ReadableUTxO<T> = {
-  outRef: OutRef;
-  datum: T;
-  assets: Assets;
+export type DeployRefScriptsConfig = {
+  token_name: string;
+  current_time: BigInt;
 };

@@ -12,6 +12,8 @@ import {
 import { AddressD, MultisigDatum } from "./contract.types.js";
 import { Either } from "./types.js";
 
+//TODO: Add utility function to fetch utxo with pub key hash.
+
 // export type LucidContext = {
 //   lucid: LucidEvolution;
 //   users: any;

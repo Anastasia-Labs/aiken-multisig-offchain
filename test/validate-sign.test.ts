@@ -66,7 +66,6 @@ export const validateSignTestCase = (
           users.initiator.seedPhrase,
           users.signer1.seedPhrase,
           users.signer2.seedPhrase,
-          users.signer3.seedPhrase,
         ]
       ) {
         lucid.selectWallet.fromSeed(signerSeed);

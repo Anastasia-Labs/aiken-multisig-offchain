@@ -8,6 +8,7 @@ import { Script } from "@lucid-evolution/lucid";
 export type Validators = {
     spendMultiSig: SpendingValidator;
     mintMultiSig: MintingPolicy;
+    alwaysFails: SpendingValidator;
 };
 
 export function readMultiSigValidators(
@@ -37,5 +38,6 @@ export function readMultiSigValidators(
     return {
         spendMultiSig: getValidator("multisig.multisig.spend"),
         mintMultiSig: getValidator("multisig.multisig.mint"),
+        alwaysFails: getValidator("always_fails_validator.always_fails.else"),
     };
 }

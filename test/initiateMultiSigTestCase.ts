@@ -46,6 +46,12 @@ export const initiateMultiSigTestCase = (
                 multisigConfig,
             );
 
+            // console.log(
+            //     "initiateMultisigUnsigned: ",
+            //     initiateMultisigUnsigned.toJSON(),
+            // );
+
+            const cboredTx = initiateMultisigUnsigned.toCBOR();
             const partialSignatures: string[] = [];
 
             for (
@@ -53,14 +59,15 @@ export const initiateMultiSigTestCase = (
                     users.initiator.seedPhrase,
                     users.signer1.seedPhrase,
                     users.signer2.seedPhrase,
+                    users.signer3.seedPhrase,
                 ]
             ) {
                 lucid.selectWallet.fromSeed(signerSeed);
-                const partialSignSigner = yield* Effect.promise(() =>
-                    initiateMultisigUnsigned.partialSign
-                        .withWallet()
-                );
-                partialSignatures.push(partialSignSigner);
+                const partialSigner = yield* lucid
+                    .fromTx(cboredTx)
+                    .partialSign
+                    .withWalletEffect();
+                partialSignatures.push(partialSigner);
             }
 
             const assembleTx = initiateMultisigUnsigned.assemble(

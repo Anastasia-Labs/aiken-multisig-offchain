@@ -1,8 +1,13 @@
 import { Data } from "@lucid-evolution/lucid";
 import { Sign } from "crypto";
 
+// export const OutputReferenceSchema = Data.Object({
+//   txHash: Data.Object({ hash: Data.Bytes({ minLength: 32, maxLength: 32 }) }),
+//   outputIndex: Data.Integer(),
+// });
+
 export const OutputReferenceSchema = Data.Object({
-  txHash: Data.Object({ hash: Data.Bytes({ minLength: 32, maxLength: 32 }) }),
+  txHash: Data.Bytes({ minLength: 32, maxLength: 32 }),
   outputIndex: Data.Integer(),
 });
 
@@ -11,7 +16,7 @@ export const OutputReference =
   OutputReferenceSchema as unknown as OutputReference;
 
 export const CreateMintSchema = Data.Object({
-  // output_reference: OutputReferenceSchema,
+  output_reference: OutputReferenceSchema,
   output_index: Data.Integer(),
 });
 

@@ -25,6 +25,9 @@ export const getSignValidators = (
   };
 
   const network = lucid.config().network;
+  if (!network) {
+    throw new Error("Network configuration is not defined");
+  }
 
   const multisigPolicyAddress = validatorToAddress(network, multisigPolicy);
   const multisigValAddress = validatorToAddress(network, multisigVal);

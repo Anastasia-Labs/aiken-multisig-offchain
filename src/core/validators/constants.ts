@@ -15,4 +15,14 @@ const multiSigScript = {
     minting: multisigValidator.mintMultiSig.script,
 };
 
-export { multiSigPolicyId, multiSigScript, multisigValidator };
+const alwaysFailScript = {
+    spending: multisigValidator.alwaysFails.script,
+    minting: "",
+};
+
+export {
+    alwaysFailScript,
+    multiSigPolicyId,
+    multiSigScript,
+    multisigValidator,
+};
