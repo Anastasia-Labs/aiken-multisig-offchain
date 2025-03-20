@@ -106,31 +106,58 @@ import { initiateMultisig, InitiateMultisigConfig } from "@anastasia-labs/aiken-
 const initiatorPkh = getAddressDetails(initiatorAddress).paymentCredential?.hash!;
 const signer1Pkh = getAddressDetails(signer1Address).paymentCredential?.hash!;
 const signer2Pkh = getAddressDetails(signer2Address).paymentCredential?.hash!;
+const signer3Pkh = getAddressDetails(signer3Address).paymentCredential?.hash!;
 
 // Configure the multisig parameters
 const initConfig: InitiateMultisigConfig = {
-  signers: [initiatorPkh, signer1Pkh, signer2Pkh],
+  signers: [initiatorPkh, signer1Pkh, signer2Pkh, signer3Pkh],
   threshold: 2n, // Require two out of three signatures
-  funds: {
-    policyId: "", // For ADA, leave empty
-    assetName: "", // For ADA, leave empty
-  },
-  spendingLimit: 10_000_000n, // 10 ADA in lovelace
-  minimumAda: 2_000_000n, // Minimum ADA required in lovelace
-  scripts: multisigScripts,
+  fund_policy_id: "", // For ADA, leave empty
+  fund_asset_name: "", // For ADA, leave empty
+  spending_limit: 10_000_000n, // 10 ADA in lovelace
+  total_funds_qty: 200_000_000n, // 200 ADA in lovelace
+
 };
 
-// Initiate the multisig contract
-const initTxUnsigned = await initiateMultisig(lucid, initConfig);
+try{
+  // Initiate the multisig contract
+  const initTxUnsigned = await initiateMultisig(lucid, initConfig);
 
-if (initTxUnsigned.type === "ok") {
-  // Sign the transaction with the initiator's wallet
-  const initTxSigned = await initTxUnsigned.data.sign().complete();
-  const initTxHash = await initTxSigned.submit();
-  console.log(`Multisig Contract Initiated: ${initTxHash}`);
-} else {
-  console.error("Failed to initiate multisig contract:", initTxUnsigned.error);
-}
+  if (initTxUnsigned.type === "ok") {
+    // Sign the transaction with the initiator's wallet
+    const initTxSigned = await initTxUnsigned.data.sign().complete();
+
+     const cboredTx = signTxUnsigned.toCBOR();
+        const partialSignatures: string[] = [];
+
+        for (
+            const signerSeed of [
+                INITIATOR_SEED,
+                SIGNER_ONE_SEED,
+                SIGNER_TWO_SEED,
+                SIGNER_THREE_SEED,
+            ]
+        ) {
+            lucid.selectWallet.fromSeed(signerSeed);
+            const partialSigner = await lucid
+                .fromTx(cboredTx)
+                .partialSign
+                .withWallet();
+            partialSignatures.push(partialSigner);
+        }
+
+        const assembleTx = initTxSigned.assemble(partialSignatures);
+        const completeSign = await assembleTx.complete();
+        const initTxHash = await completeSign.submit();    
+        
+        console.log(`Multisig Contract Initiated: ${initTxHash}`);
+  } else {
+    console.error("Failed to initiate multisig contract:", initTxUnsigned.error);
+  }
+} catch (error) {
+        console.error("Failed to Sign multisig:", error);
+  }
+
 
 ```
 
@@ -141,10 +168,9 @@ import { validateSign, ValidateSignConfig } from "@anastasia-labs/aiken-multisig
 
 // Configure the sign transaction
 const validateSignConfig: ValidateSignConfig = {
-  withdrawalAmount: 5_000_000n, // Amount to withdraw in lovelace
-  recipientAddress: recipientAddress, // Address to receive the funds
-  signersList: [initiatorPkh, signer1Pkh], // Signatories participating
-  scripts: multisigScripts,
+  withdrawal_amount: 5_000_000n, // Amount to withdraw in lovelace
+  recipient_address: recipientAddress, // Address to receive the funds
+  signers_list: [initiatorPkh, signer1Pkh], // Signatories participating
 };
 
 // Validate and prepare the transaction
@@ -154,14 +180,23 @@ if (signTxUnsigned.type === "ok") {
   const partialSignatures: string[] = [];
 
   // Collect partial signatures from each signatory
-  for (const signerSeed of [users.initiator.seedPhrase, users.signer1.seedPhrase]) {
-    lucid.selectWalletFromSeed(signerSeed);
-    const partialSign = await signTxUnsigned.data.partialSign.withWallet();
-    partialSignatures.push(partialSign);
-  }
+   for (
+        const signerSeed of [
+          users.initiator.seedPhrase,
+          users.signer1.seedPhrase,
+          users.signer2.seedPhrase,
+        ]
+      ) {
+        lucid.selectWallet.fromSeed(signerSeed);
+        const partialSigner = await lucid
+          .fromTx(cboredTx)
+          .partialSign
+          .withWalletEffect();
+        partialSignatures.push(partialSigner);
+      }
 
   // Assemble and complete the transaction
-  const assembledTx = signTxUnsigned.data.assemble(partialSignatures);
+  const assembleTx = validatesignTxUnSigned.assemble(partialSignatures);
   const completeTx = await assembledTx.complete();
   const signTxHash = await completeTx.submit();
   console.log(`Transaction Signed and Submitted: ${signTxHash}`);
@@ -181,15 +216,11 @@ import { validateUpdate, UpdateValidateConfig } from "@anastasia-labs/aiken-mult
 
 // Adjust the threshold to require all three signatures
 const updateConfig: UpdateValidateConfig = {
-  newSigners: [initiatorPkh, signer1Pkh, signer2Pkh],
-  newThreshold: 3n,
-  funds: {
-    policyId: "",
-    assetName: "",
-  },
-  newSpendingLimit: 15_000_000n,
-  minimumAda: 2_000_000n,
-  scripts: multisigScripts,
+  new_signers: [initiatorPkh, signer1Pkh, signer2Pkh],
+  new_threshold: 3n,
+  fund_policy_id: "",
+  fund_asset_name: "",
+  new_spending_limit: 15_000_000n,
 };
 
 // Validate and prepare the update transaction
@@ -199,14 +230,23 @@ if (updateTxUnsigned.type === "ok") {
   const partialSignatures: string[] = [];
 
   // Collect partial signatures from each signatory
-  for (const signerSeed of [users.initiator.seedPhrase, users.signer1.seedPhrase, users.signer2.seedPhrase]) {
-    lucid.selectWalletFromSeed(signerSeed);
-    const partialSign = await updateTxUnsigned.data.partialSign.withWallet();
-    partialSignatures.push(partialSign);
-  }
+  for (
+        const signerSeed of [
+          users.initiator.seedPhrase,
+          users.signer1.seedPhrase,
+          users.signer2.seedPhrase,
+        ]
+      ) {
+        lucid.selectWallet.fromSeed(signerSeed);
+        const partialSigner = await lucid
+          .fromTx(cboredTx)
+          .partialSign
+          .withWalletEffect();
+        partialSignatures.push(partialSigner);
+      }
 
   // Assemble and complete the transaction
-  const assembledTx = updateTxUnsigned.data.assemble(partialSignatures);
+  const assembleTx = updateTxUnSigned.assemble(partialSignatures);
   const completeTx = await assembledTx.complete();
   const updateTxHash = await completeTx.submit();
   console.log(`Multisig Contract Updated: ${updateTxHash}`);
@@ -225,15 +265,11 @@ const signer3Pkh = getAddressDetails(signer3Address).paymentCredential?.hash!;
 
 // Update the signers list and threshold
 const addSignerConfig: UpdateValidateConfig = {
-  newSigners: [initiatorPkh, signer1Pkh, signer2Pkh, signer3Pkh],
-  newThreshold: 3n,
-  funds: {
-    policyId: "",
-    assetName: "",
-  },
-  newSpendingLimit: 20_000_000n,
-  minimumAda: 2_000_000n,
-  scripts: multisigScripts,
+  new_signers: [initiatorPkh, signer1Pkh, signer2Pkh, signer3Pkh],
+  new_threshold: 3n,
+  fund_policy_id: "",
+  fund_asset_name: "",
+  new_spending_limit: 20_000_000n,
 };
 
 // Proceed with validation and signing as shown in the update example
@@ -248,22 +284,74 @@ const updatedSigners = [initiatorPkh, signer1Pkh];
 
 // Update the signers list and threshold
 const removeSignerConfig: UpdateValidateConfig = {
-  newSigners: updatedSigners,
-  newThreshold: 2n,
-  funds: {
-    policyId: "",
-    assetName: "",
-  },
-  newSpendingLimit: 10_000_000n,
-  minimumAda: 2_000_000n,
-  scripts: multisigScripts,
+  new_signers: updatedSigners,
+  new_threshold: 2n,
+  fund_policy_id: "",
+  fund_asset_name: "",
+  new_spending_limit: 10_000_000n,
 };
 
 // Proceed with validation and signing as shown in the update example
 
 ```
 
+#### End the Multisig Contract
 
+```ts
+import { endMultiSig, EndSigConfig } from "@anastasia-labs/aiken-multisig-offchain";
+
+// Configure the multisig parameters
+const signConfig: EndSigConfig = {
+  signers: [initiatorPkh, signer1Pkh, signer2Pkh, signer3Pkh],
+  threshold: 2n, // Require two out of three signatures
+  fund_policy_id: "", // For ADA, leave empty
+  fund_asset_name: "", // For ADA, leave empty
+  spending_limit: 10_000_000n, // 10 ADA in lovelace
+  total_funds_qty: 200_000_000n, // 200 ADA in lovelace
+
+};
+
+try{
+  // Initiate the multisig contract
+  const endMultisigUnsigned = await endMultiSig(lucid, signConfig,);
+
+  if (endMultisigUnsigned.type === "ok") {
+    // Sign the transaction with the initiator's wallet
+    const initTxSigned = await endMultisigUnsigned.data.sign().complete();
+
+    const cboredTx = endMultisigUnsigned.toCBOR();
+    const partialSignatures: string[] = [];
+
+        for (
+            const signerSeed of [
+                INITIATOR_SEED,
+                SIGNER_ONE_SEED,
+                SIGNER_TWO_SEED,
+                SIGNER_THREE_SEED,
+            ]
+        ) {
+            lucid.selectWallet.fromSeed(signerSeed);
+            const partialSigner = await lucid
+                .fromTx(cboredTx)
+                .partialSign
+                .withWallet();
+            partialSignatures.push(partialSigner);
+        }
+
+        const assembleTx = endMultisigUnsigned.assemble(partialSignatures);
+        const completeSign = await assembleTx.complete();
+        const initTxHash = await completeSign.submit();    
+        
+        console.log(`Multisig Contract Initiated: ${initTxHash}`);
+  } else {
+    console.error("Failed to initiate multisig contract:", endMultisigUnsigned.error);
+  }
+} catch (error) {
+        console.error("Failed to Sign multisig:", error);
+  }
+
+
+```
 
 ## Local Build
 
