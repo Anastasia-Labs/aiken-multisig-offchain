@@ -1,10 +1,4 @@
 import { Data } from "@lucid-evolution/lucid";
-import { Sign } from "crypto";
-
-// export const OutputReferenceSchema = Data.Object({
-//   txHash: Data.Object({ hash: Data.Bytes({ minLength: 32, maxLength: 32 }) }),
-//   outputIndex: Data.Integer(),
-// });
 
 export const OutputReferenceSchema = Data.Object({
   txHash: Data.Bytes({ minLength: 32, maxLength: 32 }),

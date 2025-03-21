@@ -1,4 +1,4 @@
-import { ValidateSignConfig, validatorToAddress } from "../src/index.js";
+import { ValidateSignConfig } from "../src/index.js";
 import { expect, test } from "vitest";
 import { Effect } from "effect";
 import { validateSignProgram } from "../src/endpoints/validateSign.js";

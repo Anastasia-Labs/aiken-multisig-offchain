@@ -1,8 +1,8 @@
 import { mintingPolicyToId } from "@lucid-evolution/lucid";
-import { readMultiSigValidators } from "./utils/validators.js";
-import blueprint from "./compiled/multisig_validator.json" assert {
+import blueprint from "./compiled/multisig_validator.json" with {
     type: "json",
 };
+import { readMultiSigValidators } from "./compiled/validators.js";
 
 const multisigValidator = readMultiSigValidators(blueprint, false, []);
 const multiSigPolicyId = mintingPolicyToId(multisigValidator.mintMultiSig);

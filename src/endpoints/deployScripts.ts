@@ -12,7 +12,7 @@ import { getSignValidators } from "../core/utils/misc.js";
 
 export const deployRefScriptsProgram = (
     lucid: LucidEvolution,
-    config: DeployRefScriptsConfig,
+    _config: DeployRefScriptsConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
     Effect.gen(function* () {
         const alwaysFailsVal = getSignValidators(lucid, alwaysFailScript);

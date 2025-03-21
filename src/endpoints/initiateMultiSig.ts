@@ -1,6 +1,5 @@
 import {
     Address,
-    Constr,
     Data,
     fromText,
     LucidEvolution,
@@ -16,7 +15,6 @@ import { Effect } from "effect";
 import { MultiSigConfig } from "../core/types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { multiSigScript } from "../core/validators/constants.js";
-import { MULTISIG_TOKEN_NAME } from "../core/utils/constants.js";
 import { generateUniqueAssetName } from "../core/utils/assets.js";
 
 export const initiateMultiSigProgram = (

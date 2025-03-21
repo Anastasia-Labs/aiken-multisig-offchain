@@ -1,7 +1,6 @@
 import {
   LucidEvolution,
   MintingPolicy,
-  ScriptType,
   SpendingValidator,
   validatorToAddress,
 } from "@lucid-evolution/lucid";

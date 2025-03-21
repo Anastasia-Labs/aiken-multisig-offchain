@@ -1,4 +1,4 @@
-import { UpdateValidateConfig, validatorToAddress } from "../src/index.js";
+import { UpdateValidateConfig } from "../src/index.js";
 import { expect, test } from "vitest";
 import { Effect } from "effect";
 import { getUserAddressAndPKH } from "../src/core/utils.js";

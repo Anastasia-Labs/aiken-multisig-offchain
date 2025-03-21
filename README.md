@@ -98,6 +98,7 @@ lucid.selectWallet.fromPrivateKey("your secret key here e.g. ed25519_...");
 
 ### Initiate Multisig Contract
 
+All signers must sign when initialising.
 (*Wallet must contain enough lovelace to fund the contract.*)
 
 ```ts
@@ -215,6 +216,7 @@ import { validateSign, ValidateSignConfig } from "@anastasia-labs/aiken-multisig
 ```
 
 ### Update Multisig Contract
+All new signers must sign when updating the signer number.
 (*Adjust threshold, signers, or spending limits.*)
 
 ```ts

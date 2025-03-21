@@ -1,5 +1,4 @@
 import {
-  Constr,
   Data,
   LucidEvolution,
   mintingPolicyToId,
@@ -14,10 +13,7 @@ import { MultisigDatum, SignMultiSig } from "../core/contract.types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
 import { getMultisigDatum } from "../core/utils.js";
-import {
-  multiSigScript,
-  multisigValidator,
-} from "../core/validators/constants.js";
+import { multiSigScript } from "../core/validators/constants.js";
 
 export const validateSignProgram = (
   lucid: LucidEvolution,

@@ -1,10 +1,5 @@
 import { Effect } from "effect";
-import {
-    endMultiSigProgram,
-    EndSigConfig,
-    getUserAddressAndPKH,
-    walletFromSeed,
-} from "../src";
+import { endMultiSigProgram, EndSigConfig, getUserAddressAndPKH } from "../src";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase";
 import { expect } from "vitest";
 import { LucidContext } from "./service/lucidContext";

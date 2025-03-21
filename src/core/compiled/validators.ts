@@ -13,8 +13,8 @@ export type Validators = {
 
 export function readMultiSigValidators(
     blueprint: any,
-    params: boolean,
-    policyIds: string[],
+    _params: boolean,
+    _policyIds: string[],
 ): Validators {
     const getValidator = (title: string): Script => {
         const validator = blueprint.validators.find((v: { title: string }) =>

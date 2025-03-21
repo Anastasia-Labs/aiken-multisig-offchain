@@ -23,9 +23,17 @@ You can adapt these scripts to your own workflow or environment.
 
 ## Setup
 
-1. **Install Dependencies** (in the `examples` folder):
+1. **Pack** (in the `sdk` folder):
    ```bash
-   pnpm install
+   pnpm pack
+   ```
+1. **Remove existing Dependencies** (in the `examples` folder):
+   ```bash
+   rm -rf node_modules
+   ```
+1. **Install Dependencies**:
+   ```bash
+   pnpm add "file:../anastasia-labs-aiken-multisig-offchain-1.0.4.tgz"
    ```
 1. Build
     ```bash

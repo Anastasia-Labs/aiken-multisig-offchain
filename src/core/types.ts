@@ -1,4 +1,4 @@
-import { Address, Assets, OutRef, Script } from "@lucid-evolution/lucid";
+import { Address, Script } from "@lucid-evolution/lucid";
 
 export type CborHex = string;
 

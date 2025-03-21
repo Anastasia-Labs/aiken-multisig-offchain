@@ -1,7 +1,6 @@
 import { Effect } from "effect";
 import { initiateMultiSigProgram, MultiSigConfig } from "../src";
 import { LucidContext } from "./service/lucidContext";
-import { multiSigScript } from "../src/core/validators/constants";
 import { getUserAddressAndPKH } from "../src/core/utils";
 
 type MultiSigResult = {
@@ -28,9 +27,9 @@ export const initiateMultiSigTestCase = (
         const signer3 = yield* Effect.promise(() =>
             getUserAddressAndPKH(lucid, users.signer3.seedPhrase)
         );
-        const recipient = yield* Effect.promise(() =>
-            getUserAddressAndPKH(lucid, users.recipient.seedPhrase)
-        );
+        // const recipient = yield* Effect.promise(() =>
+        //     getUserAddressAndPKH(lucid, users.recipient.seedPhrase)
+        // );
 
         console.log("initiator: ", initiator.address);
         const multisigConfig: MultiSigConfig = {

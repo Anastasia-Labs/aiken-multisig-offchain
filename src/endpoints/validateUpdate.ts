@@ -10,15 +10,11 @@ import {
 } from "@lucid-evolution/lucid";
 import { UpdateValidateConfig } from "../core/types.js";
 import { Effect } from "effect";
-import { MultisigDatum, SignMultiSig } from "../core/contract.types.js";
+import { MultisigDatum } from "../core/contract.types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
-import { getMultisigDatum } from "../core/utils.js";
 import { multiSigScript } from "../core/validators/constants.js";
 
-// adjust threshold
-// add signers
-// remove signer and adjust thershold
 export const validateUpdateProgram = (
   lucid: LucidEvolution,
   config: UpdateValidateConfig,
@@ -65,17 +61,17 @@ export const validateUpdateProgram = (
       inputs: [multisigUTxO],
     };
 
-    const parsedDatum = yield* Effect.promise(() =>
-      getMultisigDatum([multisigUTxO])
-    );
+    // const parsedDatum = yield* Effect.promise(() =>
+    //   getMultisigDatum([multisigUTxO])
+    // );
 
-    const inputDatum: MultisigDatum = {
-      signers: parsedDatum[0].signers, // list of pub key hashes
-      threshold: parsedDatum[0].threshold,
-      fund_policy_id: parsedDatum[0].fund_policy_id,
-      fund_asset_name: parsedDatum[0].fund_asset_name,
-      spending_limit: parsedDatum[0].spending_limit,
-    };
+    // const inputDatum: MultisigDatum = {
+    //   signers: parsedDatum[0].signers, // list of pub key hashes
+    //   threshold: parsedDatum[0].threshold,
+    //   fund_policy_id: parsedDatum[0].fund_policy_id,
+    //   fund_asset_name: parsedDatum[0].fund_asset_name,
+    //   spending_limit: parsedDatum[0].spending_limit,
+    // };
 
     const new_sorted_signers = config.new_signers.map((s) => s.toLowerCase());
     new_sorted_signers.sort();
