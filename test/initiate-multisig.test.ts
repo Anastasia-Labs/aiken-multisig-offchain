@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { LucidContext, makeLucidContext } from "./common/lucidContext";
+import { LucidContext, makeLucidContext } from "./service/lucidContext";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase";
 import { expect, test } from "vitest";
 

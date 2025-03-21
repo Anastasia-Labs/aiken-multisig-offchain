@@ -1,10 +1,10 @@
-import { ValidateSignConfig, validatorToAddress } from "../src/index.js";
+import { ValidateSignConfig } from "../src/index.js";
 import { expect, test } from "vitest";
 import { Effect } from "effect";
 import { validateSignProgram } from "../src/endpoints/validateSign.js";
-import { LucidContext, makeLucidContext } from "./common/lucidContext.js";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase.js";
 import { getUserAddressAndPKH } from "../src/core/utils.js";
+import { LucidContext, makeLucidContext } from "./service/lucidContext.js";
 
 type SignResult = {
   txHash: string;
@@ -46,7 +46,7 @@ export const validateSignTestCase = (
     }
 
     const validateSignConfig: ValidateSignConfig = {
-      withdrawal_amount: 5_000_000n,
+      withdrawal_amount: 10_000_000n,
       recipient_address: recipient.address,
       signers_list: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
     };
@@ -66,7 +66,6 @@ export const validateSignTestCase = (
           users.initiator.seedPhrase,
           users.signer1.seedPhrase,
           users.signer2.seedPhrase,
-          users.signer3.seedPhrase,
         ]
       ) {
         lucid.selectWallet.fromSeed(signerSeed);

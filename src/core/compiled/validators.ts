@@ -8,18 +8,20 @@ import { Script } from "@lucid-evolution/lucid";
 export type Validators = {
     spendMultiSig: SpendingValidator;
     mintMultiSig: MintingPolicy;
+    alwaysFails: SpendingValidator;
 };
 
 export function readMultiSigValidators(
     blueprint: any,
-    params: boolean,
-    policyIds: string[],
+    _params: boolean,
+    _policyIds: string[],
 ): Validators {
     const getValidator = (title: string): Script => {
         const validator = blueprint.validators.find((v: { title: string }) =>
             v.title === title
         );
         if (!validator) throw new Error(`Validator not found: ${title}`);
+        // console.log(`Validator found: ${title}`);
 
         let script = applyDoubleCborEncoding(validator.compiledCode);
 
@@ -28,13 +30,14 @@ export function readMultiSigValidators(
         // }
 
         return {
-            type: "PlutusV2",
+            type: "PlutusV3",
             script: script,
         };
     };
 
     return {
-        spendMultiSig: getValidator("multisig.multisig_validator"),
-        mintMultiSig: getValidator("multisig.multisig_policy"),
+        spendMultiSig: getValidator("multisig.multisig.spend"),
+        mintMultiSig: getValidator("multisig.multisig.mint"),
+        alwaysFails: getValidator("always_fails_validator.always_fails.else"),
     };
 }

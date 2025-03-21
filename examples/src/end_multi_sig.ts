@@ -1,6 +1,6 @@
 import {
     endMultiSig,
-    EndMultisigConfig,
+    EndSigConfig,
     getUserAddressAndPKH,
     LucidEvolution,
 } from "@anastasia-labs/aiken-multisig-offchain";
@@ -23,15 +23,12 @@ export const runEnd = async (
     const signer3 = await getUserAddressAndPKH(lucid, SIGNER_THREE_SEED);
     const recipient = await getUserAddressAndPKH(lucid, RECIPIENT_SEED);
 
-    const endConfig: EndMultisigConfig = {
+    const endConfig: EndSigConfig = {
         signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
         threshold: 3n,
-        funds: {
-            policyId: "",
-            assetName: "",
-        },
+        fund_policy_id: "",
+        fund_asset_name: "",
         spending_limit: 10_000_000n,
-        minimum_ada: 2_000_000n,
         recipient_address: recipient.address,
     };
     // End multisig
@@ -60,9 +57,12 @@ export const runEnd = async (
 
         const assembleTx = endTxUnsigned.assemble(partialSignatures);
         const completeSign = await assembleTx.complete();
-        const signTxHash = await completeSign.submit();
+        const endTxHash = await completeSign.submit();
 
-        console.log(`Multisig Contract Ended Successfully: ${signTxHash}`);
+        console.log(`Submitting ...`);
+        await lucid.awaitTx(endTxHash);
+
+        console.log(`Multisig Contract Ended Successfully: ${endTxHash}`);
     } catch (error) {
         console.error("Failed to End multisig:", error);
     }

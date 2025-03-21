@@ -1,7 +1,7 @@
 import { Data } from "@lucid-evolution/lucid";
 
 export const OutputReferenceSchema = Data.Object({
-  txHash: Data.Object({ hash: Data.Bytes({ minLength: 32, maxLength: 32 }) }),
+  txHash: Data.Bytes({ minLength: 32, maxLength: 32 }),
   outputIndex: Data.Integer(),
 });
 
@@ -11,35 +11,35 @@ export const OutputReference =
 
 export const CreateMintSchema = Data.Object({
   output_reference: OutputReferenceSchema,
-  input_index: Data.Integer(),
+  output_index: Data.Integer(),
 });
-
-export const AssetClassSchema = Data.Object({
-  policyId: Data.Bytes(),
-  assetName: Data.Bytes(),
-});
-
-export type AssetClass = Data.Static<typeof AssetClassSchema>;
-export const AssetClass = AssetClassSchema as unknown as AssetClass;
 
 export type InitiateMultiSig = Data.Static<typeof CreateMintSchema>;
 export const InitiateMultiSig = CreateMintSchema as unknown as InitiateMultiSig;
 
+export const SignRedeemerSchema = Data.Object({
+  input_index: Data.Integer(),
+  output_index: Data.Integer(),
+});
+
+export type SignMultiSig = Data.Static<typeof SignRedeemerSchema>;
+export const SignMultiSig = SignRedeemerSchema as unknown as SignMultiSig;
+
 export const MultisigDatumSchema = Data.Object({
   signers: Data.Array(Data.Bytes()), // list of pub key hashes
   threshold: Data.Integer(),
-  funds: AssetClassSchema,
+  fund_policy_id: Data.Bytes(),
+  fund_asset_name: Data.Bytes(),
   spending_limit: Data.Integer(),
-  minimum_ada: Data.Integer(),
 });
 
 export type MultisigDatum = Data.Static<typeof MultisigDatumSchema>;
 export const MultisigDatum = MultisigDatumSchema as unknown as MultisigDatum;
 
 export const MultisigRedeemerSchema = Data.Enum([
-  Data.Literal("Sign"),
-  Data.Literal("Update"),
-  Data.Literal("Remove"),
+  Data.Object({ Sign: Data.Tuple([SignRedeemerSchema]) }),
+  Data.Object({ Update: Data.Tuple([SignRedeemerSchema]) }),
+  Data.Object({ Remove: Data.Tuple([SignRedeemerSchema]) }),
 ]);
 
 export type MultisigRedeemer = Data.Static<typeof MultisigRedeemerSchema>;

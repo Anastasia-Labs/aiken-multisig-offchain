@@ -13,12 +13,8 @@ import { Effect } from "effect";
 import { MultisigDatum } from "../core/contract.types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
-import { getMultisigDatum } from "../core/utils.js";
-import { multiSigScript } from "../core/constants.js";
+import { multiSigScript } from "../core/validators/constants.js";
 
-// adjust threshold
-// add signers
-// remove signer and adjust thershold
 export const validateUpdateProgram = (
   lucid: LucidEvolution,
   config: UpdateValidateConfig,
@@ -56,39 +52,36 @@ export const validateUpdateProgram = (
       kind: "selected",
       makeRedeemer: (inputIndices: bigint[]) => {
         // Construct the redeemer using the input indices
-        const multisigIndex = inputIndices[0];
-        const multisigOutIndex = 0n;
 
         return Data.to(
-          new Constr(1, [
-            new Constr(1, [
-              BigInt(multisigIndex),
-              BigInt(multisigOutIndex),
-            ]),
-          ]),
+          new Constr(1, [BigInt(inputIndices[0]), 0n]),
         );
       },
       // Specify the inputs relevant to the redeemer
-      inputs: [multisigUTxO, multisigUTxOs[0]],
+      inputs: [multisigUTxO],
     };
 
-    const parsedDatum = yield* Effect.promise(() =>
-      getMultisigDatum([multisigUTxO])
-    );
-    const inputDatum: MultisigDatum = {
-      signers: parsedDatum[0].signers, // list of pub key hashes
-      threshold: parsedDatum[0].threshold,
-      funds: parsedDatum[0].funds,
-      spending_limit: parsedDatum[0].spending_limit,
-      minimum_ada: parsedDatum[0].minimum_ada,
-    };
+    // const parsedDatum = yield* Effect.promise(() =>
+    //   getMultisigDatum([multisigUTxO])
+    // );
+
+    // const inputDatum: MultisigDatum = {
+    //   signers: parsedDatum[0].signers, // list of pub key hashes
+    //   threshold: parsedDatum[0].threshold,
+    //   fund_policy_id: parsedDatum[0].fund_policy_id,
+    //   fund_asset_name: parsedDatum[0].fund_asset_name,
+    //   spending_limit: parsedDatum[0].spending_limit,
+    // };
+
+    const new_sorted_signers = config.new_signers.map((s) => s.toLowerCase());
+    new_sorted_signers.sort();
 
     const outputDatum: MultisigDatum = {
-      signers: config.new_signers, // list of pub key hashes
+      signers: new_sorted_signers, // list of pub key hashes
       threshold: config.new_threshold,
-      funds: config.funds,
+      fund_policy_id: config.fund_policy_id,
+      fund_asset_name: config.fund_asset_name,
       spending_limit: config.new_spending_limit,
-      minimum_ada: config.minimum_ada,
     };
     const outputDatumData = Data.to<MultisigDatum>(outputDatum, MultisigDatum);
 
@@ -106,10 +99,11 @@ export const validateUpdateProgram = (
         },
       )
       .attach.SpendingValidator(validators.spendValidator)
-      .addSignerKey(inputDatum.signers[0])
-      .addSignerKey(inputDatum.signers[1])
-      .addSignerKey(inputDatum.signers[2])
-      .completeProgram({ localUPLCEval: false });
+      .addSignerKey(new_sorted_signers[0])
+      .addSignerKey(new_sorted_signers[1])
+      .addSignerKey(new_sorted_signers[2])
+      .addSignerKey(new_sorted_signers[3])
+      .completeProgram();
 
     return tx;
   });

@@ -1,16 +1,12 @@
 import { Effect } from "effect";
-import {
-    EndMultisigConfig,
-    endMultiSigProgram,
-    getUserAddressAndPKH,
-} from "../src";
-import { LucidContext } from "./common/lucidContext";
+import { endMultiSigProgram, EndSigConfig, getUserAddressAndPKH } from "../src";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase";
 import { expect } from "vitest";
+import { LucidContext } from "./service/lucidContext";
 
 type EndMultiSigResult = {
     txHash: string;
-    endConfig: EndMultisigConfig;
+    endConfig: EndSigConfig;
 };
 
 export const endMultiSigTestCase = (
@@ -49,15 +45,12 @@ export const endMultiSigTestCase = (
             yield* Effect.sync(() => emulator.awaitBlock(10));
         }
 
-        const endConfig: EndMultisigConfig = {
+        const endConfig: EndSigConfig = {
             signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
             threshold: 3n,
-            funds: {
-                policyId: "",
-                assetName: "",
-            },
+            fund_policy_id: "",
+            fund_asset_name: "",
             spending_limit: 10_000_000n,
-            minimum_ada: 2_000_000n,
             recipient_address: recipient.address,
         };
 
@@ -71,12 +64,15 @@ export const endMultiSigTestCase = (
             const cboredTx = endMultisigUnsigned.toCBOR();
             const partialSignatures: string[] = [];
 
+            const seedList = [
+                users.initiator.seedPhrase,
+                users.signer1.seedPhrase,
+                users.signer2.seedPhrase,
+                users.signer3.seedPhrase,
+            ];
+
             for (
-                const signerSeed of [
-                    users.initiator.seedPhrase,
-                    users.signer1.seedPhrase,
-                    users.signer2.seedPhrase,
-                ]
+                const signerSeed of seedList
             ) {
                 lucid.selectWallet.fromSeed(signerSeed);
                 const partialSigner = yield* lucid
@@ -87,9 +83,11 @@ export const endMultiSigTestCase = (
             }
 
             const assembleTx = endMultisigUnsigned.assemble(partialSignatures);
+
             const completeSign = yield* Effect.promise(() =>
                 assembleTx.complete()
             );
+            // console.dir(completeSign.toJSON(), { depth: null });
 
             const signTxHash = yield* Effect.promise(() =>
                 completeSign.submit()

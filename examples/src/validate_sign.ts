@@ -57,6 +57,9 @@ export const runSign = async (
         const completeSign = await assembleTx.complete();
         const signTxHash = await completeSign.submit();
 
+        console.log(`Submitting ...`);
+        await lucid.awaitTx(signTxHash);
+
         console.log(`Multisig Contract Signed Successfully: ${signTxHash}`);
     } catch (error) {
         console.error("Failed to Sign multisig:", error);

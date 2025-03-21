@@ -1,5 +1,4 @@
 import {
-  Constr,
   Data,
   LucidEvolution,
   mintingPolicyToId,
@@ -10,11 +9,11 @@ import {
 } from "@lucid-evolution/lucid";
 import { ValidateSignConfig } from "../core/types.js";
 import { Effect } from "effect";
-import { MultisigDatum } from "../core/contract.types.js";
+import { MultisigDatum, SignMultiSig } from "../core/contract.types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
 import { getMultisigDatum } from "../core/utils.js";
-import { multiSigScript } from "../core/constants.js";
+import { multiSigScript } from "../core/validators/constants.js";
 
 export const validateSignProgram = (
   lucid: LucidEvolution,
@@ -51,21 +50,18 @@ export const validateSignProgram = (
     const signRedeemer: RedeemerBuilder = {
       kind: "selected",
       makeRedeemer: (inputIndices: bigint[]) => {
-        // Construct the redeemer using the input indices
-        const multisigIndex = inputIndices[0];
-        const multisigOutIndex = 0n;
+        const multisigRedeemer: SignMultiSig = {
+          input_index: inputIndices[0],
+          output_index: 0n,
+        };
 
         return Data.to(
-          new Constr(1, [
-            new Constr(0, [
-              BigInt(multisigIndex),
-              BigInt(multisigOutIndex),
-            ]),
-          ]),
+          multisigRedeemer,
+          SignMultiSig,
         );
       },
       // Specify the inputs relevant to the redeemer
-      inputs: [multisigUTxO, multisigUTxOs[0]],
+      inputs: [multisigUTxO],
     };
 
     const parsedDatum = yield* Effect.promise(() =>
@@ -75,9 +71,9 @@ export const validateSignProgram = (
     const multisigDatum: MultisigDatum = {
       signers: parsedDatum[0].signers, // list of pub key hashes
       threshold: parsedDatum[0].threshold,
-      funds: parsedDatum[0].funds,
+      fund_policy_id: parsedDatum[0].fund_policy_id,
+      fund_asset_name: parsedDatum[0].fund_asset_name,
       spending_limit: parsedDatum[0].spending_limit,
-      minimum_ada: parsedDatum[0].minimum_ada,
     };
     const outputDatum = Data.to<MultisigDatum>(multisigDatum, MultisigDatum);
     const multisigValue = multisigUTxO.assets.lovelace;
@@ -86,7 +82,7 @@ export const validateSignProgram = (
     const tx = yield* lucid
       .newTx()
       .collectFrom([multisigUTxO], signRedeemer)
-      .pay.ToContract(
+      .pay.ToAddressWithData(
         validators.spendValAddress,
         { kind: "inline", value: outputDatum },
         {
@@ -101,6 +97,6 @@ export const validateSignProgram = (
       .addSignerKey(config.signers_list[0])
       .addSignerKey(config.signers_list[1])
       .addSignerKey(config.signers_list[2])
-      .completeProgram({ localUPLCEval: false });
+      .completeProgram();
     return tx;
   });

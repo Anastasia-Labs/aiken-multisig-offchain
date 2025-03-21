@@ -4,7 +4,7 @@ import { Effect } from "effect";
 import { initiateMultiSigProgram } from "./initiateMultiSig.js";
 import { LucidEvolution, TxSignBuilder } from "@lucid-evolution/lucid";
 import {
-    EndMultisigConfig,
+    EndSigConfig,
     MultiSigConfig,
     UpdateValidateConfig,
     ValidateSignConfig,
@@ -13,7 +13,6 @@ import { endMultiSigProgram } from "./endMultiSig.js";
 import { validateSignProgram } from "./validateSign.js";
 import { validateUpdateProgram } from "./validateUpdate.js";
 
-// TODO: Add prefix
 export async function initiateMultiSig(
     lucid: LucidEvolution,
     config: MultiSigConfig,
@@ -43,7 +42,7 @@ export async function validateUpdate(
 
 export async function endMultiSig(
     lucid: LucidEvolution,
-    config: EndMultisigConfig,
+    config: EndSigConfig,
 ): Promise<TxSignBuilder> {
     return Effect.runPromise(
         endMultiSigProgram(lucid, config),

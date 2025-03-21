@@ -1,5 +1,4 @@
 import {
-    Address,
     Assets,
     Constr,
     Data,
@@ -12,14 +11,14 @@ import {
 } from "@lucid-evolution/lucid";
 import { MultisigDatum } from "../core/contract.types.js";
 import { Effect } from "effect";
-import { EndMultisigConfig } from "../core/types.js";
+import { EndSigConfig } from "../core/types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
-import { multiSigScript } from "../core/constants.js";
+import { multiSigScript } from "../core/validators/constants.js";
 
 export const endMultiSigProgram = (
     lucid: LucidEvolution,
-    config: EndMultisigConfig,
+    config: EndSigConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
     Effect.gen(function* () {
         const validators = getSignValidators(lucid, multiSigScript);
@@ -54,15 +53,9 @@ export const endMultiSigProgram = (
             kind: "selected",
             makeRedeemer: (inputIndices: bigint[]) => {
                 // Construct the redeemer using the input indices
-                const multisigIndex = inputIndices[0];
-                const multisigOutIndex = inputIndices[0];
-
                 return Data.to(
-                    new Constr(1, [
-                        new Constr(2, [
-                            BigInt(multisigIndex),
-                            BigInt(multisigOutIndex),
-                        ]),
+                    new Constr(2, [
+                        BigInt(inputIndices[0]),
                     ]),
                 );
             },
@@ -89,9 +82,9 @@ export const endMultiSigProgram = (
         const multisigDatum: MultisigDatum = {
             signers: config.signers, // list of pub key hashes
             threshold: config.threshold,
-            funds: config.funds,
+            fund_policy_id: config.fund_policy_id,
+            fund_asset_name: config.fund_asset_name,
             spending_limit: config.spending_limit,
-            minimum_ada: config.minimum_ada,
         };
 
         const multisigValue = { lovelace: multisigUTxO.assets.lovelace };
@@ -110,7 +103,8 @@ export const endMultiSigProgram = (
             .addSignerKey(multisigDatum.signers[0])
             .addSignerKey(multisigDatum.signers[1])
             .addSignerKey(multisigDatum.signers[2])
-            .completeProgram({ localUPLCEval: false });
+            .addSignerKey(multisigDatum.signers[3])
+            .completeProgram();
 
         return tx;
     });

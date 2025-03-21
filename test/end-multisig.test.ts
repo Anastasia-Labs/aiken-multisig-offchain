@@ -1,7 +1,7 @@
 import { Effect } from "effect";
-import { LucidContext, makeLucidContext } from "./common/lucidContext";
 import { expect, test } from "vitest";
 import { endMultiSigTestCase } from "./endMultiSigTestCase";
+import { LucidContext, makeLucidContext } from "./service/lucidContext";
 
 test<LucidContext>("Test 4 - End Multisig", async () => {
     const program = Effect.gen(function* ($) {
@@ -13,5 +13,5 @@ test<LucidContext>("Test 4 - End Multisig", async () => {
 
     expect(result.txHash).toBeDefined();
     expect(typeof result.txHash).toBe("string");
-    expect(typeof result.signConfig).toBeDefined;
+    expect(typeof result.endConfig).toBeDefined;
 });

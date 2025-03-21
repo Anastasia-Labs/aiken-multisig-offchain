@@ -1,10 +1,10 @@
-import { UpdateValidateConfig, validatorToAddress } from "../src/index.js";
+import { UpdateValidateConfig } from "../src/index.js";
 import { expect, test } from "vitest";
 import { Effect } from "effect";
 import { getUserAddressAndPKH } from "../src/core/utils.js";
 import { validateUpdateProgram } from "../src/endpoints/validateUpdate.js";
-import { LucidContext, makeLucidContext } from "./common/lucidContext.js";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase.js";
+import { LucidContext, makeLucidContext } from "./service/lucidContext.js";
 
 type UpdateSignResult = {
   txHash: string;
@@ -49,23 +49,20 @@ export const updateTestCase = (
         signer3.pkh,
       ],
       new_threshold: 2n,
-      funds: {
-        policyId: "",
-        assetName: "",
-      },
+      fund_policy_id: "",
+      fund_asset_name: "",
       new_spending_limit: 20_000_000n,
-      minimum_ada: 2_000_000n,
     };
 
     lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
 
     const UpdateSignFlow = Effect.gen(function* (_) {
-      const updateTxUnsigned = yield* validateUpdateProgram(
+      const updateTxUnSigned = yield* validateUpdateProgram(
         lucid,
         updateValidatorConfig,
       );
 
-      const cboredTx = updateTxUnsigned.toCBOR();
+      const cboredTx = updateTxUnSigned.toCBOR();
       const partialSignatures: string[] = [];
 
       for (
@@ -73,9 +70,11 @@ export const updateTestCase = (
           users.initiator.seedPhrase,
           users.signer1.seedPhrase,
           users.signer2.seedPhrase,
+          users.signer3.seedPhrase,
         ]
       ) {
         lucid.selectWallet.fromSeed(signerSeed);
+
         const partialSigner = yield* lucid
           .fromTx(cboredTx)
           .partialSign
@@ -83,7 +82,7 @@ export const updateTestCase = (
         partialSignatures.push(partialSigner);
       }
 
-      const assembleTx = updateTxUnsigned.assemble(partialSignatures);
+      const assembleTx = updateTxUnSigned.assemble(partialSignatures);
       const completeSign = yield* Effect.promise(() => assembleTx.complete());
 
       const signTxHash = yield* Effect.promise(() => completeSign.submit());

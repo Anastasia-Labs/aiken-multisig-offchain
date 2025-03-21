@@ -1,5 +1,4 @@
-import { Address, Assets, OutRef, Script } from "@lucid-evolution/lucid";
-import { AssetClass } from "./contract.types.js";
+import { Address, Script } from "@lucid-evolution/lucid";
 
 export type CborHex = string;
 
@@ -14,18 +13,18 @@ export type Either<L, R> =
 export type MultiSigConfig = {
   signers: string[];
   threshold: bigint;
-  funds: AssetClass;
+  fund_policy_id: string;
+  fund_asset_name: string;
   spending_limit: bigint;
   total_funds_qty: bigint;
-  minimum_ada: bigint;
 };
 
-export type EndMultisigConfig = {
+export type EndSigConfig = {
   signers: string[];
   threshold: bigint;
-  funds: AssetClass;
+  fund_policy_id: string;
+  fund_asset_name: string;
   spending_limit: bigint;
-  minimum_ada: bigint;
   recipient_address: Address;
 };
 
@@ -45,20 +44,12 @@ export type ValidateSignConfig = {
 export type UpdateValidateConfig = {
   new_signers: string[];
   new_threshold: bigint; // new threshold
-  funds: AssetClass;
+  fund_policy_id: string;
+  fund_asset_name: string;
   new_spending_limit: bigint;
-  minimum_ada: bigint;
 };
 
-export type Config = {
-  scripts: {
-    spending: CborHex;
-    minting: CborHex;
-  };
-};
-
-export type ReadableUTxO<T> = {
-  outRef: OutRef;
-  datum: T;
-  assets: Assets;
+export type DeployRefScriptsConfig = {
+  token_name: string;
+  current_time: BigInt;
 };

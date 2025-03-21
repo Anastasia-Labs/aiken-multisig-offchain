@@ -29,12 +29,9 @@ export const runUpdate = async (
             signer3.pkh,
         ],
         new_threshold: 3n,
-        funds: {
-            policyId: "",
-            assetName: "",
-        },
+        fund_policy_id: "",
+        fund_asset_name: "",
         new_spending_limit: 15_000_000n,
-        minimum_ada: 2_000_000n,
     };
     // Update multisig
     try {
@@ -62,9 +59,12 @@ export const runUpdate = async (
 
         const assembleTx = updateTxUnsigned.assemble(partialSignatures);
         const completeSign = await assembleTx.complete();
-        const signTxHash = await completeSign.submit();
+        const updateTxHash = await completeSign.submit();
 
-        console.log(`Multisig Contract Updated Successfully: ${signTxHash}`);
+        console.log(`Submitting ...`);
+        await lucid.awaitTx(updateTxHash);
+
+        console.log(`Multisig Contract Updated Successfully: ${updateTxHash}`);
     } catch (error) {
         console.error("Failed to Update multisig:", error);
     }
