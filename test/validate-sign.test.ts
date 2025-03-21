@@ -2,6 +2,8 @@ import { ValidateSignConfig, validatorToAddress } from "../src/index.js";
 import { expect, test } from "vitest";
 import { Effect } from "effect";
 import { validateSignProgram } from "../src/endpoints/validateSign.js";
+import { validateSignProgram } from "../src/endpoints/validateSign.js";
+import { LucidContext, makeLucidContext } from "./common/lucidContext.js";
 import { initiateMultiSigTestCase } from "./initiateMultiSigTestCase.js";
 import { getUserAddressAndPKH } from "../src/core/utils.js";
 import { LucidContext, makeLucidContext } from "./service/lucidContext.js";
@@ -49,16 +51,19 @@ export const validateSignTestCase = (
       withdrawal_amount: 10_000_000n,
       recipient_address: recipient.address,
       signers_list: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
+      withdrawal_amount: 5_000_000n,
+      recipient_address: recipient.address,
+      signers_list: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
     };
 
     lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
     const validateSignFlow = Effect.gen(function* (_) {
-      const validatesignTxUnSigned = yield* validateSignProgram(
+      const signTxUnsigned = yield* validateSignProgram(
         lucid,
         validateSignConfig,
       );
 
-      const cboredTx = validatesignTxUnSigned.toCBOR();
+      const cboredTx = signTxUnsigned.toCBOR();
       const partialSignatures: string[] = [];
 
       for (
@@ -75,7 +80,7 @@ export const validateSignTestCase = (
           .withWalletEffect();
         partialSignatures.push(partialSigner);
       }
-      const assembleTx = validatesignTxUnSigned.assemble(partialSignatures);
+      const assembleTx = signTxUnsigned.assemble(partialSignatures);
       const completeSign = yield* Effect.promise(() => assembleTx.complete());
 
       const signTxHash = yield* Effect.promise(() => completeSign.submit());

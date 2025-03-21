@@ -62,10 +62,12 @@ export const endMultiSigTestCase = (
         lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
         const endMultiSigFlow = Effect.gen(function* (_) {
             const endMultisigUnsigned = yield* endMultiSigProgram(
+            const endMultisigUnsigned = yield* endMultiSigProgram(
                 lucid,
-                signConfig,
+                endConfig,
             );
 
+            const cboredTx = endMultisigUnsigned.toCBOR();
             const cboredTx = endMultisigUnsigned.toCBOR();
             const partialSignatures: string[] = [];
 
@@ -80,6 +82,11 @@ export const endMultiSigTestCase = (
                 const signerSeed of seedList
             ) {
                 lucid.selectWallet.fromSeed(signerSeed);
+                const partialSigner = yield* lucid
+                    .fromTx(cboredTx)
+                    .partialSign
+                    .withWalletEffect();
+                partialSignatures.push(partialSigner);
                 const partialSigner = yield* lucid
                     .fromTx(cboredTx)
                     .partialSign
@@ -112,7 +119,7 @@ export const endMultiSigTestCase = (
 
         return {
             txHash: multisigResult,
-            signConfig: signConfig,
+            endConfig: endConfig,
         };
     });
 };

@@ -126,8 +126,10 @@ export const makeLucidContext = (
 ) => Effect.gen(function* ($) {
     const API_KEY = process.env.API_KEY;
     const selectedNetwork = network ?? NETWORK; // Default to Preprod if not specified
-    // const selectedNetwork = "Custom"; // Default to Preprod if not specified
+    // const selectedNetwork = "Custom";
 
+    // console.log("Network Target: ", selectedNetwork);
+    if (API_KEY && selectedNetwork !== "Custom") {
     console.log("Network Target: ", selectedNetwork);
     if (API_KEY && selectedNetwork && selectedNetwork !== "Custom") {
         // Use Maestro context

@@ -8,7 +8,6 @@ import {
   TransactionError,
   TxSignBuilder,
 } from "@lucid-evolution/lucid";
-
 import { UpdateValidateConfig } from "../core/types.js";
 import { Effect } from "effect";
 import { MultisigDatum, SignMultiSig } from "../core/contract.types.js";
@@ -21,16 +20,19 @@ import { multiSigScript } from "../core/validators/constants.js";
 // add signers
 // remove signer and adjust thershold
 export const validateUpdateProgram = (
+export const validateUpdateProgram = (
   lucid: LucidEvolution,
   config: UpdateValidateConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
   Effect.gen(function* () {
+    const validators = getSignValidators(lucid, multiSigScript);
     const validators = getSignValidators(lucid, multiSigScript);
 
     const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
     const multisigAddress = validators.spendValAddress;
 
     const multisigUTxOs = yield* Effect.promise(() =>
+      lucid.utxosAt(multisigAddress)
       lucid.utxosAt(multisigAddress)
     );
     if (!multisigUTxOs) {

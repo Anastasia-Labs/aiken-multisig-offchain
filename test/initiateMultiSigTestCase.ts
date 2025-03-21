@@ -42,6 +42,7 @@ export const initiateMultiSigTestCase = (
         lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
 
         const initiateMultiSigFlow = Effect.gen(function* (_) {
+            const initTxUnsigned = yield* initiateMultiSigProgram(
             const initiateMultisigUnsigned = yield* initiateMultiSigProgram(
                 lucid,
                 multisigConfig,
@@ -71,7 +72,7 @@ export const initiateMultiSigTestCase = (
                 partialSignatures.push(partialSigner);
             }
 
-            const assembleTx = initiateMultisigUnsigned.assemble(
+            const assembleTx = initTxUnsigned.assemble(
                 partialSignatures,
             );
             const completeSign = yield* Effect.promise(() =>

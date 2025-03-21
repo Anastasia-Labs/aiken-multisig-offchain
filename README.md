@@ -70,37 +70,38 @@ or
 pnpm install @anastasia-labs/aiken-multisig-offchain
 ```
 
+Below are the basic instructions on how to use the multisig endpoints. 
+
+For a more comprehensive working example, checkout the [examples folder](https://github.com/Anastasia-Labs/aiken-multisig-offchain/tree/main/examples).
+
 ### Setup Lucid & Multisig Scripts
 
+1. Ensure all signers have enough funds in their wallets.
+
+1. Each partial signature should be stored in a persistence layer (database, server, etc.) and retrieved once enough signatures are collected. 
+
 ```ts
-// You can get the compiled scripts here: https://github.com/Anastasia-Labs/direct-offer/tree/master/compiled
 import Script from "../src/validator/multisig_validator.json" assert { type: "json" };
 
 const lucid = await Lucid(
   new Maestro({
-    network: "Preprod", // For MAINNET: "Mainnet"
+    network: "Preprod",
     apiKey: "<Your-API-Key>", // Get yours by visiting https://docs.gomaestro.org/docs/Getting-started/Sign-up-login
     turboSubmit: false, // Read about paid turbo transaction submission feature at https://docs.gomaestro.org/docs/Dapp%20Platform/Turbo%20Transaction
   }),
-  "Preprod" // For MAINNET: "Mainnet"
+  "Preprod" 
 );
 
 lucid.selectWallet.fromPrivateKey("your secret key here e.g. ed25519_...");
 
-const multiSigVal: SpendingValidator = {
-  type: "PlutusV2",
-  script: Script.validators[0].compiledCode,
-};
-
-const multisigScripts = {
-  multisig: multisigScript.script,
-};
 ```
 
 ### Initiate Multisig Contract
 
+(*Wallet must contain enough lovelace to fund the contract.*)
+
 ```ts
-import { initiateMultisig, InitiateMultisigConfig } from "@anastasia-labs/aiken-multisig-offchain";
+import { initiateMultisig, MultiSigConfig, LucidEvolution } from "@anastasia-labs/aiken-multisig-offchain";
 
 // Define signatories' public key hashes
 const initiatorPkh = getAddressDetails(initiatorAddress).paymentCredential?.hash!;
@@ -213,15 +214,16 @@ import { validateSign, ValidateSignConfig } from "@anastasia-labs/aiken-multisig
   }
 ```
 
-
 ### Update Multisig Contract
-
-#### Adjust Signer Threshold
+(*Adjust threshold, signers, or spending limits.*)
 
 ```ts
-import { validateUpdate, UpdateValidateConfig } from "@anastasia-labs/aiken-multisig-offchain";
+import {
+  validateUpdate,
+  UpdateValidateConfig
+} from "@anastasia-labs/aiken-multisig-offchain";
 
-// Adjust the threshold to require all three signatures
+// Example: adjusting threshold to 3-of-3
 const updateConfig: UpdateValidateConfig = {
   new_signers: [initiatorPkh, signer1Pkh, signer2Pkh],
   new_threshold: 3n,

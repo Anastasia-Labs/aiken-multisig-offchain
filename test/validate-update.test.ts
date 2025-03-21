@@ -79,6 +79,11 @@ export const updateTestCase = (
           .partialSign
           .withWalletEffect();
         partialSignatures.push(partialSigner);
+        const partialSigner = yield* lucid
+          .fromTx(cboredTx)
+          .partialSign
+          .withWalletEffect();
+        partialSignatures.push(partialSigner);
       }
 
       const assembleTx = updateTxUnSigned.assemble(partialSignatures);
