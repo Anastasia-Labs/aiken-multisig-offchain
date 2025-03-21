@@ -74,11 +74,7 @@ export const updateTestCase = (
         ]
       ) {
         lucid.selectWallet.fromSeed(signerSeed);
-        const partialSigner = yield* lucid
-          .fromTx(cboredTx)
-          .partialSign
-          .withWalletEffect();
-        partialSignatures.push(partialSigner);
+
         const partialSigner = yield* lucid
           .fromTx(cboredTx)
           .partialSign

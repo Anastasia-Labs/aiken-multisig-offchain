@@ -20,12 +20,10 @@ import {
 } from "../core/validators/constants.js";
 
 export const validateSignProgram = (
-export const validateSignProgram = (
   lucid: LucidEvolution,
   config: ValidateSignConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
   Effect.gen(function* () {
-    const validators = getSignValidators(lucid, multiSigScript);
     const validators = getSignValidators(lucid, multiSigScript);
     const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
     const multisigAddress = validators.spendValAddress;
@@ -84,7 +82,6 @@ export const validateSignProgram = (
     const outputDatum = Data.to<MultisigDatum>(multisigDatum, MultisigDatum);
     const multisigValue = multisigUTxO.assets.lovelace;
     const contractBalance = multisigValue - config.withdrawal_amount;
-    const contractBalance = multisigValue - config.withdrawal_amount;
 
     const tx = yield* lucid
       .newTx()
@@ -97,8 +94,6 @@ export const validateSignProgram = (
           [multisigNFT]: 1n,
         },
       )
-      .pay.ToAddress(config.recipient_address, {
-        lovelace: config.withdrawal_amount,
       .pay.ToAddress(config.recipient_address, {
         lovelace: config.withdrawal_amount,
       })

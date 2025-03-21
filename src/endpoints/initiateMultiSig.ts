@@ -20,7 +20,6 @@ import { MULTISIG_TOKEN_NAME } from "../core/utils/constants.js";
 import { generateUniqueAssetName } from "../core/utils/assets.js";
 
 export const initiateMultiSigProgram = (
-export const initiateMultiSigProgram = (
     lucid: LucidEvolution,
     config: MultiSigConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>

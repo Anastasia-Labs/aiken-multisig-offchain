@@ -13,5 +13,5 @@ test<LucidContext>("Test 4 - End Multisig", async () => {
 
     expect(result.txHash).toBeDefined();
     expect(typeof result.txHash).toBe("string");
-    expect(typeof result.signConfig).toBeDefined;
+    expect(typeof result.endConfig).toBeDefined;
 });

@@ -11,7 +11,7 @@ import { LucidContext } from "./service/lucidContext";
 
 type EndMultiSigResult = {
     txHash: string;
-    signConfig: EndSigConfig;
+    endConfig: EndSigConfig;
 };
 
 export const endMultiSigTestCase = (
@@ -50,7 +50,7 @@ export const endMultiSigTestCase = (
             yield* Effect.sync(() => emulator.awaitBlock(10));
         }
 
-        const signConfig: EndSigConfig = {
+        const endConfig: EndSigConfig = {
             signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
             threshold: 3n,
             fund_policy_id: "",
@@ -62,12 +62,10 @@ export const endMultiSigTestCase = (
         lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
         const endMultiSigFlow = Effect.gen(function* (_) {
             const endMultisigUnsigned = yield* endMultiSigProgram(
-            const endMultisigUnsigned = yield* endMultiSigProgram(
                 lucid,
                 endConfig,
             );
 
-            const cboredTx = endMultisigUnsigned.toCBOR();
             const cboredTx = endMultisigUnsigned.toCBOR();
             const partialSignatures: string[] = [];
 
@@ -82,11 +80,6 @@ export const endMultiSigTestCase = (
                 const signerSeed of seedList
             ) {
                 lucid.selectWallet.fromSeed(signerSeed);
-                const partialSigner = yield* lucid
-                    .fromTx(cboredTx)
-                    .partialSign
-                    .withWalletEffect();
-                partialSignatures.push(partialSigner);
                 const partialSigner = yield* lucid
                     .fromTx(cboredTx)
                     .partialSign

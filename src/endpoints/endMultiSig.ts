@@ -17,19 +17,16 @@ import { tokenNameFromUTxO } from "../core/utils/assets.js";
 import { multiSigScript } from "../core/validators/constants.js";
 
 export const endMultiSigProgram = (
-export const endMultiSigProgram = (
     lucid: LucidEvolution,
     config: EndSigConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
     Effect.gen(function* () {
-        const validators = getSignValidators(lucid, multiSigScript);
         const validators = getSignValidators(lucid, multiSigScript);
         const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
 
         const multisigAddress = validators.mintPolicyAddress;
 
         const multisigUTxOs = yield* Effect.promise(() =>
-            lucid.utxosAt(multisigAddress)
             lucid.utxosAt(multisigAddress)
         );
         if (!multisigUTxOs) {
@@ -100,7 +97,6 @@ export const endMultiSigProgram = (
             .newTx()
             .collectFrom([multisigUTxO], removeMultiSigRedeemer)
             .mintAssets(mintingAssets, endMultiSigRedeemer)
-            .pay.ToAddress(config.recipient_address, multisigValue)
             .pay.ToAddress(config.recipient_address, multisigValue)
             .attach.MintingPolicy(validators.mintPolicy)
             .attach.SpendingValidator(validators.spendValidator)
