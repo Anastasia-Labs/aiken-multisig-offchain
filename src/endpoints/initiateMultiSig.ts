@@ -23,7 +23,7 @@ export const initiateMultiSigProgram = (
     lucid: LucidEvolution,
     config: MultiSigConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
-    Effect.gen(function* () {
+    Effect.gen(function* (_) {
         const validators = getSignValidators(lucid, multiSigScript);
         const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
 
@@ -84,7 +84,6 @@ export const initiateMultiSigProgram = (
             multisigDatum,
             MultisigDatum,
         );
-        console.log("selectedutxo: ", selectedUTxOs[0]);
         const tokenName = generateUniqueAssetName(
             selectedUTxOs[0],
             fromText("multisig"),
@@ -94,7 +93,7 @@ export const initiateMultiSigProgram = (
             tokenName,
         );
 
-        const tx = yield* lucid
+        const txBuilder = lucid
             .newTx()
             .collectFrom(selectedUTxOs)
             .mintAssets({ [multisigNFT]: 1n }, initiateMultiSigRedeemer)
@@ -105,12 +104,20 @@ export const initiateMultiSigProgram = (
                 [multisigNFT]: 1n,
                 lovelace: config.total_funds_qty,
             })
-            .attach.MintingPolicy(validators.mintPolicy)
-            .addSignerKey(config.signers[0])
-            .addSignerKey(config.signers[1])
-            .addSignerKey(config.signers[2])
-            .addSignerKey(config.signers[3])
-            .completeProgram();
+            .attach.MintingPolicy(validators.mintPolicy);
+
+        const txWithSigners = config.signers.reduce(
+            (builder, signer) => builder.addSignerKey(signer),
+            txBuilder,
+        );
+        const tx = yield* _(txWithSigners.completeProgram());
+
+        // yield* tx.completeProgram()
+        //     .addSignerKey(config.signers[0])
+        //     .addSignerKey(config.signers[1])
+        //     .addSignerKey(config.signers[2])
+        //     .addSignerKey(config.signers[3])
+        //     .completeProgram();
 
         return tx;
     });

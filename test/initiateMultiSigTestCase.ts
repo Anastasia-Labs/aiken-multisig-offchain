@@ -28,6 +28,9 @@ export const initiateMultiSigTestCase = (
         const signer3 = yield* Effect.promise(() =>
             getUserAddressAndPKH(lucid, users.signer3.seedPhrase)
         );
+        const recipient = yield* Effect.promise(() =>
+            getUserAddressAndPKH(lucid, users.recipient.seedPhrase)
+        );
 
         console.log("initiator: ", initiator.address);
         const multisigConfig: MultiSigConfig = {

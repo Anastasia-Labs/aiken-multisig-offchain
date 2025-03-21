@@ -27,7 +27,7 @@ export const runInit = async (
     console.log("initiator.pkh", signer3.pkh);
 
     const initConfig: MultiSigConfig = {
-        signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
+        signers: [initiator.pkh, signer1.pkh, signer2.pkh],
         threshold: 2n,
         fund_policy_id: "", // For ADA, leave empty
         fund_asset_name: "", // For ADA, leave empty
@@ -48,7 +48,6 @@ export const runInit = async (
                 INITIATOR_SEED,
                 SIGNER_ONE_SEED,
                 SIGNER_TWO_SEED,
-                SIGNER_THREE_SEED,
             ]
         ) {
             lucid.selectWallet.fromSeed(signerSeed);
