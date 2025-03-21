@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { initiateMultiSig, MultiSigConfig } from "../src";
+import { initiateMultiSigProgram, MultiSigConfig } from "../src";
 import { LucidContext } from "./service/lucidContext";
 import { multiSigScript } from "../src/core/validators/constants";
 import { getUserAddressAndPKH } from "../src/core/utils";
@@ -29,6 +29,7 @@ export const initiateMultiSigTestCase = (
             getUserAddressAndPKH(lucid, users.signer3.seedPhrase)
         );
 
+        console.log("initiator: ", initiator.address);
         const multisigConfig: MultiSigConfig = {
             signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
             threshold: 3n,
@@ -41,7 +42,7 @@ export const initiateMultiSigTestCase = (
         lucid.selectWallet.fromSeed(users.initiator.seedPhrase);
 
         const initiateMultiSigFlow = Effect.gen(function* (_) {
-            const initiateMultisigUnsigned = yield* initiateMultiSig(
+            const initiateMultisigUnsigned = yield* initiateMultiSigProgram(
                 lucid,
                 multisigConfig,
             );

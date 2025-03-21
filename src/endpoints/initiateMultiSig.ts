@@ -19,7 +19,7 @@ import { multiSigScript } from "../core/validators/constants.js";
 import { MULTISIG_TOKEN_NAME } from "../core/utils/constants.js";
 import { generateUniqueAssetName } from "../core/utils/assets.js";
 
-export const initiateMultiSig = (
+export const initiateMultiSigProgram = (
     lucid: LucidEvolution,
     config: MultiSigConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
@@ -69,8 +69,11 @@ export const initiateMultiSig = (
             inputs: [selectedUTxOs[0]],
         };
 
+        const sorted_signers = config.signers.map((s) => s.toLowerCase());
+        sorted_signers.sort();
+
         const multisigDatum: MultisigDatum = {
-            signers: config.signers, // list of pub key hashes
+            signers: sorted_signers, // list of pub key hashes
             threshold: config.threshold,
             fund_policy_id: config.fund_policy_id,
             fund_asset_name: config.fund_asset_name,
@@ -81,6 +84,7 @@ export const initiateMultiSig = (
             multisigDatum,
             MultisigDatum,
         );
+        console.log("selectedutxo: ", selectedUTxOs[0]);
         const tokenName = generateUniqueAssetName(
             selectedUTxOs[0],
             fromText("multisig"),

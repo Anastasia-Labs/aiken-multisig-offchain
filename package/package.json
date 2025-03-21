@@ -8,13 +8,6 @@
   "files": [
     "dist"
   ],
-  "scripts": {
-    "test": "export NODE_ENV='emulator' && vitest run",
-    "build": "tsup src/index.ts --minify --format esm,cjs --dts --clean",
-    "lint": "eslint",
-    "repack": "pnpm run build  && pnpm pack",
-    "ts-node": "ts-node"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -26,7 +19,6 @@
     "@typescript-eslint/parser": "^8.26.1",
     "eslint": "^9.22.0",
     "eslint-config-prettier": "^8.10.0",
-    "fast-check": "^3.13.2",
     "ts-node": "^10.9.2",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
@@ -36,11 +28,16 @@
     "test": "test"
   },
   "dependencies": {
-    "@harmoniclabs/crypto": "0.2.4",
     "@lucid-evolution/lucid": "^0.4.24",
     "@noble/hashes": "^1.6.1",
     "dotenv": "^16.4.7",
     "effect": "^3.13.10"
   },
-  "packageManager": "pnpm@9.7.1+sha512.faf344af2d6ca65c4c5c8c2224ea77a81a5e8859cbc4e06b1511ddce2f0151512431dd19e6aff31f2c6a8f5f2aced9bd2273e1fed7dd4de1868984059d2c4247"
+  "scripts": {
+    "test": "export NODE_ENV='emulator' && vitest run",
+    "build": "tsup src/index.ts --minify --format esm,cjs --dts --clean",
+    "lint": "eslint",
+    "repack": "pnpm run build  && pnpm pack",
+    "ts-node": "ts-node"
+  }
 }

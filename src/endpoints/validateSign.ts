@@ -19,7 +19,7 @@ import {
   multisigValidator,
 } from "../core/validators/constants.js";
 
-export const validateSign = (
+export const validateSignProgram = (
   lucid: LucidEvolution,
   config: ValidateSignConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>

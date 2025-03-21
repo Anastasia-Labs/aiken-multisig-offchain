@@ -20,7 +20,7 @@ import { multiSigScript } from "../core/validators/constants.js";
 // adjust threshold
 // add signers
 // remove signer and adjust thershold
-export const validateUpdate = (
+export const validateUpdateProgram = (
   lucid: LucidEvolution,
   config: UpdateValidateConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
@@ -69,6 +69,7 @@ export const validateUpdate = (
     const parsedDatum = yield* Effect.promise(() =>
       getMultisigDatum([multisigUTxO])
     );
+
     const inputDatum: MultisigDatum = {
       signers: parsedDatum[0].signers, // list of pub key hashes
       threshold: parsedDatum[0].threshold,
@@ -77,8 +78,11 @@ export const validateUpdate = (
       spending_limit: parsedDatum[0].spending_limit,
     };
 
+    const new_sorted_signers = config.new_signers.map((s) => s.toLowerCase());
+    new_sorted_signers.sort();
+
     const outputDatum: MultisigDatum = {
-      signers: config.new_signers, // list of pub key hashes
+      signers: new_sorted_signers, // list of pub key hashes
       threshold: config.new_threshold,
       fund_policy_id: config.fund_policy_id,
       fund_asset_name: config.fund_asset_name,
@@ -100,9 +104,10 @@ export const validateUpdate = (
         },
       )
       .attach.SpendingValidator(validators.spendValidator)
-      .addSignerKey(inputDatum.signers[0])
-      .addSignerKey(inputDatum.signers[1])
-      .addSignerKey(inputDatum.signers[2])
+      .addSignerKey(new_sorted_signers[0])
+      .addSignerKey(new_sorted_signers[1])
+      .addSignerKey(new_sorted_signers[2])
+      .addSignerKey(new_sorted_signers[3])
       .completeProgram();
 
     return tx;
