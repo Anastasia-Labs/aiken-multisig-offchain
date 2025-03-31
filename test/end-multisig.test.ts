@@ -10,7 +10,6 @@ test<LucidContext>("Test 4 - End Multisig", async () => {
         return result;
     });
     const result = await Effect.runPromise(program);
-
     expect(result.txHash).toBeDefined();
     expect(typeof result.txHash).toBe("string");
     expect(typeof result.endConfig).toBeDefined;

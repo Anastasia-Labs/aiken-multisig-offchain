@@ -1,9 +1,7 @@
 import { Assets, UTxO } from "@lucid-evolution/lucid";
 import { bytesToHex, concatBytes, hexToBytes } from "@noble/hashes/utils";
-import { sha3_256 } from "@noble/hashes/sha3";
 import { Data } from "@lucid-evolution/lucid"
 import { OutputReference } from "../contract.types.js";
-import { blake2b } from "@noble/hashes/blake2b";
 import { blake2b_256 } from "@harmoniclabs/crypto";
 
 const generateUniqueAssetName = (utxo: UTxO): string => {
