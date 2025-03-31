@@ -10,7 +10,7 @@ export const OutputReference =
   OutputReferenceSchema as unknown as OutputReference;
 
 export const CreateMintSchema = Data.Object({
-  output_reference: OutputReferenceSchema,
+  input_index: Data.Integer(),
   output_index: Data.Integer(),
 });
 
@@ -24,6 +24,10 @@ export const SignRedeemerSchema = Data.Object({
 
 export type SignMultiSig = Data.Static<typeof SignRedeemerSchema>;
 export const SignMultiSig = SignRedeemerSchema as unknown as SignMultiSig;
+
+export const PartialSignRedeemerSchema = Data.Object({
+  input_index: Data.Integer(),
+});
 
 export const MultisigDatumSchema = Data.Object({
   signers: Data.Array(Data.Bytes()), // list of pub key hashes
@@ -39,7 +43,7 @@ export const MultisigDatum = MultisigDatumSchema as unknown as MultisigDatum;
 export const MultisigRedeemerSchema = Data.Enum([
   Data.Object({ Sign: Data.Tuple([SignRedeemerSchema]) }),
   Data.Object({ Update: Data.Tuple([SignRedeemerSchema]) }),
-  Data.Object({ Remove: Data.Tuple([SignRedeemerSchema]) }),
+  Data.Object({ Remove: Data.Tuple([PartialSignRedeemerSchema]) }),
 ]);
 
 export type MultisigRedeemer = Data.Static<typeof MultisigRedeemerSchema>;
