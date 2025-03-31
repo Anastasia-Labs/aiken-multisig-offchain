@@ -63,24 +63,10 @@ export const endMultiSigProgram = (
             inputs: [multisigUTxO],
         };
 
-        const endMultiSigRedeemer: RedeemerBuilder = {
-            kind: "selected",
-            makeRedeemer: (inputIndices: bigint[]) => {
-                // Construct the redeemer using the input indices
-                const multisigIndex = inputIndices[0];
-
-                return Data.to(
-                    new Constr(1, [
-                        BigInt(multisigIndex),
-                    ]),
-                );
-            },
-            // Specify the inputs relevant to the redeemer
-            inputs: [multisigUTxO],
-        };
+        const endMultiSigRedeemer = Data.to(new Constr(1, []));
 
         const multisigDatum: MultisigDatum = {
-            signers: config.signers, // list of pub key hashes
+            signers: config.signers,
             threshold: config.threshold,
             fund_policy_id: config.fund_policy_id,
             fund_asset_name: config.fund_asset_name,
