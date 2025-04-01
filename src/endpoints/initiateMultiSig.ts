@@ -49,7 +49,7 @@ export const initiateMultiSigProgram = (
                 // Construct the redeemer using the input indices
                 const multisigRedeemer: InitiateMultiSig = {
                     input_index: inputIndices[0],
-                    output_index: inputIndices[0],
+                    output_index: 0n,
                 };
 
                 const redeemerData = Data.to(
@@ -104,12 +104,5 @@ export const initiateMultiSigProgram = (
             txBuilder,
         );
         const tx = yield* _(txWithSigners.completeProgram());
-
-        // yield* tx.completeProgram()
-        //     .addSignerKey(config.signers[0])
-        //     .addSignerKey(config.signers[1])
-        //     .addSignerKey(config.signers[2])
-        //     .addSignerKey(config.signers[3])
-        //     .completeProgram();
         return tx;
     });
