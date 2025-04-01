@@ -1,7 +1,6 @@
 import {
     Address,
     Data,
-    fromText,
     LucidEvolution,
     mintingPolicyToId,
     RedeemerBuilder,

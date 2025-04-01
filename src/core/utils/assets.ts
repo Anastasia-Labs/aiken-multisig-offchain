@@ -1,5 +1,5 @@
 import { Assets, UTxO } from "@lucid-evolution/lucid";
-import { bytesToHex, concatBytes, hexToBytes } from "@noble/hashes/utils";
+import { bytesToHex, hexToBytes } from "@noble/hashes/utils";
 import { Data } from "@lucid-evolution/lucid"
 import { OutputReference } from "../contract.types.js";
 import { blake2b_256 } from "@harmoniclabs/crypto";
