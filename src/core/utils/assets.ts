@@ -1,22 +1,14 @@
 import { Assets, UTxO } from "@lucid-evolution/lucid";
 import { bytesToHex, concatBytes, hexToBytes } from "@noble/hashes/utils";
-import { sha3_256 } from "@noble/hashes/sha3";
+import { Data } from "@lucid-evolution/lucid"
+import { OutputReference } from "../contract.types.js";
+import { blake2b_256 } from "@harmoniclabs/crypto";
 
-const generateUniqueAssetName = (utxo: UTxO, prefix: string): string => {
-    // sha3_256 hash of the tx id
-    const txIdHash = sha3_256(hexToBytes(utxo.txHash));
-
-    // prefix the txid hash with the index
-    const indexByte = new Uint8Array([utxo.outputIndex]);
-    const prependIndex = concatBytes(indexByte, txIdHash);
-
-    if (prefix != null) {
-        // concat the prefix
-        const prependPrefix = concatBytes(hexToBytes(prefix), prependIndex);
-        return bytesToHex(prependPrefix.slice(0, 32));
-    } else {
-        return bytesToHex(prependIndex.slice(0, 32));
-    }
+const generateUniqueAssetName = (utxo: UTxO): string => {
+    const outRef : OutputReference = {txHash: utxo.txHash, outputIndex: BigInt(utxo.outputIndex)}
+    const outRefCBOR = Data.to(outRef, OutputReference)
+    const hash = blake2b_256(hexToBytes(outRefCBOR))
+    return bytesToHex(hash);
 };
 
 const tokenNameFromUTxO = (

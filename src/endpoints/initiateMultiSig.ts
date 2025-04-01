@@ -49,10 +49,7 @@ export const initiateMultiSigProgram = (
             makeRedeemer: (inputIndices: bigint[]) => {
                 // Construct the redeemer using the input indices
                 const multisigRedeemer: InitiateMultiSig = {
-                    output_reference: {
-                        txHash: selectedUTxOs[0].txHash,
-                        outputIndex: BigInt(selectedUTxOs[0].outputIndex),
-                    },
+                    input_index: inputIndices[0],
                     output_index: inputIndices[0],
                 };
 
@@ -83,8 +80,7 @@ export const initiateMultiSigProgram = (
             MultisigDatum,
         );
         const tokenName = generateUniqueAssetName(
-            selectedUTxOs[0],
-            fromText("multisig"),
+            selectedUTxOs[0]
         );
         const multisigNFT = toUnit(
             multisigPolicyId,
@@ -116,6 +112,5 @@ export const initiateMultiSigProgram = (
         //     .addSignerKey(config.signers[2])
         //     .addSignerKey(config.signers[3])
         //     .completeProgram();
-
         return tx;
     });
