@@ -86,8 +86,8 @@ import Script from "../src/validator/multisig_validator.json" assert { type: "js
 const lucid = await Lucid(
   new Maestro({
     network: "Preprod",
-    apiKey: "<Your-API-Key>", // Get yours by visiting https://docs.gomaestro.org/docs/Getting-started/Sign-up-login
-    turboSubmit: false, // Read about paid turbo transaction submission feature at https://docs.gomaestro.org/docs/Dapp%20Platform/Turbo%20Transaction
+    apiKey: "<Your-API-Key>", // Get yours by visiting hhttps://docs.gomaestro.org/getting-started
+    turboSubmit: false, // Read about paid turbo transaction submission feature at https://docs.gomaestro.org/cardano/turbo-submit-transaction
   }),
   "Preprod" 
 );
@@ -95,6 +95,9 @@ const lucid = await Lucid(
 lucid.selectWallet.fromPrivateKey("your secret key here e.g. ed25519_...");
 
 ```
+
+**Get Your [Maestro API Key](https://docs.gomaestro.org/getting-started)**
+
 
 ### Initiate Multisig Contract
 
