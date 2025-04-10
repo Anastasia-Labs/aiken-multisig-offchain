@@ -108,14 +108,14 @@ All signers must sign when initialising.
 import { initiateMultisig, MultiSigConfig, LucidEvolution } from "@anastasia-labs/aiken-multisig-offchain";
 
 // Define signatories' public key hashes
-const initiatorPkh = getAddressDetails(initiatorAddress).paymentCredential?.hash!;
-const signer1Pkh = getAddressDetails(signer1Address).paymentCredential?.hash!;
-const signer2Pkh = getAddressDetails(signer2Address).paymentCredential?.hash!;
-const signer3Pkh = getAddressDetails(signer3Address).paymentCredential?.hash!;
+const initiator = getAddressDetails(initiatorAddress).paymentCredential?.hash!;
+const signer1 = getAddressDetails(signer1Address).paymentCredential?.hash!;
+const signer2 = getAddressDetails(signer2Address).paymentCredential?.hash!;
+const signer3 = getAddressDetails(signer3Address).paymentCredential?.hash!;
 
 // Configure the multisig parameters
   const initConfig: MultiSigConfig = {
-    signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
+    signers_addr: [initiator.address, signer1.address, signer2.address, signer3.address],
     threshold: 2n,
     fund_policy_id: "", // For ADA, leave empty
     fund_asset_name: "", // For ADA, leave empty
@@ -175,7 +175,7 @@ import { validateSign, ValidateSignConfig } from "@anastasia-labs/aiken-multisig
   const validateSignConfig: ValidateSignConfig = {
     withdrawal_amount: 5_000_000n, // Amount to withdraw in lovelace
     recipient_address: recipientAddress, // Address to receive the funds
-    signers_list: [initiatorPkh, signer1Pkh], // Signatories participating
+    signers_addr: [initiatorAddress, signer1Address], // Signatories participating
   };
 
 // Validate and prepare the transaction
@@ -230,7 +230,7 @@ import {
 
 // Example: adjusting threshold to 3-of-3
 const updateConfig: UpdateValidateConfig = {
-  new_signers: [initiatorPkh, signer1Pkh, signer2Pkh],
+  new_signers_addr: [initiatorAddress, signer1Address, signer2Address],
   new_threshold: 3n,
   fund_policy_id: "",
   fund_asset_name: "",
@@ -283,7 +283,7 @@ const signer3Pkh = getAddressDetails(signer3Address).paymentCredential?.hash!;
 
 // Update the signers list and threshold
 const addSignerConfig: UpdateValidateConfig = {
-  new_signers: [initiatorPkh, signer1Pkh, signer2Pkh, signer3Pkh], // New Signer
+  new_signers_addr: [initiatorAddress, signer1Address, signer2Address, signer3Address], // New Signer
   new_threshold: 3n,
   fund_policy_id: "",
   fund_asset_name: "",
@@ -298,11 +298,11 @@ const addSignerConfig: UpdateValidateConfig = {
 
 ```ts
 // Remove a signer (e.g., signer2)
-const updatedSigners = [initiatorPkh, signer1Pkh];
+const updatedSigners = [initiatorAddress, signer1Address];
 
 // Update the signers list and threshold
 const removeSignerConfig: UpdateValidateConfig = {
-  new_signers: updatedSigners,
+  new_signers_addr: updatedSigners,
   new_threshold: 2n, // Adjusted threshold
   fund_policy_id: "",
   fund_asset_name: "",
@@ -320,7 +320,7 @@ import { endMultiSig, EndSigConfig } from "@anastasia-labs/aiken-multisig-offcha
 
 // Configure the multisig parameters
 const signConfig: EndSigConfig = {
- signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
+  signers_addr: [initiator.address, signer1.address, signer2.address, signer3.address],
   threshold: 3n,
   fund_policy_id: "",
   fund_asset_name: "",
