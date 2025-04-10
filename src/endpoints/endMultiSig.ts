@@ -9,7 +9,6 @@ import {
     TransactionError,
     TxSignBuilder,
 } from "@lucid-evolution/lucid";
-import { MultisigDatum } from "../core/contract.types.js";
 import { Effect } from "effect";
 import { EndSigConfig } from "../core/types.js";
 import { getSignValidators } from "../core/utils/misc.js";
@@ -67,14 +66,6 @@ export const endMultiSigProgram = (
         const endMultiSigRedeemer = Data.to(new Constr(1, []));
 
         const sorted_signers = getSortedPublicKeyHashes(config.signers_addr);
-
-        const multisigDatum: MultisigDatum = {
-            signers: sorted_signers,
-            threshold: config.threshold,
-            fund_policy_id: config.fund_policy_id,
-            fund_asset_name: config.fund_asset_name,
-            spending_limit: config.spending_limit,
-        };
 
         const multisigValue = { lovelace: multisigUTxO.assets.lovelace };
 

@@ -27,10 +27,6 @@ export const validateSignTestCase = (
       getUserAddressAndPKH(lucid, users.signer2.seedPhrase)
     );
 
-    const signer3 = yield* Effect.promise(() =>
-      getUserAddressAndPKH(lucid, users.signer3.seedPhrase)
-    );
-
     const recipient = yield* Effect.promise(() =>
       getUserAddressAndPKH(lucid, users.recipient.seedPhrase)
     );
