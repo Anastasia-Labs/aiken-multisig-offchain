@@ -33,7 +33,7 @@ export const initiateMultiSigTestCase = (
 
         console.log("initiator: ", initiator.address);
         const multisigConfig: MultiSigConfig = {
-            signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
+            signers_addr: [initiator.address, signer1.address, signer2.address, signer3.address],
             threshold: 3n,
             fund_policy_id: "",
             fund_asset_name: "",
@@ -48,11 +48,6 @@ export const initiateMultiSigTestCase = (
                 lucid,
                 multisigConfig,
             );
-
-            // console.log(
-            //     "initiateMultisigUnsigned: ",
-            //     initiateMultisigUnsigned.toJSON(),
-            // );
 
             const cboredTx = initiateMultisigUnsigned.toCBOR();
             const partialSignatures: string[] = [];

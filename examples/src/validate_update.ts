@@ -22,11 +22,11 @@ export const runUpdate = async (
     const signer3 = await getUserAddressAndPKH(lucid, SIGNER_THREE_SEED);
 
     const updateConfig: UpdateValidateConfig = {
-        new_signers: [
-            initiator.pkh,
-            signer1.pkh,
-            signer2.pkh,
-            signer3.pkh,
+        new_signers_addr: [
+            initiator.address,
+            signer1.address,
+            signer2.address,
+            signer3.address,
         ],
         new_threshold: 3n,
         fund_policy_id: "",

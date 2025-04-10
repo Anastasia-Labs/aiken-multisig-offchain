@@ -14,12 +14,13 @@ import { MultisigDatum } from "../core/contract.types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
 import { multiSigScript } from "../core/validators/constants.js";
+import { getSortedPublicKeyHashes } from "../core/utils.js";
 
 export const validateUpdateProgram = (
   lucid: LucidEvolution,
   config: UpdateValidateConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
-  Effect.gen(function* () {
+  Effect.gen(function* (_) {
     const validators = getSignValidators(lucid, multiSigScript);
 
     const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
@@ -61,20 +62,7 @@ export const validateUpdateProgram = (
       inputs: [multisigUTxO],
     };
 
-    // const parsedDatum = yield* Effect.promise(() =>
-    //   getMultisigDatum([multisigUTxO])
-    // );
-
-    // const inputDatum: MultisigDatum = {
-    //   signers: parsedDatum[0].signers, // list of pub key hashes
-    //   threshold: parsedDatum[0].threshold,
-    //   fund_policy_id: parsedDatum[0].fund_policy_id,
-    //   fund_asset_name: parsedDatum[0].fund_asset_name,
-    //   spending_limit: parsedDatum[0].spending_limit,
-    // };
-
-    const new_sorted_signers = config.new_signers.map((s) => s.toLowerCase());
-    new_sorted_signers.sort();
+    const new_sorted_signers = getSortedPublicKeyHashes(config.new_signers_addr);
 
     const outputDatum: MultisigDatum = {
       signers: new_sorted_signers, // list of pub key hashes
@@ -87,23 +75,22 @@ export const validateUpdateProgram = (
 
     const totalInputLovelace = BigInt(multisigUTxO.assets.lovelace);
 
-    const tx = yield* lucid
+    const txBuilder = lucid
       .newTx()
       .collectFrom([multisigUTxO], updateRedeemer)
-      .pay.ToContract(
-        validators.spendValAddress,
-        { kind: "inline", value: outputDatumData },
-        {
-          lovelace: totalInputLovelace,
+      .pay.ToContract(validators.spendValAddress,{
+         kind: "inline", value: outputDatumData 
+        }, {
           [multisigNFT]: 1n,
-        },
-      )
-      .attach.SpendingValidator(validators.spendValidator)
-      .addSignerKey(new_sorted_signers[0])
-      .addSignerKey(new_sorted_signers[1])
-      .addSignerKey(new_sorted_signers[2])
-      .addSignerKey(new_sorted_signers[3])
-      .completeProgram();
+          lovelace: totalInputLovelace,
+        })
+      .attach.SpendingValidator(validators.spendValidator);
+
+    const txWithSigners = new_sorted_signers.reduce(
+      (builder, signer) => builder.addSignerKey(signer),
+      txBuilder,
+    );
+    const tx = yield* _(txWithSigners.completeProgram());
 
     return tx;
   });

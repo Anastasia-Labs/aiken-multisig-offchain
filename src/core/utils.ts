@@ -14,12 +14,6 @@ import { Either } from "./types.js";
 
 //TODO: Add utility function to fetch utxo with pub key hash.
 
-// export type LucidContext = {
-//   lucid: LucidEvolution;
-//   users: any;
-//   emulator: Emulator;
-// };
-
 export function fromAddress(address: Address): AddressD {
   // We do not support pointer addresses!
 
@@ -72,6 +66,27 @@ export const getPublicKeyHash = (addr: Address) => {
   } else {
     return pkh;
   }
+};
+
+export const getSortedPublicKeyHashes = (addresses: Address[]): string[] => {
+  // Convert addresses to public key hashes
+  const publicKeyHashes = addresses.map((address) => {
+    const result = getPublicKeyHash(address);
+    if (result instanceof Error) {
+      console.error(`Failed to get PKH for address ${address}: ${result.message}`);
+      return null;
+    }
+    return result;
+  });
+
+  // Filter out null values (failed conversions)
+  const validPublicKeyHashes = publicKeyHashes.filter(pkh => pkh !== null);
+
+  // Convert to lowercase and sort
+  const sortedHashes = validPublicKeyHashes.map(pkh => pkh.toLowerCase());
+  sortedHashes.sort();
+  
+  return sortedHashes;
 };
 
 export const generateAccountSeedPhrase = async (assets: Assets) => {

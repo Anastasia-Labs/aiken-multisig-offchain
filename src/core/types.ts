@@ -11,7 +11,7 @@ export type Either<L, R> =
   | { type: "right"; value: R };
 
 export type MultiSigConfig = {
-  signers: string[];
+  signers_addr: string[];
   threshold: bigint;
   fund_policy_id: string;
   fund_asset_name: string;
@@ -20,7 +20,7 @@ export type MultiSigConfig = {
 };
 
 export type EndSigConfig = {
-  signers: string[];
+  signers_addr: string[];
   threshold: bigint;
   fund_policy_id: string;
   fund_asset_name: string;
@@ -38,11 +38,11 @@ export type MultiSigValidators = {
 export type ValidateSignConfig = {
   withdrawal_amount: bigint;
   recipient_address: Address;
-  signers_list: string[];
+  signers_addr: string[];
 };
 
 export type UpdateValidateConfig = {
-  new_signers: string[];
+  new_signers_addr: string[];
   new_threshold: bigint; // new threshold
   fund_policy_id: string;
   fund_asset_name: string;
