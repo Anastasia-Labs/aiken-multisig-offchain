@@ -27,10 +27,6 @@ export const validateSignTestCase = (
       getUserAddressAndPKH(lucid, users.signer2.seedPhrase)
     );
 
-    const signer3 = yield* Effect.promise(() =>
-      getUserAddressAndPKH(lucid, users.signer3.seedPhrase)
-    );
-
     const recipient = yield* Effect.promise(() =>
       getUserAddressAndPKH(lucid, users.recipient.seedPhrase)
     );
@@ -48,7 +44,7 @@ export const validateSignTestCase = (
     const validateSignConfig: ValidateSignConfig = {
       withdrawal_amount: 10_000_000n,
       recipient_address: recipient.address,
-      signers_list: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
+      signers_addr: [initiator.address, signer1.address, signer2.address],
     };
 
     lucid.selectWallet.fromSeed(users.initiator.seedPhrase);

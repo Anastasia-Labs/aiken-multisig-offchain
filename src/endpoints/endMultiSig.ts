@@ -9,18 +9,18 @@ import {
     TransactionError,
     TxSignBuilder,
 } from "@lucid-evolution/lucid";
-import { MultisigDatum } from "../core/contract.types.js";
 import { Effect } from "effect";
 import { EndSigConfig } from "../core/types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
 import { multiSigScript } from "../core/validators/constants.js";
+import { getSortedPublicKeyHashes } from "../core/utils.js";
 
 export const endMultiSigProgram = (
     lucid: LucidEvolution,
     config: EndSigConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
-    Effect.gen(function* () {
+    Effect.gen(function* (_) {
         const validators = getSignValidators(lucid, multiSigScript);
         const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
 
@@ -65,13 +65,7 @@ export const endMultiSigProgram = (
 
         const endMultiSigRedeemer = Data.to(new Constr(1, []));
 
-        const multisigDatum: MultisigDatum = {
-            signers: config.signers,
-            threshold: config.threshold,
-            fund_policy_id: config.fund_policy_id,
-            fund_asset_name: config.fund_asset_name,
-            spending_limit: config.spending_limit,
-        };
+        const sorted_signers = getSortedPublicKeyHashes(config.signers_addr);
 
         const multisigValue = { lovelace: multisigUTxO.assets.lovelace };
 
@@ -79,18 +73,19 @@ export const endMultiSigProgram = (
             [multisigNFT]: -1n,
         };
 
-        const tx = yield* lucid
+        const txBuilder = lucid
             .newTx()
             .collectFrom([multisigUTxO], removeMultiSigRedeemer)
             .mintAssets(mintingAssets, endMultiSigRedeemer)
             .pay.ToAddress(config.recipient_address, multisigValue)
             .attach.MintingPolicy(validators.mintPolicy)
-            .attach.SpendingValidator(validators.spendValidator)
-            .addSignerKey(multisigDatum.signers[0])
-            .addSignerKey(multisigDatum.signers[1])
-            .addSignerKey(multisigDatum.signers[2])
-            .addSignerKey(multisigDatum.signers[3])
-            .completeProgram();
+            .attach.SpendingValidator(validators.spendValidator);
 
-        return tx;
+            const txWithSigners = sorted_signers.reduce(
+                (builder, signer) => builder.addSignerKey(signer),
+                txBuilder,
+            );
+            const tx = yield* _(txWithSigners.completeProgram());
+            return tx;
+           
     });

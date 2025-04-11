@@ -12,14 +12,14 @@ import { Effect } from "effect";
 import { MultisigDatum, SignMultiSig } from "../core/contract.types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { tokenNameFromUTxO } from "../core/utils/assets.js";
-import { getMultisigDatum } from "../core/utils.js";
+import { getMultisigDatum, getSortedPublicKeyHashes } from "../core/utils.js";
 import { multiSigScript } from "../core/validators/constants.js";
 
 export const validateSignProgram = (
   lucid: LucidEvolution,
   config: ValidateSignConfig,
 ): Effect.Effect<TxSignBuilder, TransactionError, never> =>
-  Effect.gen(function* () {
+  Effect.gen(function* (_) {
     const validators = getSignValidators(lucid, multiSigScript);
     const multisigPolicyId = mintingPolicyToId(validators.mintPolicy);
     const multisigAddress = validators.spendValAddress;
@@ -68,6 +68,8 @@ export const validateSignProgram = (
       getMultisigDatum([multisigUTxO])
     );
 
+    const sorted_signers = getSortedPublicKeyHashes(config.signers_addr);
+
     const multisigDatum: MultisigDatum = {
       signers: parsedDatum[0].signers, // list of pub key hashes
       threshold: parsedDatum[0].threshold,
@@ -79,7 +81,7 @@ export const validateSignProgram = (
     const multisigValue = multisigUTxO.assets.lovelace;
     const contractBalance = multisigValue - config.withdrawal_amount;
 
-    const tx = yield* lucid
+    const txBuilder = lucid
       .newTx()
       .collectFrom([multisigUTxO], signRedeemer)
       .pay.ToAddressWithData(
@@ -93,10 +95,11 @@ export const validateSignProgram = (
       .pay.ToAddress(config.recipient_address, {
         lovelace: config.withdrawal_amount,
       })
-      .attach.SpendingValidator(validators.spendValidator)
-      .addSignerKey(config.signers_list[0])
-      .addSignerKey(config.signers_list[1])
-      .addSignerKey(config.signers_list[2])
-      .completeProgram();
+      .attach.SpendingValidator(validators.spendValidator);
+      const txWithSigners = sorted_signers.reduce(
+        (builder, signer) => builder.addSignerKey(signer),
+        txBuilder,
+    );
+    const tx = yield* _(txWithSigners.completeProgram());
     return tx;
   });

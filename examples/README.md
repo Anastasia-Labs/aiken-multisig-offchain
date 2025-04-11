@@ -35,7 +35,7 @@ You can adapt these scripts to your own workflow or environment.
    ```bash
    pnpm add "file:../anastasia-labs-aiken-multisig-offchain-1.0.4.tgz"
    ```
-1. Build
+1. Build (You have to build after every edit to the files)
     ```bash
     pnpm run build
     ```

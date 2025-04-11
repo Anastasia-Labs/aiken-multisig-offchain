@@ -42,11 +42,11 @@ export const updateTestCase = (
     }
 
     const updateValidatorConfig: UpdateValidateConfig = {
-      new_signers: [
-        initiator.pkh,
-        signer1.pkh,
-        signer2.pkh,
-        signer3.pkh,
+      new_signers_addr: [
+        initiator.address,
+        signer1.address,
+        signer2.address,
+        signer3.address,
       ],
       new_threshold: 2n,
       fund_policy_id: "",
@@ -93,7 +93,7 @@ export const updateTestCase = (
 
     const signResult = yield* UpdateSignFlow.pipe(
       Effect.tapError((error) =>
-        Effect.log(`Error creating Account: ${error}`)
+        Effect.log(`Error updating multisig: ${error}`)
       ),
       Effect.map((hash) => {
         return hash;

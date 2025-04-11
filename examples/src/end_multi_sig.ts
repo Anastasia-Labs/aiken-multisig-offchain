@@ -24,7 +24,7 @@ export const runEnd = async (
     const recipient = await getUserAddressAndPKH(lucid, RECIPIENT_SEED);
 
     const endConfig: EndSigConfig = {
-        signers: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
+        signers_addr: [initiator.address, signer1.address, signer2.address, signer3.address],
         threshold: 3n,
         fund_policy_id: "",
         fund_asset_name: "",

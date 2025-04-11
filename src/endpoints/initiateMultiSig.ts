@@ -15,6 +15,7 @@ import { MultiSigConfig } from "../core/types.js";
 import { getSignValidators } from "../core/utils/misc.js";
 import { multiSigScript } from "../core/validators/constants.js";
 import { generateUniqueAssetName } from "../core/utils/assets.js";
+import { getSortedPublicKeyHashes } from "../core/utils.js";
 
 export const initiateMultiSigProgram = (
     lucid: LucidEvolution,
@@ -61,10 +62,9 @@ export const initiateMultiSigProgram = (
             },
             // Specify the inputs relevant to the redeemer
             inputs: [selectedUTxOs[0]],
-        };
+        }; 
 
-        const sorted_signers = config.signers.map((s) => s.toLowerCase());
-        sorted_signers.sort();
+        const sorted_signers = getSortedPublicKeyHashes(config.signers_addr);
 
         const multisigDatum: MultisigDatum = {
             signers: sorted_signers, // list of pub key hashes
@@ -99,7 +99,7 @@ export const initiateMultiSigProgram = (
             })
             .attach.MintingPolicy(validators.mintPolicy);
 
-        const txWithSigners = config.signers.reduce(
+        const txWithSigners = sorted_signers.reduce(
             (builder, signer) => builder.addSignerKey(signer),
             txBuilder,
         );

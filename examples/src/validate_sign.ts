@@ -26,7 +26,7 @@ export const runSign = async (
     const signConfig: ValidateSignConfig = {
         withdrawal_amount: 5_000_000n,
         recipient_address: recipient.address,
-        signers_list: [initiator.pkh, signer1.pkh, signer2.pkh, signer3.pkh],
+        signers_addr: [initiator.address, signer1.address, signer2.address, signer3.address],
     };
 
     // Sign multisig

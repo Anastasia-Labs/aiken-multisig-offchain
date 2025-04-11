@@ -21,13 +21,13 @@ export const runInit = async (
     const signer2 = await getUserAddressAndPKH(lucid, SIGNER_TWO_SEED);
     const signer3 = await getUserAddressAndPKH(lucid, SIGNER_THREE_SEED);
 
-    console.log("initiator.pkh", initiator.pkh);
-    console.log("initiator.pkh", signer1.pkh);
-    console.log("initiator.pkh", signer2.pkh);
-    console.log("initiator.pkh", signer3.pkh);
+    console.log("initiator.pkh", initiator.address);
+    console.log("initiator.address", signer1.address);
+    console.log("initiator.address", signer2.address);
+    console.log("initiator.address", signer3.address);
 
     const initConfig: MultiSigConfig = {
-        signers: [initiator.pkh, signer1.pkh, signer2.pkh],
+        signers_addr: [initiator.address, signer1.address, signer2.address],
         threshold: 2n,
         fund_policy_id: "", // For ADA, leave empty
         fund_asset_name: "", // For ADA, leave empty
