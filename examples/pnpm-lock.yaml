@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@anastasia-labs/aiken-multisig-offchain':
-        specifier: file:../anastasia-labs-aiken-multisig-offchain-1.0.6.tgz
-        version: file:../anastasia-labs-aiken-multisig-offchain-1.0.6.tgz(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.6.6)(@harmoniclabs/pair@1.0.0)(fast-check@3.23.2)
+        specifier: file:../anastasia-labs-aiken-multisig-offchain-1.0.7.tgz
+        version: file:../anastasia-labs-aiken-multisig-offchain-1.0.7.tgz(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.6.6)(@harmoniclabs/pair@1.0.0)(fast-check@3.23.2)
       commander:
         specifier: ^12.1.0
         version: 12.1.0
@@ -33,9 +33,9 @@ importers:
 
 packages:
 
-  '@anastasia-labs/aiken-multisig-offchain@file:../anastasia-labs-aiken-multisig-offchain-1.0.6.tgz':
-    resolution: {integrity: sha512-DGUr+cnEwvqs27hGfRalsdDfgLtFIkRMGKJntMBJPD7bewWflQFT394V+0hb/qVDorV2XrF5eqOC4uGG6ugsEw==, tarball: file:../anastasia-labs-aiken-multisig-offchain-1.0.6.tgz}
-    version: 1.0.6
+  '@anastasia-labs/aiken-multisig-offchain@file:../anastasia-labs-aiken-multisig-offchain-1.0.7.tgz':
+    resolution: {integrity: sha512-j4bnTea7yrl418KWs2tvtQPMhNbVTKcXuLTfEkgLyF8T3KKCkAj3GlXIfoXqv0zKUS5a20k0lL4vQujRSBKs9g==, tarball: file:../anastasia-labs-aiken-multisig-offchain-1.0.7.tgz}
+    version: 1.0.7
 
   '@anastasia-labs/cardano-multiplatform-lib-browser@6.0.2-2':
     resolution: {integrity: sha512-sSPPjO1Zye82YVqrUGIKrli/Zt2pPkZkQd/jv9k6AzjIZdNPD3hvuB2yH6RHeZUO8+K57bu9r7Rlyf7VGbhhTQ==}
@@ -1359,7 +1359,7 @@ packages:
 
 snapshots:
 
-  '@anastasia-labs/aiken-multisig-offchain@file:../anastasia-labs-aiken-multisig-offchain-1.0.6.tgz(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.6.6)(@harmoniclabs/pair@1.0.0)(fast-check@3.23.2)':
+  '@anastasia-labs/aiken-multisig-offchain@file:../anastasia-labs-aiken-multisig-offchain-1.0.7.tgz(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.6.6)(@harmoniclabs/pair@1.0.0)(fast-check@3.23.2)':
     dependencies:
       '@harmoniclabs/crypto': 0.2.4
       '@lucid-evolution/lucid': 0.4.25(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.6.6)(@harmoniclabs/crypto@0.2.4)(@harmoniclabs/pair@1.0.0)(fast-check@3.23.2)

@@ -21,7 +21,7 @@ export const runInit = async (
     const signer2 = await getUserAddressAndPKH(lucid, SIGNER_TWO_SEED);
     const signer3 = await getUserAddressAndPKH(lucid, SIGNER_THREE_SEED);
 
-    console.log("initiator.pkh", initiator.address);
+    console.log("initiator.address", initiator.address);
     console.log("initiator.address", signer1.address);
     console.log("initiator.address", signer2.address);
     console.log("initiator.address", signer3.address);
