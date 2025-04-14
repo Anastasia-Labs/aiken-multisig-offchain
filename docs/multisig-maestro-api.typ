@@ -4,7 +4,7 @@
 #let fund-link = link("https://projectcatalyst.io/funds/11/cardano-use-cases-product/anastasia-labs-x-maestro-plug-n-play-20")[Catalyst Proposal]
 #let git-link = link(" https://github.com/Anastasia-Labs/payment-subscription")[Payment Subscription Github Repo]
 #let maestro_link = link("https://docs.gomaestro.org/getting-started")[Maestro Getting Started]
-
+#let design_docs_link = link("https://github.com/Anastasia-Labs/aiken-upgradable-multisig/blob/main/docs/design-specs/upgradable-multi-sig.pdf")[Design Specification Documentation]
 #set page(
   background: image-background,
   paper :"a4",
@@ -129,11 +129,10 @@ The Aiken Multisig Offchain is designed to manage recurring payments on the Card
 *Key features include:*
 
 
-  - Initiating subscriptions with customizable terms
+  - Collective approval for funds transfers
 
-  - Extending or terminating subscriptions
-  - Automated recurring payments
-  - Secure withdrawal of funds for both merchants and subscribers
+  - Dynamic update of signer configurations and thresholds
+  - Secure termination and fund distribution upon multi-sig shutdown
   - Seamless integration via RESTful API endpoints
 
 #pagebreak()
@@ -145,77 +144,71 @@ Before you begin, ensure that you have:
 
 \
   - *Access Credentials:*
+    
     - Maestro API Key (Get from *#maestro_link*)
 
     - Cardano wallet address with sufficient funds
 
-  - *Environment Setup:* Basic familiarity with REST APIs and JSON data formats.
+    \
+  - *Environment Setup:* 
+
+    - Basic familiarity with REST APIs and JSON data formats.
+
+    - Ability to execute curl commands in a terminal/command-line environment.
 
 #pagebreak()
 #v(50pt)
 
 = Smart Contract Overview
-\
-The Aiken Multisig Offchain comprises three main components:
 
 \
-+ *Service Contract:* 
+The Upgradable Multi-Signature smart contract is developed using Aiken and includes:
 
-  - Initiates services by minting service NFTs.
+  - *Multisig NFT*: A unique non-fungible token representing the state and authority of the multi-sig wallet.
 
-  - Manages updates and deactivation of services.
+  - *Datum*: Stores the list of authorized signers, the approval threshold, spending limits, and other parameters.
 
-+ *Account Contract:* 
+  - *Redeemers*:
 
-  - Registers a subscriber account by minting a CIP-68 compliant Account NFT.
+    - InitMultiSig: To create a new multi-sig setup by minting one Multisig NFT.
 
-  - Facilitates metadata updates or account removal.
+    - Update: To modify the signer list, threshold, and spending limits.
+    - EndMultiSig: To terminate the multi-sig arrangement by burning the Multisig NFT and distributing the funds.
 
-+  *Payment Contract:* Handles the core functionality, including:
-
-  - Prepaid subscription fee management.
-
-  - Subscription renewal, extension, or cancellation.
-  - Gradual fund release with linear vesting.
-  \
-Each function is accompanied by detailed onchain and offchain documentation. This guide focuses on how each API endpoint maps to these smart contract functionalities.
+The contract validates that operations adhere to the specified threshold of signers and ensures that funds remain secure throughout the process.
 
 #pagebreak()
 #v(50pt)
 
-= Merchant Operations
+= MultiSig Operations
+\
+The following sections describe the three primary operations exposed via Maestro’s API endpoints along with example curl commands.
 
 \
-== Create a Service
+== Initiate MultiSig
 \
-Merchants use this to define subscription terms and effectively create a new Service.
-
-  - Uses the Service Validator to mint a Service NFT and its corresponding reference NFT.
-
-  - Validates the service fee, penalty fee, interval length, and activation status.
+This operation sets up a new multi-sig wallet by minting a Multisig NFT and locking funds into the multi-sig validator. The initiator supplies the initial configuration including the list of signers, required threshold, spending limits, and total funds.
 
 \
 *Endpoint:*
 
 \
 ```sh
-POST https://mainnet.gomaestro-api.org/v1/contracts/subscription/createService
-
+  POST https://mainnet.gomaestro-api.org/v1/contracts/multisig/initiate
 ```
 
 \
 *Required Parameters:*
 
 \
-  - *`merchant_address`*: Address of the merchant.
+  - *`initiator_address`*: Address of the entity creating the multi-sig.
 
-  - *`selected_out_ref`*: Object containing tx_hash and output_index used to derive token names.
-
-  - *`service_fee_policyid`*, *`service_fee_assetname`*, *`service_fee`*: Define the fee for the service.
-  - *`penalty_fee_policyid`*, *`penalty_fee_assetname`*, *`penalty_fee`*: Define the penalty fee.
-  - *`interval_length`*: Subscription interval duration (in milliseconds).
-  - *`num_intervals`*: Total number of intervals.
-  - *`is_active`*: Boolean flag indicating the service’s active state.
+  - *`signers`*: An array of Cardano addresses that will be authorized to sign transactions.
+  - *`threshold`*: Minimum number of signatures required to approve a transaction.
+  - *`fund_policy_id`*: Policy ID that governs the fund asset.
+  - *`fund_asset_name`*: The asset name for the funds.
+  - *`spending_limit`*: Maximum amount that can be withdrawn in a single transaction.
+  - *`total_funds_qty`*: Total funds quantity to be managed by the multi-sig.
 
 #pagebreak()
 
@@ -223,212 +216,129 @@ POST https://mainnet.gomaestro-api.org/v1/contracts/subscription/createService
 
 \
 ```sh
-# subscription: create service
-curl --location 'https://mainnet.gomaestro-api.org/v1/contracts/subscription/createService' \
+# multisig: initiate
+curl --location 'https://mainnet.gomaestro-api.org/v1/contracts/multisig/initiate' \
 --header 'Content-Type: application/json' \
---header 'api-key: ${API_KEY}' \
+--header 'api-key ${API_KEY}' \
 --data '{
-    "merchant_address": "addr1qxccwptmx6r523vxcrplvfhtrpdut8s0hht0fyt9f8vy8385chtg2dupkyqu7pgqawju7awrwfg94skstmaves6hwaks6qlgf4",
-    "selected_out_ref": {
-        "tx_hash": "f68f85ee40866144f52d8087414cfb11ec22539b3772882440bf0adfea105513",
-        "output_index": 1
-    },
-    "service_fee_policyid": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec",
-    "service_fee_assetname": "54616c6f73",
-    "service_fee": 1000,
-    "penalty_fee_policyid": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec",
-    "penalty_fee_assetname": "54616c6f73",
-    "penalty_fee": 10,
-    "interval_length": 2592000000,
-    "num_intervals": 1,
-    "is_active": true
+    "initiator_address": "addr1q9s6m9d8yedfcf53yhq5j5zsg0s58wpzamwexrxpfelgz2wgk0s9l9fqc93tyc8zu4z7hp9dlska2kew9trdg8nscjcq3sk5s3",
+    "signers": [
+        "addr1q9s6m9d8yedfcf53yhq5j5zsg0s58wpzamwexrxpfelgz2wgk0s9l9fqc93tyc8zu4z7hp9dlska2kew9trdg8nscjcq3sk5s3",
+        "addr1qxccwptmx6r523vxcrplvfhtrpdut8s0hht0fyt9f8vy8385chtg2dupkyqu7pgqawju7awrwfg94skstmaves6hwaks6qlgf4"
+    ],
+    "threshold": 2,
+    "fund_policy_id": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec",
+    "fund_asset_name": "54616c6f73",
+    "spending_limit": 5000,
+    "total_funds_qty": 10000
 }'
 ```
 
 \
-== Withdraw Fees
+== Update MultiSig
 
 \
-Allows the merchant to withdraw the accumulated subscription fees.
-Uses the Payment Validator’s _MerchantWithdraw_ redeemer and enforces linear vesting rules as specified.
+This operation allows authorized signers to update the multi-sig configuration. Changes can include modifying the signer list, adjusting the threshold, and setting a new spending limit. The update operation must be approved by the required number of signers as specified in the current configuration.
 
 \
 *Endpoint:*
 
 \
 ```sh
+  POST https://mainnet.gomaestro-api.org/v1/contracts/multisig/update
+```
 
-POST https://mainnet.gomaestro-api.org/v1/contracts/subscription/withdrawFees
+\
+*Required Parameters:*
 
+
+  - new_signers: Array of new signer addresses.
+
+  - new_threshold: The updated minimum number of signatures required.
+  - fund_policy_id: The policy ID for the fund asset (same as before).
+  - fund_asset_name: The asset name for the funds.
+  - new_spending_limit: Updated spending limit for transactions.
+
+\
+*cURL Example:*
+
+\
+```sh
+# multisig: update
+curl --location 'https://mainnet.gomaestro-api.org/v1/contracts/multisig/update' \
+--header 'Content-Type: application/json' \
+--header 'api-key ${API_KEY}' \
+--data '{
+    "new_signers": [
+        "addr1q9s6m9d8yedfcf53yhq5j5zsg0s58wpzamwexrxpfelgz2wgk0s9l9fqc93tyc8zu4z7hp9dlska2kew9trdg8nscjcq3sk5s3",
+        "addr1qxccwptmx6r523vxcrplvfhtrpdut8s0hht0fyt9f8vy8385chtg2dupkyqu7pgqawju7awrwfg94skstmaves6hwaks6qlgf4",
+        "addr1q8w9s6m9d8yedfcf53yhq5j5zsg0s58wpzamwexrxpfelgz2wgk0s9l9fqc93tyc8zu4z7hp9dlska2kew9trdg8nscjcq3sk5s3"
+    ],
+    "new_threshold": 3,
+    "fund_policy_id": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec",
+    "fund_asset_name": "54616c6f73",
+    "new_spending_limit": 10000
+}'
+```
+
+\
+== End MultiSig
+
+\
+This operation terminates the multi-sig arrangement. It requires that the required number of signers approve the termination. During this process, the Multisig NFT is burned and the remaining funds are distributed to a designated recipient.
+
+\
+```sh
+  POST https://mainnet.gomaestro-api.org/v1/contracts/multisig/end
 ```
 
 \
 *Required Parameters:*
 
 \
-  - *`merchant_address`*: Address of the merchant.
+  - *`signers`*: Array of signer addresses involved in the termination (must meet the current threshold).
 
-  - *`service_nft_tn`*: The token name for the Service NFT.
-  - *`subscriber_nft_tn`*: The token name for the Subscriber NFT.
-  - *`merchant_nft_tn`*: The token name proving merchant ownership.
-  - *`payment_nft_tn`*: The Payment NFT token involved.
-  - *`current_time`*: Current Unix timestamp to validate withdrawal timing.
+  - *`threshold`*: Current signature threshold.
+  - *`fund_policy_id`*: The policy ID for the fund asset.
+  - *`fund_asset_name`*: The asset name for the funds.
+  - *`spending_limit`*: The spending limit as per the current configuration.
+  - *`recipient_address`*: Address where the remaining funds should be sent.
 
 \
 *cURL Example:*
 
+\
 ```sh
-# subscription: merchant withdrawal
-curl --location 'https://mainnet.gomaestro-api.org/v1/contracts/subscription/withdrawFees' \
+# multisig: end
+curl --location 'https://mainnet.gomaestro-api.org/v1/contracts/multisig/end' \
 --header 'Content-Type: application/json' \
 --header 'api-key ${API_KEY}' \
 --data '{
-    "merchant_address": "addr1qxccwptmx6r523vxcrplvfhtrpdut8s0hht0fyt9f8vy8385chtg2dupkyqu7pgqawju7awrwfg94skstmaves6hwaks6qlgf4",
-    "service_nft_tn": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec54616c",
-    "subscriber_nft_tn": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec54616c",
-    "merchant_nft_tn": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec54616c",
-    "payment_nft_tn": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec54616c",
-    "current_time": 1696320000
+    "signers": [
+        "addr1q9s6m9d8yedfcf53yhq5j5zsg0s58wpzamwexrxpfelgz2wgk0s9l9fqc93tyc8zu4z7hp9dlska2kew9trdg8nscjcq3sk5s3",
+        "addr1qxccwptmx6r523vxcrplvfhtrpdut8s0hht0fyt9f8vy8385chtg2dupkyqu7pgqawju7awrwfg94skstmaves6hwaks6qlgf4"
+    ],
+    "threshold": 2,
+    "fund_policy_id": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec",
+    "fund_asset_name": "54616c6f73",
+    "spending_limit": 5000,
+    "recipient_address": "addr1q8w9s6m9d8yedfcf53yhq5j5zsg0s58wpzamwexrxpfelgz2wgk0s9l9fqc93tyc8zu4z7hp9dlska2kew9trdg8nscjcq3sk5s3"
 }'
 ```
-
 
 #pagebreak()
 #v(50pt)
 
-
-= Subscriber Operations
-
-\
-== Create User Account
-\
-Subscribers create an account to manage subscriptions.
-
-  - Uses the Account Validator to mint an Account NFT and its reference NFT.
-
-  - Registers a subscriber's account with either an email hash or a phone hash.
+= Conclusion 
 
 \
-*Endpoint:*
+This guide provides a detailed walkthrough for using the Upgradable Multi-Signature smart contract via Maestro’s API endpoints. By following these instructions, developers can:
 
 \
-```sh
-POST https://mainnet.gomaestro-api.org/v1/contracts/subscription/createUserAccount
+  - *Initiate* a new multi-sig wallet with a defined set of signers and fund limits.
 
-```
-\
-*Required Parameters:*
+  - *Update* the multi-sig configuration to reflect changes in the signer list and thresholds.
+  - *Terminate* the multi-sig arrangement securely, ensuring proper fund distribution.
 
 \
-  - *`subscriber_address`*: Address of the subscriber.
-
-  - *`selected_out_ref`*: UTxO with *`tx_hash`* and *`output_index`*.
-  - *`email`* and *`phone`*: Credentials as a string.
-
-\
-*cURL Example:*
-
-\
-```sh
-# subscription: create user account
-curl --location 'https://mainnet.gomaestro-api.org/v1/contracts/subscription/createUserAccount' \
---header 'Content-Type: application/json' \
---header 'api-key ${API_KEY}' \
---data '{
-    "subscriber_address": "addr1qxccwptmx6r523vxcrplvfhtrpdut8s0hht0fyt9f8vy8385chtg2dupkyqu7pgqawju7awrwfg94skstmaves6hwaks6qlgf4",
-    "selected_out_ref": {
-        "tx_hash": "f68f85ee40866144f52d8087414cfb11ec22539b3772882440bf0adfea105513",
-        "output_index": 1
-    },
-    "email": "",
-    "phone": ""
-}'
-```
-
-\
-== Initiate Subscription
-
-\
-
-Locks funds by minting a Payment NFT and setting up a Payment datum that includes the subscription start time, service reference token, and subscriber reference token.
-This action creates a unique Payment Token that signifies the start of a subscription.
-
-\
-*Endpoint:*
-
-\
-```sh
-POST https://mainnet.gomaestro-api.org/v1/contracts/subscription/initSubscription
-
-```
-
-\
-*Required Parameters:*
-
-\
-  - *`service_nft_tn`*: Combined token string for the service NFT.
-
-  - *`subscriber_nft_tn`*: Combined token string for the subscriber NFT.
-  - *`subscription_start`*: Unix timestamp marking the start of the subscription.
-
-\
-*cURL Example:*
-
-\
-```sh
-# subscription: initiate subscription
-curl --location 'https://mainnet.gomaestro-api.org/v1/contracts/subscription/initSubscription' \
---header 'Content-Type: application/json' \
---header 'api-key ${API_KEY}' \
---data '{
-    "service_nft_tn": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec54616c",
-    "subscriber_nft_tn": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec54616c",
-    "subscription_start": 1696320000
-}'
-```
-
-\
-
-== Unsubscribe
-
-\
-Allows a subscriber to cancel their active subscription.
-
-\
-*Endpoint:*
-
-\
-```sh
-POST https://mainnet.gomaestro-api.org/v1/contracts/subscription/unsubscribe
-
-```
-
-\
-*Required Parameters:*
-
-\
-  - *`subscriber_address`*: Address of the subscriber initiating the unsubscription.
-
-  - *`service_nft_tn`*: The token string for the Service NFT.
-  - *`subscriber_nft_tn`*: The token string for the Subscriber NFT.
-  - *`current_time`*: Unix timestamp used for validating penalty application.
-
-\
-*cURL Example:*
-
-\
-```sh
-# subscription: unsubscribe
-curl --location 'https://mainnet.gomaestro-api.org/v1/contracts/subscription/unsubscribe' \
---header 'Content-Type: application/json' \
---header 'api-key ${API_KEY}' \
---data '{
-    "subscriber_address": "addr1qxccwptmx6r523vxcrplvfhtrpdut8s0hht0fyt9f8vy8385chtg2dupkyqu7pgqawju7awrwfg94skstmaves6hwaks6qlgf4",
-    "service_nft_tn": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec54616c",
-    "subscriber_nft_tn": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec54616c",
-    "current_time": 1696320000
-}'
-```
-
-\
-*Note:* Early termination may incur penalties if defined in the service contract.
+Before going live, replace all placeholder values (e.g., *`${API_KEY}`*, wallet addresses) with your actual data and test each command in a development (preprod/ preview) environment. For additional details, please refer to the full #design_docs_link and associated documentation provided by the project.
