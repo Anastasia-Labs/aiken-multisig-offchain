@@ -133,7 +133,7 @@ The Aiken Multisig Offchain is designed to manage recurring payments on the Card
 
   - Dynamic update of signer configurations and thresholds
   - Secure termination and fund distribution upon multi-sig shutdown
-  - Seamless integration via RESTful API endpoints
+  - Seamless integration with popular wallet applications and RESTful API endpoints
 
 #pagebreak()
 #v(50pt)

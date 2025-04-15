@@ -1,6 +1,6 @@
 {
   "name": "@anastasia-labs/aiken-multisig-offchain",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Off-Chain SDK for Aiken Upgradable Multisig",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
