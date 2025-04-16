@@ -28,7 +28,7 @@ export const runInit = async (
 
     const initConfig: MultiSigConfig = {
         signers_addr: [initiator.address, signer1.address, signer2.address],
-        threshold: 2n,
+        threshold: 3n,
         fund_policy_id: "", // For ADA, leave empty
         fund_asset_name: "", // For ADA, leave empty
         spending_limit: 10_000_000n,

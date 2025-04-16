@@ -21,7 +21,8 @@
   "author": "Anastasia Labs",
   "license": "ISC",
   "dependencies": {
-    "@anastasia-labs/aiken-multisig-offchain": "file:../anastasia-labs-aiken-multisig-offchain-1.0.7.tgz",
+    "@anastasia-labs/aiken-multisig-offchain": "file:../anastasia-labs-aiken-multisig-offchain-1.0.8.tgz",
+    "@harmoniclabs/crypto": "^0.3.0-dev0",
     "commander": "^12.1.0",
     "effect": "^3.13.10",
     "tsup": "^8.3.5"
