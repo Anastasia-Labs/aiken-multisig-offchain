@@ -11,6 +11,9 @@ importers:
       '@anastasia-labs/aiken-multisig-offchain':
         specifier: file:../anastasia-labs-aiken-multisig-offchain-1.0.8.tgz
         version: file:../anastasia-labs-aiken-multisig-offchain-1.0.8.tgz(@harmoniclabs/bytestring@1.0.0)(@harmoniclabs/cbor@1.6.6)(@harmoniclabs/pair@1.0.0)(fast-check@3.23.2)
+      '@ffmpeg/ffmpeg':
+        specifier: ^0.12.15
+        version: 0.12.15
       '@harmoniclabs/crypto':
         specifier: ^0.3.0-dev0
         version: 0.3.0-dev0
@@ -20,6 +23,9 @@ importers:
       effect:
         specifier: ^3.13.10
         version: 3.14.7
+      ffmpeg:
+        specifier: ^0.0.4
+        version: 0.0.4
       tsup:
         specifier: ^8.3.5
         version: 8.4.0(typescript@5.8.3)
@@ -37,7 +43,7 @@ importers:
 packages:
 
   '@anastasia-labs/aiken-multisig-offchain@file:../anastasia-labs-aiken-multisig-offchain-1.0.8.tgz':
-    resolution: {integrity: sha512-7th66H0q2G3rTdOFIpSkBXVPwKKJYZsWwnXxN1y96YbD2iG4MxplZxltRxImISS1ktU0gnvVsSFHCdb3y2rTYA==, tarball: file:../anastasia-labs-aiken-multisig-offchain-1.0.8.tgz}
+    resolution: {integrity: sha512-kycJC8st82L79R6vt+Tac6x3T+6s5kI7h7QJMDvxmkUXtK2r5AFY5WkBnQ54RJ+Uhd6opIHGY3UioxkN+Kc2yw==, tarball: file:../anastasia-labs-aiken-multisig-offchain-1.0.8.tgz}
     version: 1.0.8
 
   '@anastasia-labs/cardano-multiplatform-lib-browser@6.0.2-2':
@@ -308,6 +314,14 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
+
+  '@ffmpeg/ffmpeg@0.12.15':
+    resolution: {integrity: sha512-1C8Obr4GsN3xw+/1Ww6PFM84wSQAGsdoTuTWPOj2OizsRDLT4CXTaVjPhkw6ARyDus1B9X/L2LiXHqYYsGnRFw==}
+    engines: {node: '>=18.x'}
+
+  '@ffmpeg/types@0.12.4':
+    resolution: {integrity: sha512-k9vJQNBGTxE5AhYDtOYR5rO5fKsspbg51gbcwtbkw2lCdoIILzklulcjJfIDwrtn7XhDeF2M+THwJ2FGrLeV6A==}
+    engines: {node: '>=16.x'}
 
   '@foxglove/crc@0.0.3':
     resolution: {integrity: sha512-DjIZsnL3CyP/yQ/vUYA9cjrD0a/8YXejI5ZmsaOiT16cLfZcTwaCxIN01/ys4jsy+dZCQ/9DnWFn7AEFbiMDaA==}
@@ -784,6 +798,9 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  ffmpeg@0.0.4:
+    resolution: {integrity: sha512-3TgWUJJlZGQn+crJFyhsO/oNeRRnGTy6GhgS98oUCIfZrOW5haPPV7DUfOm3xJcHr5q3TJpjk2GudPutrNisRA==}
 
   find-my-way-ts@0.1.5:
     resolution: {integrity: sha512-4GOTMrpGQVzsCH2ruUn2vmwzV/02zF4q+ybhCIrw/Rkt3L8KWcycdC6aJMctJzwN4fXD4SD5F/4B9Sksh5rE0A==}
@@ -1330,6 +1347,9 @@ packages:
   whatwg-url@7.1.0:
     resolution: {integrity: sha512-WUu7Rg1DroM7oQvGWfOiAK21n74Gg+T4elXEQYkOhtyLeWiJFoOGLXPKI/9gzIie9CtwVLm8wtw6YJdKyxSjeg==}
 
+  when@3.7.8:
+    resolution: {integrity: sha512-5cZ7mecD3eYcMiCH4wtRPA5iFJZ50BJYDfckI5RRpQiktMiYTcn0ccLTZOvcbBume+1304fQztxeNzNS9Gvrnw==}
+
   which-typed-array@1.1.19:
     resolution: {integrity: sha512-rEvr90Bck4WZt9HHFC4DJMsjvu7x+r6bImz0/BrbWb7A2djJ8hnZMrWnHo9F8ssv0OMErasDhftrfROTyqSDrw==}
     engines: {node: '>= 0.4'}
@@ -1590,6 +1610,12 @@ snapshots:
 
   '@esbuild/win32-x64@0.25.2':
     optional: true
+
+  '@ffmpeg/ffmpeg@0.12.15':
+    dependencies:
+      '@ffmpeg/types': 0.12.4
+
+  '@ffmpeg/types@0.12.4': {}
 
   '@foxglove/crc@0.0.3': {}
 
@@ -2169,6 +2195,10 @@ snapshots:
     optionalDependencies:
       picomatch: 4.0.2
 
+  ffmpeg@0.0.4:
+    dependencies:
+      when: 3.7.8
+
   find-my-way-ts@0.1.5: {}
 
   for-each@0.3.5:
@@ -2642,6 +2672,8 @@ snapshots:
       lodash.sortby: 4.7.0
       tr46: 1.0.1
       webidl-conversions: 4.0.2
+
+  when@3.7.8: {}
 
   which-typed-array@1.1.19:
     dependencies:

@@ -4,7 +4,15 @@
 #let fund-link = link("https://projectcatalyst.io/funds/11/cardano-use-cases-product/anastasia-labs-x-maestro-plug-n-play-20")[Catalyst Proposal]
 #let git-link = link(" https://github.com/Anastasia-Labs/payment-subscription")[Payment Subscription Github Repo]
 #let maestro_link = link("https://docs.gomaestro.org/getting-started")[Maestro Getting Started]
-#let design_docs_link = link("https://github.com/Anastasia-Labs/aiken-upgradable-multisig/blob/main/docs/design-specs/upgradable-multi-sig.pdf")[Design Specification Documentation]
+#let offchain_sdk_link = link("https://github.com/Anastasia-Labs/aiken-multisig-offchain")[Multisig Offchain SDK]
+
+#let multisig_contract_link = link("https://github.com/Anastasia-Labs/aiken-upgradable-multisig")[Aiken Upgradable Multisig Smart Contract]
+
+#let maestro_api_link = link("https://www.postman.com/go-maestro/maestro-api/folder/ba0acrq/multisig")[Maestro Postman API Endpoints]
+
+
+
+
 #set page(
   background: image-background,
   paper :"a4",
@@ -95,7 +103,7 @@
       #set text(size: 11pt, fill: gray)
       *Aiken Multisig Offchain*
       #v(-3mm)
-      How To Use - Milestone 3
+      How To Use - Maestro APIs
       #v(-3mm)
     ]
     #v(-6mm)
@@ -111,10 +119,9 @@
 #set terms(separator:[: ],hanging-indent: 18mm)
 #align(center)[
   #set text(size: 20pt)
-  #strong[How to Use the Aiken Multisig Offchain via Maestro
+  #strong[Using the Aiken Multisig Offchain via Maestro APIs
 ]]
 #v(50pt)
-\
 
 #set heading(numbering: "1.")
 #show heading: set text(rgb("#c41112"))
@@ -122,8 +129,7 @@
 = Introduction
 \
 
-The Aiken Multisig Offchain is designed to manage recurring payments on the Cardano blockchain. It automates subscriber-to-merchant interactions such as service creation, account registration, subscription initiation, extension, cancellation, and fund withdrawals. This guide assists developers in integrating these functions into their applications via Maestro's API endpoints.
-
+The Aiken Upgradable Multisignature (multisig) smart contract is designed to  enables authorized members to execute asset transactions within predefined thresholds on the Cardano Blockchain. It allows for secure spending of assets, seamless adjustment of signer thresholds, and dynamic addition or removal of signers for enduring usability. This guide assists developers in integrating these functions into their applications via Maestro's API endpoints.
 
 \
 *Key features include:*
@@ -139,6 +145,7 @@ The Aiken Multisig Offchain is designed to manage recurring payments on the Card
 #v(50pt)
 
 = Prerequisites
+
 \
 Before you begin, ensure that you have:
 
@@ -154,7 +161,7 @@ Before you begin, ensure that you have:
 
     - Basic familiarity with REST APIs and JSON data formats.
 
-    - Ability to execute curl commands in a terminal/command-line environment.
+    - A command-line environment and ability to execute *cURL* commands in a terminal/command-line environment.
 
 #pagebreak()
 #v(50pt)
@@ -164,6 +171,7 @@ Before you begin, ensure that you have:
 \
 The Upgradable Multi-Signature smart contract is developed using Aiken and includes:
 
+\
   - *Multisig NFT*: A unique non-fungible token representing the state and authority of the multi-sig wallet.
 
   - *Datum*: Stores the list of authorized signers, the approval threshold, spending limits, and other parameters.
@@ -175,16 +183,28 @@ The Upgradable Multi-Signature smart contract is developed using Aiken and inclu
     - Update: To modify the signer list, threshold, and spending limits.
     - EndMultiSig: To terminate the multi-sig arrangement by burning the Multisig NFT and distributing the funds.
 
+\
 The contract validates that operations adhere to the specified threshold of signers and ensures that funds remain secure throughout the process.
 
 #pagebreak()
 #v(50pt)
 
 = MultiSig Operations
-\
-The following sections describe the three primary operations exposed via Maestro’s API endpoints along with example curl commands.
 
 \
+The following sections describe the three primary operations exposed via Maestro’s API endpoints along with example cURL commands.
+
+\
+  To use these operations effectively:
+  
+  - Replace *`${API_KEY}`*, with your Maestro *`API_KEY`* and fill in the required parameters.
+
+  - Remember to enter the correct *NETWORK: preview | preprod | mainnet*
+  - Your addresses should match the chosen Network.
+
+#pagebreak()
+#v(50pt)
+
 == Initiate MultiSig
 \
 This operation sets up a new multi-sig wallet by minting a Multisig NFT and locking funds into the multi-sig validator. The initiator supplies the initial configuration including the list of signers, required threshold, spending limits, and total funds.
@@ -194,21 +214,21 @@ This operation sets up a new multi-sig wallet by minting a Multisig NFT and lock
 
 \
 ```sh
-  POST https://mainnet.gomaestro-api.org/v1/contracts/multisig/initiate
+  POST https://preprod.gomaestro-api.org/v1/contracts/multisig/initiate
 ```
 
 \
 *Required Parameters:*
 
 \
-  - *`initiator_address`*: Address of the entity creating the multi-sig.
+  - *`initiator_address`*: Address of the entity creating the multi-sig. 
 
   - *`signers`*: An array of Cardano addresses that will be authorized to sign transactions.
   - *`threshold`*: Minimum number of signatures required to approve a transaction.
   - *`fund_policy_id`*: Policy ID that governs the fund asset.
   - *`fund_asset_name`*: The asset name for the funds.
-  - *`spending_limit`*: Maximum amount that can be withdrawn in a single transaction.
-  - *`total_funds_qty`*: Total funds quantity to be managed by the multi-sig.
+  - *`spending_limit`*: Maximum amount that can be withdrawn in a single transaction in lovelace.
+  - *`total_funds_qty`*: Total funds quantity to be managed by the multi-sig in lovelace.
 
 #pagebreak()
 
@@ -217,24 +237,29 @@ This operation sets up a new multi-sig wallet by minting a Multisig NFT and lock
 \
 ```sh
 # multisig: initiate
-curl --location 'https://mainnet.gomaestro-api.org/v1/contracts/multisig/initiate' \
+
+curl --location 'https://preprod.gomaestro-api.org/v1/contracts/multisig/initiate' \
 --header 'Content-Type: application/json' \
---header 'api-key ${API_KEY}' \
+--header 'api-key: ${API_KEY}' \
 --data '{
-    "initiator_address": "addr1q9s6m9d8yedfcf53yhq5j5zsg0s58wpzamwexrxpfelgz2wgk0s9l9fqc93tyc8zu4z7hp9dlska2kew9trdg8nscjcq3sk5s3",
-    "signers": [
-        "addr1q9s6m9d8yedfcf53yhq5j5zsg0s58wpzamwexrxpfelgz2wgk0s9l9fqc93tyc8zu4z7hp9dlska2kew9trdg8nscjcq3sk5s3",
-        "addr1qxccwptmx6r523vxcrplvfhtrpdut8s0hht0fyt9f8vy8385chtg2dupkyqu7pgqawju7awrwfg94skstmaves6hwaks6qlgf4"
+    "initiator_address": "addr_test1qztlgzpcm3zutrpx9q0nz77g7869t72m9x0d55n3futfgz0f0c0kdecqklpltcalgxv6vtlyl4v70c03695vefzp9n5s869hg9",
+    "signers_addr": [
+        "addr_test1qztlgzpcm3zutrpx9q0nz77g7869t72m9x0d55n3futfgz0f0c0kdecqklpltcalgxv6vtlyl4v70c03695vefzp9n5s869hg9",
+        "addr_test1qquzvu067d8mn484wgnshhyhhwshd5d72s38crlh0heust4hht26ru2aw4ru37asvyrxwqh5nwl0w0dh8zk0rwhtssdsmgelpk",
+        "addr_test1qzg75chtegez4vrk9yk7rw8gmf6dfkse5raev2mnxlp5f7up2q0y9nyznw89m8t67nl25w4n5j296p92gus007z8wu4qhdl9xk",
+        "addr_test1qpqt3wncn9dzdnk8rungfe7swgpm88h46ap5ajl6t4dlpfzd9rvfsm2ezlzn7j4226hvczxf2nfwx5ausn46n4lqmzsqtygjfe"
     ],
-    "threshold": 2,
-    "fund_policy_id": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec",
-    "fund_asset_name": "54616c6f73",
-    "spending_limit": 5000,
-    "total_funds_qty": 10000
+    "threshold": 3,
+    "fund_policy_id": "",
+    "fund_asset_name": "",
+    "spending_limit": 10,
+    "total_funds_qty": 100
 }'
 ```
 
-\
+#pagebreak()
+#v(50pt)
+
 == Update MultiSig
 
 \
@@ -245,43 +270,49 @@ This operation allows authorized signers to update the multi-sig configuration. 
 
 \
 ```sh
-  POST https://mainnet.gomaestro-api.org/v1/contracts/multisig/update
+  POST https://preprod.gomaestro-api.org/v1/contracts/multisig/update
 ```
-
 \
 *Required Parameters:*
 
-
-  - new_signers: Array of new signer addresses.
-
-  - new_threshold: The updated minimum number of signatures required.
-  - fund_policy_id: The policy ID for the fund asset (same as before).
-  - fund_asset_name: The asset name for the funds.
-  - new_spending_limit: Updated spending limit for transactions.
-
 \
+  - *`initiator_address`*: Address of the entity initiaitng the update of the multi-sig. 
+
+  - *`new_signers:`* Array of new signer addresses.
+
+  - *`new_threshold:`* The updated minimum number of signatures required.
+  - *`fund_policy_id:`* The policy ID for the fund asset (same as before).
+  - *`fund_asset_name:`* The asset name for the funds.
+  - *`new_spending_limit:`* Updated spending limit for transactions.
+
+#pagebreak()
+
 *cURL Example:*
 
 \
 ```sh
 # multisig: update
-curl --location 'https://mainnet.gomaestro-api.org/v1/contracts/multisig/update' \
+
+curl --location 'https://preprod.gomaestro-api.org/v1/contracts/multisig/update' \
 --header 'Content-Type: application/json' \
---header 'api-key ${API_KEY}' \
+--header 'api-key: ${API_KEY}' \
 --data '{
-    "new_signers": [
-        "addr1q9s6m9d8yedfcf53yhq5j5zsg0s58wpzamwexrxpfelgz2wgk0s9l9fqc93tyc8zu4z7hp9dlska2kew9trdg8nscjcq3sk5s3",
-        "addr1qxccwptmx6r523vxcrplvfhtrpdut8s0hht0fyt9f8vy8385chtg2dupkyqu7pgqawju7awrwfg94skstmaves6hwaks6qlgf4",
-        "addr1q8w9s6m9d8yedfcf53yhq5j5zsg0s58wpzamwexrxpfelgz2wgk0s9l9fqc93tyc8zu4z7hp9dlska2kew9trdg8nscjcq3sk5s3"
+    "initiator_address": "addr_test1qztlgzpcm3zutrpx9q0nz77g7869t72m9x0d55n3futfgz0f0c0kdecqklpltcalgxv6vtlyl4v70c03695vefzp9n5s869hg9",
+    "new_signers_addr": [
+        "addr_test1qztlgzpcm3zutrpx9q0nz77g7869t72m9x0d55n3futfgz0f0c0kdecqklpltcalgxv6vtlyl4v70c03695vefzp9n5s869hg9",
+        "addr_test1qquzvu067d8mn484wgnshhyhhwshd5d72s38crlh0heust4hht26ru2aw4ru37asvyrxwqh5nwl0w0dh8zk0rwhtssdsmgelpk",
+        "addr_test1qzg75chtegez4vrk9yk7rw8gmf6dfkse5raev2mnxlp5f7up2q0y9nyznw89m8t67nl25w4n5j296p92gus007z8wu4qhdl9xk"
     ],
-    "new_threshold": 3,
-    "fund_policy_id": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec",
-    "fund_asset_name": "54616c6f73",
+    "new_threshold": 2,
+    "fund_policy_id": "",
+    "fund_asset_name": "",
     "new_spending_limit": 10000
 }'
 ```
 
-\
+#pagebreak()
+#v(50pt)
+
 == End MultiSig
 
 \
@@ -289,7 +320,7 @@ This operation terminates the multi-sig arrangement. It requires that the requir
 
 \
 ```sh
-  POST https://mainnet.gomaestro-api.org/v1/contracts/multisig/end
+  POST https://preprod.gomaestro-api.org/v1/contracts/multisig/end
 ```
 
 \
@@ -304,25 +335,29 @@ This operation terminates the multi-sig arrangement. It requires that the requir
   - *`spending_limit`*: The spending limit as per the current configuration.
   - *`recipient_address`*: Address where the remaining funds should be sent.
 
-\
+#pagebreak()
+
 *cURL Example:*
 
 \
 ```sh
 # multisig: end
-curl --location 'https://mainnet.gomaestro-api.org/v1/contracts/multisig/end' \
+
+curl --location 'https://preprod.gomaestro-api.org/v1/contracts/multisig/end' \
 --header 'Content-Type: application/json' \
---header 'api-key ${API_KEY}' \
+--header 'api-key: ${API_KEY}' \
 --data '{
-    "signers": [
-        "addr1q9s6m9d8yedfcf53yhq5j5zsg0s58wpzamwexrxpfelgz2wgk0s9l9fqc93tyc8zu4z7hp9dlska2kew9trdg8nscjcq3sk5s3",
-        "addr1qxccwptmx6r523vxcrplvfhtrpdut8s0hht0fyt9f8vy8385chtg2dupkyqu7pgqawju7awrwfg94skstmaves6hwaks6qlgf4"
+    "initiator_address": "addr_test1qztlgzpcm3zutrpx9q0nz77g7869t72m9x0d55n3futfgz0f0c0kdecqklpltcalgxv6vtlyl4v70c03695vefzp9n5s869hg9",
+    "signers_addr": [
+        "addr_test1qztlgzpcm3zutrpx9q0nz77g7869t72m9x0d55n3futfgz0f0c0kdecqklpltcalgxv6vtlyl4v70c03695vefzp9n5s869hg9",
+        "addr_test1qquzvu067d8mn484wgnshhyhhwshd5d72s38crlh0heust4hht26ru2aw4ru37asvyrxwqh5nwl0w0dh8zk0rwhtssdsmgelpk",
+        "addr_test1qzg75chtegez4vrk9yk7rw8gmf6dfkse5raev2mnxlp5f7up2q0y9nyznw89m8t67nl25w4n5j296p92gus007z8wu4qhdl9xk"
     ],
-    "threshold": 2,
-    "fund_policy_id": "97bbb7db0baef89caefce61b8107ac74c7a7340166b39d906f174bec",
-    "fund_asset_name": "54616c6f73",
-    "spending_limit": 5000,
-    "recipient_address": "addr1q8w9s6m9d8yedfcf53yhq5j5zsg0s58wpzamwexrxpfelgz2wgk0s9l9fqc93tyc8zu4z7hp9dlska2kew9trdg8nscjcq3sk5s3"
+    "threshold": 3,
+    "fund_policy_id": "",
+    "fund_asset_name": "",
+    "spending_limit": 100,
+    "recipient_address": "addr_test1qzg75chtegez4vrk9yk7rw8gmf6dfkse5raev2mnxlp5f7up2q0y9nyznw89m8t67nl25w4n5j296p92gus007z8wu4qhdl9xk"
 }'
 ```
 
@@ -341,4 +376,14 @@ This guide provides a detailed walkthrough for using the Upgradable Multi-Signat
   - *Terminate* the multi-sig arrangement securely, ensuring proper fund distribution.
 
 \
-Before going live, replace all placeholder values (e.g., *`${API_KEY}`*, wallet addresses) with your actual data and test each command in a development (preprod/ preview) environment. For additional details, please refer to the full #design_docs_link and associated documentation provided by the project.
+Before going live, replace all placeholder values (e.g., *`${API_KEY}`*, wallet addresses) with your actual data and test each command in a development (preprod/ preview) environment. For additional details, please refer to the associated documentation provided by the project.
+
+#v(50pt)
+= Links
+\
+
+- #maestro_api_link
+- #offchain_sdk_link
+
+- #multisig_contract_link
+
