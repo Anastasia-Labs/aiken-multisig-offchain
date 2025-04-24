@@ -1,11 +1,9 @@
 import {
     getUserAddressAndPKH,
-    initiateMultiSig,
     LucidEvolution,
-    MultiSigConfig,
 } from "@anastasia-labs/aiken-multisig-offchain";
 
-export const runInit = async (
+export const runCborSubmit = async (
     lucid: LucidEvolution,
     INITIATOR_SEED: string,
     SIGNER_ONE_SEED: string,
@@ -22,25 +20,17 @@ export const runInit = async (
     const signer3 = await getUserAddressAndPKH(lucid, SIGNER_THREE_SEED);
 
     console.log("initiator.address", initiator.address);
-    console.log("initiator.address", signer1.address);
-    console.log("initiator.address", signer2.address);
-    console.log("initiator.address", signer3.address);
+    console.log("signer1.address", signer1.address);
+    console.log("signer2.address", signer2.address);
+    console.log("signer3.address", signer3.address);
 
-    const initConfig: MultiSigConfig = {
-        signers_addr: [initiator.address, signer1.address, signer2.address],
-        threshold: 3n,
-        fund_policy_id: "", // For ADA, leave empty
-        fund_asset_name: "", // For ADA, leave empty
-        spending_limit: 10_000_000n,
-        total_funds_qty: 100_000_000n,
-    };
-
-    // Initiate multisig
+    // // Submit Endpoint multisig
     try {
         lucid.selectWallet.fromSeed(INITIATOR_SEED);
-        const initTxUnsigned = await initiateMultiSig(lucid, initConfig);
 
-        const cboredTx = initTxUnsigned.toCBOR();
+        const parsedTx = lucid.fromTx("Put your CBOR transaction here");
+
+        const cboredTx = parsedTx.toCBOR();
         const partialSignatures: string[] = [];
 
         for (
@@ -48,6 +38,7 @@ export const runInit = async (
                 INITIATOR_SEED,
                 SIGNER_ONE_SEED,
                 SIGNER_TWO_SEED,
+                SIGNER_THREE_SEED
             ]
         ) {
             lucid.selectWallet.fromSeed(signerSeed);
@@ -58,17 +49,18 @@ export const runInit = async (
             partialSignatures.push(partialSigner);
         }
 
-        const assembleTx = initTxUnsigned.assemble(
+        const assembleTx = parsedTx.assemble(
             partialSignatures,
         );
 
-        const initTxSigned = await assembleTx.complete();
-        const initTxHash = await initTxSigned.submit();
-        console.log(`Submitting ...`);
-        await lucid.awaitTx(initTxHash);
+        const cborTxSigned = await assembleTx.complete();
+        const cborTxHash = await cborTxSigned.submit();
 
-        console.log(`Multisig Contract Initiated Successfully: ${initTxHash}`);
+        console.log(`Submitting ...`);
+        await lucid.awaitTx(cborTxHash);
+
+        console.log(`Multisig Contract Signed and Submitted Successfully: ${cborTxHash}`);
     } catch (error) {
-        console.error("Failed to initiate multisig:", error);
+        console.error("Failed to Sign and Submit Multisig:", error);
     }
 };

@@ -6,6 +6,7 @@ import { Lucid, Maestro } from "@anastasia-labs/aiken-multisig-offchain";
 import { runSign } from "./validate_sign.js";
 import { runUpdate } from "./validate_update.js";
 import { runEnd } from "./end_multi_sig.js";
+import { runCborSubmit } from "./cbor_submit.js";
 
 // Load environment variables
 dotenv.config();
@@ -79,6 +80,15 @@ program
                         SIGNER_TWO_SEED,
                         SIGNER_THREE_SEED,
                         RECIPIENT_SEED,
+                    );
+                    break;
+                case "cbor_submit":
+                    await runCborSubmit(
+                        lucid,
+                        INITIATOR_SEED,
+                        SIGNER_ONE_SEED,
+                        SIGNER_TWO_SEED,
+                        SIGNER_THREE_SEED,
                     );
                     break;
                 default:
